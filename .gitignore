@@ -1,0 +1,72 @@
+/SpeechProcessingService/.vs
+/TaskManager/.vs
+## Основное
+[Bb]in/
+[Oo]bj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+**/packages/
+!**/packages.config
+
+## Результаты сборки для всех проектов
+**/[Bb]in/
+**/[Oo]bj/
+**/[Dd]ebug/
+**/[Dd]ebugPublic/
+**/[Rr]elease/
+**/[Rr]eleases/
+**/x64/
+**/x86/
+**/bld/
+**/[Bb]in/
+**/[Oo]bj/
+
+
+## NuGet
+.nuget/
+**/packages/
+nuget.exe
+*.nupkg
+
+## Тесты
+**/TestResults/
+**/*.trx
+**/*.coverage
+**/coverage.*
+**/.coverage
+
+## Файлы резервных копий
+**/*.bak
+**/*.bk
+**/*~*
+
+## IDE
+.idea/
+_ReSharper.*/
+*.csproj.user
+*.DotSettings.user
+
+## Временные файлы
+**/*.tmp
+**/*.temp
+**/*.log
+
+## Файлы конфигурации (разработка)
+**/appsettings.Development.json
+**/appsettings.local.json
+**/appsettings.*.json
+!**/appsettings.json
+**/*.secret.config
+**/connectionstrings.*.config
+**/secrets.json
+**/launchSettings.json  # для .NET Core
+
+## Docker
+**/.dockerignore
+**/Dockerfile
+**/docker-compose.*.yml
+**/*.dcproj
