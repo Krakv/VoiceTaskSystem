@@ -1,25 +1,31 @@
-using Microsoft.EntityFrameworkCore.Design;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Application.Features.TaskItem.CreateTask;
-using TaskManager.Application.Features.TaskItem.ReadTaskList;
+using Microsoft.EntityFrameworkCore.Design;
 using TaskManager.Application.Services;
 using TaskManager.Application.Services.Interfaces;
 using TaskManager.Config;
 using TaskManager.Infrastructure.Repository;
-using TaskManager.Application.Features.TaskItem.DeleteTask;
+using TaskManager.Middleware;
+using TaskManager.Pipeline;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
 // Add services to the container.
-builder.Services.AddHostedService<TelegramBotService>();
+// builder.Services.AddHostedService<TelegramBotService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
 builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
-builder.Services.AddScoped<CreateTaskHandler>();
-builder.Services.AddScoped<ReadTaskListHandler>();
-builder.Services.AddScoped<DeleteTaskHandler>();
+
+builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -27,6 +33,18 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("TelegramBot"));
 builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
+    options.SingleLine = true;
+});
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -44,6 +62,8 @@ using (var scope = app.Services.CreateScope())
 
     await dbContext.Database.MigrateAsync();
 }
+
+app.UseMiddleware<HttpErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
