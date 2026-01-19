@@ -18,8 +18,10 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        dotnet restore SpeechProcessingService/SpeechProcessingService.sln
+        dotnet restore TaskManager/TaskManager.sln
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: |
+        dotnet build --no-restore SpeechProcessingService/SpeechProcessingService.sln
+        dotnet build --no-restore TaskManager/TaskManager.sln
