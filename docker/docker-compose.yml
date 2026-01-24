@@ -37,13 +37,11 @@ services:
           timeout: 10s
           retries: 3
     postgres:
-        image: postgres:latest
+        image: postgres:17
         environment:
           POSTGRES_DB: tasks
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-        volumes:
-         - postgres_tasks_data:/var/lib/postgresql/data
         ports:
           - "5432:5432"
         healthcheck:
@@ -54,8 +52,6 @@ services:
         networks:
           - backend-network
 
-volumes:
-  postgres_tasks_data:
 
 networks:
   backend-network:
