@@ -2,7 +2,7 @@
 using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Features.TaskItem;
+using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services.Interfaces;
 
 namespace TaskManager.Application.Services;
@@ -10,36 +10,9 @@ namespace TaskManager.Application.Services;
 public class IntentDispatcher() : IIntentDispatcher
 {
 
-    public async Task<IntentResult> DispatchAsync(IntentCommand command)
+    public Task<IntentResult> DispatchAsync(IntentCommand command)
     {
         throw new NotImplementedException();
-
-        //var intent = command.commandParameters["intent"];
-
-        //switch (intent)
-        //{
-        //    case "create_task":
-        //        {
-        //            var crtTaskCmd = new CreateTaskCommand(command.commandParameters, command.chatId);
-        //            var taskItem = await _createTaskHandler.CreateTask(crtTaskCmd);
-        //            return new IntentResult("Создана задача: " + ToReadableString(taskItem));
-        //        }
-        //    case "delete_task":
-        //        {
-        //            var dltTaskCmd = new DeleteTaskCommand(command.commandParameters["name"], command.chatId);
-        //            var isDeleted = await _deleteTaskHandler.DeleteTask(dltTaskCmd);
-        //            return new IntentResult(isDeleted ? "Задача удалена" : "Задача не найдена");
-        //        }
-        //    case "list_tasks":
-        //        {
-        //            var rdTaskCmd = new ReadTaskListCommand(command.chatId);
-        //            var taskItems = await _readTaskListHandler.ReadTaskList(rdTaskCmd);
-        //            return new IntentResult(ToReadableList(taskItems));
-        //        }
-        //    default:
-        //        return new IntentResult("Неизвестная команда");
-        //}
-
     }
 
     public static string ToReadableString(TaskItem task)

@@ -9,5 +9,7 @@ public sealed record UpdateTaskCommand(
     string Description,
     string Status,
     string Priority,
-    string DueDate
-    ) : IRequest<UpdateTaskResponse>;
+    string DueDate,
+    string Tags,
+    string? ParentTaskId
+    ) : IRequest<string>;

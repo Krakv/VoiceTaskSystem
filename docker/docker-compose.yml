@@ -9,10 +9,12 @@ services:
           - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
           - TelegramBot__AuthToken=${TELEGRAM_BOT_TOKEN}
           - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
+          - ASPNETCORE_ENVIRONMENT=Development
+          - JwtSettings__Secret=${JWT_SECRET}
         networks:
           - backend-network
         healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+          test: ["CMD", "curl", "-f", "http://task-manager:8080/health"]
           interval: 30s
           timeout: 10s
           retries: 3
@@ -30,7 +32,7 @@ services:
         networks:
           - backend-network
         healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+          test: ["CMD", "curl", "-f", "http://speech-processing-service:8080/health"]
           interval: 30s
           timeout: 10s
           retries: 3

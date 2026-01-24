@@ -1,18 +1,15 @@
-﻿using TaskManager.Application.Common.DTOs.Responses;
+﻿using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Text.Json;
+using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Exceptions;
+using Telegram.Bot.Types;
 
 namespace TaskManager.Middleware;
 
-public class HttpErrorHandlingMiddleware
+public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpErrorHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<HttpErrorHandlingMiddleware> _logger;
-
-    public HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpErrorHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<HttpErrorHandlingMiddleware> _logger = logger;
 
     public async Task InvokeAsync(HttpContext? context)
     {
@@ -26,21 +23,41 @@ public class HttpErrorHandlingMiddleware
         {
             await _next(context);
 
-            if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+            if (context.Response.StatusCode >= 400 && context.Response.StatusCode < 600)
             {
                 context.Response.ContentType = "application/json";
 
+                var code = context.Response.StatusCode switch
+                {
+                    404 => "NOT_FOUND",
+                    415 => "UNSUPPORTED_MEDIA_TYPE",
+                    401 => "UNAUTHORIZED",
+                    400 => "BAD_REQUEST",
+                    403 => "FORBIDDEN",
+                    409 => "CONFLICT",
+                    202 => "PENDING",
+                    405 => "METHOD_NOT_ALLOWED",
+                    _ => "INTERNAL_SERVER_ERROR"
+                };
+
+                var message = context.Response.StatusCode switch
+                {
+                    404 => "Ресурс не найден",
+                    415 => "Неподдерживаемый тип содержимого",
+                    401 => "Токен доступа истёк или невалиден",
+                    400 => "Неверный запрос",
+                    403 => "Доступ запрещен",
+                    409 => "Конфликт",
+                    202 => "Операция в ожидании",
+                    405 => "Вы обратились к правильному адресу, но использовали неподдерживаемый HTTP-метод",
+                    _ => "Внутренняя ошибка сервера"
+                };
+
                 var errorResponse = new ErrorResponse(
-                    error: new Error
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "Доступ запрещен"
-                    },
+                    error: new Error { Code = code, Message = message },
                     meta: new Meta { RequestId = context.TraceIdentifier }
                 );
 
-                // Сброс текущего потока ответа
-                context.Response.Body.SetLength(0);
                 await context.Response.WriteAsJsonAsync(errorResponse);
             }
         }
@@ -96,4 +113,3 @@ public class HttpErrorHandlingMiddleware
         }
     }
 }
-

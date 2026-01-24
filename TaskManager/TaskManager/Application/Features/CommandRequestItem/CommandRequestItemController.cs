@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Application.Common.DTOs.Responses;
@@ -14,7 +15,8 @@ using InputFile = TaskManager.Application.Features.CommandRequestItem.CreateVoic
 namespace TaskManager.Application.Features.CommandRequestItem;
 
 [ApiController]
-[Route("api/tasks/voice")]
+[Authorize]
+[Route("api/v1/tasks/voice")]
 public class CommandRequestItemController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
@@ -54,7 +56,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(new GetVoiceTaskStatusQuery(commandRequestId));
 
-        return Success<GetVoiceTaskStatusResponse>(response);
+        return Success(response);
     }
 
     [HttpPatch("requests/{commandRequestId}")]
@@ -62,7 +64,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(new UpdateVoiceTaskCommand(commandRequestId, dto.ProjectName, dto.Title, dto.Description, dto.Status, dto.DueDate, dto.Priority));
 
-        return Success<UpdateVoiceTaskResponse>(response);
+        return Success(response);
     }
 
     [HttpPost("requests/{commandRequestId}")]
@@ -74,7 +76,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
             return CreatedResponse<ConfirmVoiceTaskResponse>($"api/tasks/{response.TaskId}", response);
         }
 
-        return Success<ConfirmVoiceTaskResponse>(response);
+        return Success(response);
     }
 
     [HttpDelete("requests/{commandRequestId}")]
@@ -82,7 +84,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(new DeleteVoiceTaskCommand(commandRequestId));
 
-        return Success<DeleteVoiceTaskResponse>(response);
+        return Success(response);
     }
 
     private OkObjectResult Success<T>(T data) where T : class =>

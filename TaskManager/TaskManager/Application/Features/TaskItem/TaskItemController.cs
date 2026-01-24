@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,13 @@ using TaskManager.Application.Features.TaskItem.DTOs;
 using TaskManager.Application.Features.TaskItem.GetTask;
 using TaskManager.Application.Features.TaskItem.GetTasks;
 using TaskManager.Application.Features.TaskItem.UpdateTask;
+using TaskManager.Application.Features.TaskItem.UpdateTaskPatch;
 
 namespace TaskManager.Application.Features.TaskItem;
 
 [ApiController]
-[Route("api/tasks")]
+[Authorize]
+[Route("api/v1/tasks")]
 public class TaskItemController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
@@ -24,7 +27,7 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(command);
 
-        return CreatedResponse<CreateTaskResponse>($"api/tasks/{response.TaskId}", response);
+        return CreatedResponse($"api/tasks/{response}", response);
     }
 
     [HttpGet]
@@ -32,7 +35,7 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(query);
 
-        return Success<GetTasksResponse>(response);
+        return Success(response);
     }
 
     [HttpGet("{taskId}")]
@@ -40,7 +43,7 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(new GetTaskQuery(taskId));
 
-        return Success<GetTaskResponse>(response);
+        return Success(response);
     }
 
     [HttpPut("{taskId}")]
@@ -53,10 +56,30 @@ public class TaskItemController(IMediator mediator) : ControllerBase
             dto.Description,
             dto.Status,
             dto.Priority,
-            dto.DueDate
+            dto.DueDate,
+            dto.Tags,
+            dto.ParentTaskId
             ));
 
-        return Success<UpdateTaskResponse>(response);
+        return Success(response);
+    }
+
+    [HttpPatch("{taskId}")]
+    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskDto dto, string taskId)
+    {
+        var response = await _mediator.Send(new UpdateTaskPatchCommand(
+            taskId,
+            dto.ProjectName,
+            dto.Title,
+            dto.Description,
+            dto.Status,
+            dto.Priority,
+            dto.DueDate,
+            dto.Tags,
+            dto.ParentTaskId
+            ));
+
+        return Success(response);
     }
 
     [HttpDelete("{taskId}")]
@@ -64,7 +87,7 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     {
         var response = await _mediator.Send(new DeleteTaskCommand(taskId));
 
-        return Success<DeleteTaskResponse>(response);
+        return Success(response);
     }
 
     private OkObjectResult Success<T>(T data) where T : class =>

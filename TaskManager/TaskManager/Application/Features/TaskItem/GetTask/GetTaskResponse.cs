@@ -2,11 +2,13 @@
 
 public sealed record GetTaskResponse(
     string Title,
-    string ProjectName,
-    string Description,
+    string? ProjectName,
+    string? Description,
     string Status,
     string Priority,
-    DateTimeOffset DueDate,
+    string? Tags,
+    DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt
+    DateTimeOffset? UpdatedAt,
+    string? ParentTaskId
     );

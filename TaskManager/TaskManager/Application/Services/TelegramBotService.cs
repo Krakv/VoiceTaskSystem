@@ -58,18 +58,20 @@ public class TelegramBotService : BackgroundService, IBotService
                 var request = new CommandRequest(Guid.NewGuid(), messageText!);
 
                 var response = await speechProcessingClient.SendCommand(request); // Отправляем команду на обработку
+                
+                if (response != null)
+                {
+                    var intentResult = await intentDispatcher.DispatchAsync(new IntentCommand(response.Parameters, chatId));
 
-                var intentResult = await intentDispatcher.DispatchAsync(new IntentCommand(response.Parameters, chatId));
-
-                // Пример ответа на сообщение
-                await SendCommand(chatId, intentResult.message, stoppingToken: cancellationToken);
+                    // Пример ответа на сообщение
+                    await SendCommand(chatId, intentResult.message, stoppingToken: cancellationToken);
+                }
             }
 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in UpdateHandler: {ex.Message}");
-
         }
     }
 

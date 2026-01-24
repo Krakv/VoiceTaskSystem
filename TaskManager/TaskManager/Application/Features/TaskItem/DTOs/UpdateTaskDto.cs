@@ -6,5 +6,7 @@ public sealed record UpdateTaskDto(
     string Description,
     string Status,
     string Priority,
-    string DueDate
+    string DueDate,
+    string Tags,
+    string? ParentTaskId
     );

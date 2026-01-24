@@ -1,13 +1,15 @@
 ﻿namespace TaskManager.Application.Features.TaskItem.GetTasks;
 
 public sealed record TaskListElement(
-    string TaskId,
+    Guid TaskId,
     string ProjectName,
     string Title,
     string Description,
     string Status,
     string Priority,
-    DateTimeOffset DueDate,
+    string Tags,
+    DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt
+    DateTimeOffset? UpdatedAt,
+    Guid? ParentTaskId
     );
