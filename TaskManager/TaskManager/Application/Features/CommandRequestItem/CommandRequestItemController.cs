@@ -22,9 +22,10 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     private readonly IMediator _mediator = mediator;
 
     [HttpPost]
-    public async Task<IActionResult> CreateVoiceTask([FromForm] IFormFile audioFile)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> CreateVoiceTask([FromForm] CreateVoiceTaskDto dto)
     {
-        if (audioFile == null)
+        if (dto.AudioFile == null)
         {
             return BadRequest(new ErrorResponse
             (
@@ -37,13 +38,13 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
             ));
         }
 
-        using var stream = audioFile.OpenReadStream();
+        using var stream = dto.AudioFile.OpenReadStream();
 
         var response = await _mediator.Send(new CreateVoiceTaskCommand(
             new InputFile(
-                fileName: audioFile.FileName,
-                contentType: audioFile.ContentType,
-                length: audioFile.Length,
+                fileName: dto.AudioFile.FileName,
+                contentType: dto.AudioFile.ContentType,
+                length: dto.AudioFile.Length,
                 content: stream
             )
         ));

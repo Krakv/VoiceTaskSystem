@@ -76,6 +76,7 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 "ALREADY_CONFIRMED" => StatusCodes.Status409Conflict,
                 "CANCELLED" => StatusCodes.Status409Conflict,
                 "ALREADY_PROCESSED" => StatusCodes.Status409Conflict,
+                "UNAUTHORIZED" => StatusCodes.Status401Unauthorized,
                 _ => StatusCodes.Status500InternalServerError,
             };
 

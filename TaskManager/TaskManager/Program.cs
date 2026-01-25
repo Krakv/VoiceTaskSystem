@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Responses;
@@ -77,7 +79,7 @@ builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSect
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
-var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new ArgumentException("JWT_SECRET �� �������� ��������"));
+var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? throw new ArgumentException("JWT_SECRET не содержит значения"));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -113,13 +115,43 @@ builder.Logging.AddSimpleConsole(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
 
-var app = builder.Build();
+# region Swagger
 
-
-if (app.Environment.IsDevelopment())
+// Swagger
+builder.Services.AddSwaggerGen(c =>
 {
-    app.MapOpenApi();
-}
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Voice Task API",
+        Description = "API для работы с задачами через голосовые команды и ручное управление",
+        Contact = new OpenApiContact { Name = "VTS", Email = "abliten@mail.ru" }
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Введите JWT токен: Bearer {token}"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme { Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "Bearer"} },
+            Array.Empty<string>()
+        }
+    });
+
+    //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    //if (File.Exists(xmlPath))
+    //    c.IncludeXmlComments(xmlPath);
+});
+
+#endregion Swagger
+
+var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -137,5 +169,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Voice Task API V1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 await app.RunAsync();
