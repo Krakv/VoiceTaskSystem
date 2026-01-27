@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -174,11 +175,21 @@ using (var scope = app.Services.CreateScope())
 app.Use(async (context, next) =>
 {
     Log.Information(
-    "Incoming request {Method} {Path}",
-    context.Request.Method,
-    context.Request.Path
-    );
-    await next();
+        "Incoming request {Method} {Path}",
+        context.Request.Method,
+        context.Request.Path
+        );
+
+    var sw = Stopwatch.StartNew();
+    await next(context);
+    sw.Stop();
+
+    Log.Information(
+        "Request {Method} {Path} completed in {ElapsedMs}ms", 
+        context.Request.Method, 
+        context.Request.Path, 
+        sw.ElapsedMilliseconds
+        );
 });
 
 app.UseMiddleware<HttpErrorHandlingMiddleware>();
