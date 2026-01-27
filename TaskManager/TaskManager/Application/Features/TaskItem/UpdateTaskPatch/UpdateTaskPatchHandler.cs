@@ -6,10 +6,11 @@ using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.UpdateTaskPatch;
 
-public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<UpdateTaskPatchCommand, string>
+public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskPatchHandler> logger) : IRequestHandler<UpdateTaskPatchCommand, string>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<UpdateTaskPatchHandler> _logger = logger; 
 
     public async Task<string> Handle(UpdateTaskPatchCommand request, CancellationToken cancellationToken)
     {
@@ -33,6 +34,7 @@ public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser us
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Updated task with id {TaskId}", task.TaskId);
         return task.TaskId.ToString();
     }
 }

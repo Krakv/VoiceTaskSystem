@@ -7,10 +7,11 @@ using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.DeleteTask;
 
-public sealed class DeleteTaskHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<DeleteTaskCommand, string>
+public sealed class DeleteTaskHandler(AppDbContext context, ICurrentUser user, ILogger<DeleteTaskHandler> logger) : IRequestHandler<DeleteTaskCommand, string>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<DeleteTaskHandler> _logger = logger;
 
     public async Task<string> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
@@ -25,6 +26,7 @@ public sealed class DeleteTaskHandler(AppDbContext context, ICurrentUser user) :
         _context.TaskItems.Remove(task);
         await _context.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Deleted task with id {TaskId}", task.TaskId);
         return request.TaskId;
     }
 }

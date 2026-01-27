@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -107,11 +108,21 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Logging.AddSimpleConsole(options =>
+# region Logging
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog((ctx, services, cfg) =>
 {
-    options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
-    options.SingleLine = true;
+    cfg
+    .Enrich.FromLogContext()
+    .Enrich.WithCorrelationId()
+    .WriteTo.Console();
 });
+
+# endregion Logging
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
 
@@ -159,6 +170,16 @@ using (var scope = app.Services.CreateScope())
 
     await dbContext.Database.MigrateAsync();
 }
+
+app.Use(async (context, next) =>
+{
+    Log.Information(
+    "Incoming request {Method} {Path}",
+    context.Request.Method,
+    context.Request.Path
+    );
+    await next();
+});
 
 app.UseMiddleware<HttpErrorHandlingMiddleware>();
 

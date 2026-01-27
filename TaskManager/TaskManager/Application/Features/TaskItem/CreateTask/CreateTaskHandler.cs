@@ -6,10 +6,11 @@ using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.CreateTask;
 
-public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<CreateTaskCommand, string>
+public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user, ILogger<CreateTaskHandler> logger) : IRequestHandler<CreateTaskCommand, string>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<CreateTaskHandler> _logger = logger;
 
     public async Task<string> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
@@ -29,6 +30,7 @@ public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user) :
         await _context.AddAsync(task, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Created task with id {TaskId}", task.TaskId);
         return task.TaskId.ToString();
     }
 }

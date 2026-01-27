@@ -2,7 +2,6 @@
 using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Exceptions;
-using Telegram.Bot.Types;
 
 namespace TaskManager.Middleware;
 
@@ -11,14 +10,8 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
     private readonly RequestDelegate _next = next;
     private readonly ILogger<HttpErrorHandlingMiddleware> _logger = logger;
 
-    public async Task InvokeAsync(HttpContext? context)
+    public async Task InvokeAsync(HttpContext context)
     {
-        if (context == null)
-        {
-            await _next(null!);
-            return;
-        }
-
         try
         {
             await _next(context);
@@ -58,13 +51,12 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                     meta: new Meta { RequestId = context.TraceIdentifier }
                 );
 
+                _logger.LogInformation("Exception with code {StatusCode}", code);
                 await context.Response.WriteAsJsonAsync(errorResponse);
             }
         }
         catch (ValidationAppException ex)
         {
-            _logger.LogInformation(ex, "Validation exception in HTTP request");
-
             var statusCode = ex.ErrorCode switch
             {
                 "INVALID_PARAMS" => StatusCodes.Status400BadRequest,
@@ -93,12 +85,11 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 meta: new Meta { RequestId = context.TraceIdentifier }
             );
 
+            _logger.LogWarning(ex, "Validation exception in HTTP request");
             await context.Response.WriteAsJsonAsync(errorResponse);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception in HTTP request");
-
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Response.ContentType = "application/json";
 
@@ -111,6 +102,7 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 meta: new Meta { RequestId = context.TraceIdentifier }
             );
 
+            _logger.LogError(ex, "Unhandled exception in HTTP request");
             await context.Response.WriteAsJsonAsync(errorResponse);
         }
     }

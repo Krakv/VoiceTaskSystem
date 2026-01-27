@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Globalization;
+using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Application.Features.TaskItem.DeleteTask;
 using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
@@ -7,10 +8,11 @@ using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.UpdateTask;
 
-public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<UpdateTaskCommand, string>
+public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskHandler> logger) : IRequestHandler<UpdateTaskCommand, string>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<UpdateTaskHandler> _logger = logger;
 
     public async Task<string> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {
@@ -34,6 +36,7 @@ public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user) :
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Updated task with id {TaskId}", task.TaskId);
         return task.TaskId.ToString();
     }
 }
