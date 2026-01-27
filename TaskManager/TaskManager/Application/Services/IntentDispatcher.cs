@@ -2,52 +2,17 @@
 using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Features.TaskItem;
-using TaskManager.Application.Features.TaskItem.CreateTask;
-using TaskManager.Application.Features.TaskItem.DeleteTask;
-using TaskManager.Application.Features.TaskItem.ReadTaskList;
+using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services.Interfaces;
 
 namespace TaskManager.Application.Services;
 
-public class IntentDispatcher(
-    CreateTaskHandler createTaskHandler, 
-    ReadTaskListHandler readTaskListHandler,
-    DeleteTaskHandler deleteTaskHandler
-    ) : IIntentDispatcher
+public class IntentDispatcher() : IIntentDispatcher
 {
-    private readonly CreateTaskHandler _createTaskHandler = createTaskHandler;
-    private readonly ReadTaskListHandler _readTaskListHandler = readTaskListHandler;
-    private readonly DeleteTaskHandler _deleteTaskHandler = deleteTaskHandler;
 
-    public async Task<IntentResult> DispatchAsync(IntentCommand command)
+    public Task<IntentResult> DispatchAsync(IntentCommand command)
     {
-        var intent = command.commandParameters["intent"];
-
-        switch (intent)
-        {
-            case "create_task":
-                {
-                    var crtTaskCmd = new CreateTaskCommand(command.commandParameters, command.chatId);
-                    var taskItem = await _createTaskHandler.CreateTask(crtTaskCmd);
-                    return new IntentResult("Создана задача: " + ToReadableString(taskItem));
-                }
-            case "delete_task":
-                {
-                    var dltTaskCmd = new DeleteTaskCommand(command.commandParameters["name"], command.chatId);
-                    var isDeleted = await _deleteTaskHandler.DeleteTask(dltTaskCmd);
-                    return new IntentResult(isDeleted ? "Задача удалена" : "Задача не найдена");
-                }
-            case "list_tasks":
-                {
-                    var rdTaskCmd = new ReadTaskListCommand(command.chatId);
-                    var taskItems = await _readTaskListHandler.ReadTaskList(rdTaskCmd);
-                    return new IntentResult(ToReadableList(taskItems));
-                }
-            default:
-                return new IntentResult("Неизвестная команда");
-        }
-
+        throw new NotImplementedException();
     }
 
     public static string ToReadableString(TaskItem task)

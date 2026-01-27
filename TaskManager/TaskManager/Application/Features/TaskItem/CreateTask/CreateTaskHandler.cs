@@ -1,29 +1,34 @@
-﻿using TaskManager.Infrastructure.Repository;
+﻿using MediatR;
+using System.Globalization;
+using TaskManager.Application.Domain.Entities;
+using TaskManager.Infrastructure.Repository;
+using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.CreateTask;
 
-public class CreateTaskHandler(AppDbContext context)
+public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<CreateTaskCommand, string>
 {
     private readonly AppDbContext _context = context;
+    private readonly ICurrentUser _user = user;
 
-    public async Task<TaskItem> CreateTask(CreateTaskCommand command)
+    public async Task<string> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
-        var dueDate = command.taskParameters.GetValueOrDefault("due_date", "");
-
-        var task = new TaskItem()
+        var task = new TaskManager.Application.Domain.Entities.TaskItem()
         {
-            OwnerId = command.chatId,
-            Title = command.taskParameters.GetValueOrDefault("name", ""),
-            Description = command.taskParameters.GetValueOrDefault("description", ""),
-            ProjectName = command.taskParameters.GetValueOrDefault("project_name", ""),
-            Priority = command.taskParameters.GetValueOrDefault("priority", ""),
-            DueDate = dueDate == "" ? null : DateTimeOffset.Parse(dueDate),
-            Status = "Ожидает выполнения"
+            OwnerId = _user.UserId,
+            ProjectName = request.ProjectName,
+            Title = request.Title,
+            Description = request.Description,
+            Status = request.Status,
+            Priority = request.Priority,
+            Tags = request.Tags,
+            DueDate = string.IsNullOrEmpty(request.DueDate) ? null : DateTimeOffset.Parse(request.DueDate, CultureInfo.InvariantCulture),
+            ParentTaskId = string.IsNullOrEmpty(request.ParentTaskId) ? null : Guid.Parse(request.ParentTaskId)
         };
 
-        await _context.TaskItems.AddAsync(task);
-        await _context.SaveChangesAsync();
+        await _context.AddAsync(task, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return task;
+        return task.TaskId.ToString();
     }
 }

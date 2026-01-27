@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskManager.Application.Features.TaskItem;
+using System.Text.Json;
+using TaskManager.Application.Domain.Entities;
 
 namespace TaskManager.Infrastructure.Repository;
 

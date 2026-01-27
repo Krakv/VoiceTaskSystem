@@ -22,10 +22,10 @@ public class TelegramBotService : BackgroundService, IBotService
         _botClient = new TelegramBotClient(config.Value.AuthToken); // Присваиваем нашей переменной значение, в параметре передаем Token, полученный от BotFather
         _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
         {
-            AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
-            {
+            AllowedUpdates = // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
+            [
                 UpdateType.Message, // Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
-            },
+            ],
             // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
             // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
             DropPendingUpdates = true,
@@ -51,15 +51,16 @@ public class TelegramBotService : BackgroundService, IBotService
                 var messageText = update.Message.Text; // Получаем текст сообщения
                 Console.WriteLine($"Received a message from chat {chatId}: {messageText}");
 
-                using (var scope = _scopeFactory.CreateScope())
+                using var scope = _scopeFactory.CreateScope();
+                var speechProcessingClient = scope.ServiceProvider.GetRequiredService<ISpeechProcessingClient>();
+                var intentDispatcher = scope.ServiceProvider.GetRequiredService<IIntentDispatcher>();
+
+                var request = new CommandRequest(Guid.NewGuid(), messageText!);
+
+                var response = await speechProcessingClient.SendCommand(request); // Отправляем команду на обработку
+                
+                if (response != null)
                 {
-                    var speechProcessingClient = scope.ServiceProvider.GetRequiredService<ISpeechProcessingClient>();
-                    var intentDispatcher = scope.ServiceProvider.GetRequiredService<IIntentDispatcher>();
-
-                    var request = new CommandRequest(Guid.NewGuid(), messageText!);
-
-                    var response = await speechProcessingClient.SendCommand(request); // Отправляем команду на обработку
-
                     var intentResult = await intentDispatcher.DispatchAsync(new IntentCommand(response.Parameters, chatId));
 
                     // Пример ответа на сообщение
@@ -71,7 +72,6 @@ public class TelegramBotService : BackgroundService, IBotService
         catch (Exception ex)
         {
             Console.WriteLine($"Error in UpdateHandler: {ex.Message}");
-
         }
     }
 
