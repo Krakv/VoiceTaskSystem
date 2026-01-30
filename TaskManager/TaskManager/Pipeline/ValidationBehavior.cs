@@ -24,7 +24,7 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
             .Where(f => f != null)
             .ToList();
 
-        if (errors.Any())
+        if (errors.Count != 0)
         {
             bool allInvalidParams = errors.All(f => f.ErrorCode == "INVALID_PARAMS" || string.IsNullOrEmpty(f.ErrorCode));
 

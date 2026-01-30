@@ -1,24 +1,16 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
+using Serilog.Filters;
 using System.Diagnostics;
-using System.Net;
-using System.Reflection;
 using System.Text;
-using System.Text.Json;
-using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
 using TaskManager.Application.Services.Interfaces;
@@ -111,16 +103,22 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 # region Logging
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
 
 builder.Host.UseSerilog((ctx, services, cfg) =>
 {
     cfg
-    .Enrich.FromLogContext()
-    .Enrich.WithCorrelationId()
-    .WriteTo.Console();
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+        .Enrich.FromLogContext()
+        .Enrich.WithCorrelationId()
+        .Filter.ByExcluding(Matching.WithProperty<string>(
+            "RequestPath", p => p.StartsWith("/metrics")
+        ))
+        .WriteTo.Console();
 });
 
 # endregion Logging
@@ -194,13 +192,17 @@ app.Use(async (context, next) =>
 
 app.UseMiddleware<HttpErrorHandlingMiddleware>();
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseHttpMetrics();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics();
 
 if (app.Environment.IsDevelopment())
 {
