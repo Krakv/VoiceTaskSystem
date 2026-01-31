@@ -1,22 +1,16 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Net;
-using System.Reflection;
+using Prometheus;
+using Serilog;
+using Serilog.Filters;
+using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
-using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
 using TaskManager.Application.Services.Interfaces;
@@ -107,11 +101,34 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Logging.AddSimpleConsole(options =>
+# region Logging
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
+
+var elasticUri = builder.Configuration["ELASTIC_URI"] ?? "";
+
+builder.Host.UseSerilog((ctx, services, cfg) =>
 {
-    options.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
-    options.SingleLine = true;
+    cfg
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+        .Enrich.FromLogContext()
+        .Enrich.WithCorrelationId()
+        .Filter.ByExcluding(Matching.WithProperty<string>(
+            "RequestPath", p => p.StartsWith("/metrics")
+        ))
+        .WriteTo.Console()
+        .WriteTo.Elasticsearch(new Serilog.Sinks.Elasticsearch.ElasticsearchSinkOptions(new Uri(elasticUri))
+        {
+            AutoRegisterTemplate = true,
+            IndexFormat = "taskmanager-logs-{0:yyyy.MM.dd}"
+        });
 });
+
+# endregion Logging
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Scoped);
 
@@ -160,15 +177,39 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
 }
 
+app.Use(async (context, next) =>
+{
+    Log.Information(
+        "Incoming request {Method} {Path}",
+        context.Request.Method,
+        context.Request.Path
+        );
+
+    var sw = Stopwatch.StartNew();
+    await next(context);
+    sw.Stop();
+
+    Log.Information(
+        "Request {Method} {Path} completed in {ElapsedMs}ms", 
+        context.Request.Method, 
+        context.Request.Path, 
+        sw.ElapsedMilliseconds
+        );
+});
+
 app.UseMiddleware<HttpErrorHandlingMiddleware>();
+
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseHttpMetrics();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics();
 
 if (app.Environment.IsDevelopment())
 {

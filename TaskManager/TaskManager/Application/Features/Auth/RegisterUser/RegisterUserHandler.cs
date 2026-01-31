@@ -5,9 +5,10 @@ using TaskManager.Exceptions;
 
 namespace TaskManager.Application.Features.Auth.RegisterUser;
 
-public class RegisterUserHandler(UserManager<User> userManager) : IRequestHandler<RegisterUserCommand, Guid>
+public class RegisterUserHandler(UserManager<User> userManager, ILogger<RegisterUserHandler> logger) : IRequestHandler<RegisterUserCommand, Guid>
 {
     private readonly UserManager<User> _userManager = userManager;
+    private readonly ILogger<RegisterUserHandler> _logger = logger;
 
     public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
@@ -30,6 +31,7 @@ public class RegisterUserHandler(UserManager<User> userManager) : IRequestHandle
             throw new ValidationAppException("REGISTRATION_FAILED", errors);
         }
 
+        _logger.LogInformation("User registered with id {UserId}", user.Id);
         return user.Id;
     }
 }

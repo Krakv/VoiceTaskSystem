@@ -1,15 +1,18 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
-using System.Linq.Dynamic.Core;
-using Microsoft.EntityFrameworkCore;
 
 namespace TaskManager.Application.Features.TaskItem.GetTasks;
 
-public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<GetTasksQuery, GetTasksResponse>
+public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILogger<GetTasksHandler> logger) : IRequestHandler<GetTasksQuery, GetTasksResponse>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<GetTasksHandler> _logger = logger;
 
     public async Task<GetTasksResponse> Handle(GetTasksQuery request, CancellationToken cancellationToken)
     {
@@ -44,6 +47,7 @@ public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user) : I
                 item.CreatedAt, item.UpdatedAt, item.ParentTaskId
             )).ToListAsync(cancellationToken);
 
+        _logger.LogDebug("Task list has been requested");
         return new GetTasksResponse(tasks, pagination);
     }
 }

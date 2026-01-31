@@ -11,10 +11,11 @@ using TaskManager.Exceptions;
 
 namespace TaskManager.Application.Features.Auth.Login;
 
-public class LoginHandler(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager) : IRequestHandler<LoginCommand, string>
+public class LoginHandler(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager, ILogger<LoginHandler> logger) : IRequestHandler<LoginCommand, string>
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly UserManager<User> _userManager = userManager;
+    private readonly ILogger<LoginHandler> _logger = logger;
 
     public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
@@ -50,6 +51,7 @@ public class LoginHandler(IOptions<JwtSettings> jwtSettings, UserManager<User> u
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwtToken = tokenHandler.WriteToken(token);
 
+        _logger.LogInformation("User logged in with id {UserId}", user.Id);
         return jwtToken;
     }
 }

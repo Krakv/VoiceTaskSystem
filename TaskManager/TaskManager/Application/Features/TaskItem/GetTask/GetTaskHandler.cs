@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Application.Features.TaskItem.DeleteTask;
 using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
@@ -7,10 +8,11 @@ using TaskManager.Middleware;
 
 namespace TaskManager.Application.Features.TaskItem.GetTask;
 
-public sealed class GetTaskHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<GetTaskQuery, GetTaskResponse>
+public sealed class GetTaskHandler(AppDbContext context, ICurrentUser user, ILogger<GetTaskHandler> logger) : IRequestHandler<GetTaskQuery, GetTaskResponse>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
+    private readonly ILogger<GetTaskHandler> _logger = logger;
 
     public async Task<GetTaskResponse> Handle(GetTaskQuery request, CancellationToken cancellationToken)
     {
@@ -22,6 +24,7 @@ public sealed class GetTaskHandler(AppDbContext context, ICurrentUser user) : IR
             throw new ValidationAppException("FORBIDDEN", "Нет доступа");
         }
 
-        return new GetTaskResponse(task.Title, task.ProjectName, task.Description, task.Status, task.ProjectName, task.Tags, task.DueDate, task.CreatedAt, task.UpdatedAt, task.ParentTaskId.ToString());
+        _logger.LogDebug("Task with id {TaskId} has been requested", task.TaskId);
+        return new GetTaskResponse(task.Title, task.ProjectName, task.Description, task.Status, task.Priority, task.Tags, task.DueDate, task.CreatedAt, task.UpdatedAt, task.ParentTaskId?.ToString());
     }
 }
