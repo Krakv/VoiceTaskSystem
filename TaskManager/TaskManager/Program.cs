@@ -106,6 +106,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
+var elasticUri = builder.Configuration["ELASTIC_URI"] ?? "";
+
 builder.Host.UseSerilog((ctx, services, cfg) =>
 {
     cfg
@@ -118,7 +120,12 @@ builder.Host.UseSerilog((ctx, services, cfg) =>
         .Filter.ByExcluding(Matching.WithProperty<string>(
             "RequestPath", p => p.StartsWith("/metrics")
         ))
-        .WriteTo.Console();
+        .WriteTo.Console()
+        .WriteTo.Elasticsearch(new Serilog.Sinks.Elasticsearch.ElasticsearchSinkOptions(new Uri(elasticUri))
+        {
+            AutoRegisterTemplate = true,
+            IndexFormat = "taskmanager-logs-{0:yyyy.MM.dd}"
+        });
 });
 
 # endregion Logging
