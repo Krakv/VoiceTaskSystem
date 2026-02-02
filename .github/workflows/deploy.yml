@@ -17,4 +17,4 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             git pull
-            docker compose --profile dev up -d --build
+            docker compose --profile prod up -d --build

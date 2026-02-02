@@ -61,6 +61,7 @@ services:
           - backend-network
         profiles:
           - dev
+          - prod
     graphana:
         image: grafana/grafana:12.3.1-security-01-ubuntu
         ports:
@@ -73,6 +74,7 @@ services:
           - backend-network
         profiles:
           - dev
+          - prod
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:9.2.4
         container_name: elasticsearch
@@ -86,6 +88,14 @@ services:
           - backend-network
         profiles:
           - dev
+          - prod
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.5"
+                    memory: 1g
+                reservations:
+                    memory: 512M
     kibana:
         image: docker.elastic.co/kibana/kibana:9.2.4
         container_name: kibana
