@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, api-gateway ]
+    branches: [ main, dev, api-gateway ]
   pull_request:
-    branches: [ main, api-gateway ]
+    branches: [ main ]
 
 jobs:
   build:
