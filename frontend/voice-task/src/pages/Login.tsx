@@ -9,8 +9,10 @@ import {
 } from "@chakra-ui/react";
 import type { LoginFormData } from "../types/auth";
 import {authApi} from "@/api/auth.api.ts";
+import {useAuthStore} from "@/stores/authStore.ts";
 
 const Login = () => {
+    const setAuthData = useAuthStore((state) => state.setAuthData);
     const [form, setForm] = useState<LoginFormData>({
         username: "",
         password: "",
@@ -40,9 +42,10 @@ const Login = () => {
                 return;
             }
 
-            localStorage.setItem("access_token", token);
+            setAuthData({ accessToken: token });
             alert("Успешный вход!");
-        } catch {
+        } catch (error) {
+            console.log(error);
             setError("Сетевая ошибка");
         } finally {
             setLoading(false);

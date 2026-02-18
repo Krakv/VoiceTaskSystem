@@ -1,9 +1,8 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import type { AuthResponse } from '@/types/auth';
 
 type AuthStoreState = {
-    id: number | null;
     isAuth: boolean;
     accessToken: string | null;
 };
@@ -16,25 +15,29 @@ type AuthStoreActions = {
 type AuthStore = AuthStoreState & AuthStoreActions;
 
 export const useAuthStore = create<AuthStore>()(
-    devtools((set) => ({
-        isAuth: false,
-        accessToken: null,
-
-        setAuthData: (authData: AuthResponse) => {
-            const { accessToken } = authData;
-            localStorage.setItem('access_token', authData.accessToken);
-            set({
-                isAuth: true,
-                accessToken,
-            });
-        },
-
-        logout: () => {
-            localStorage.removeItem('access_token');
-            set({
+    devtools(
+        persist(
+            (set) => ({
                 isAuth: false,
                 accessToken: null,
-            });
-        },
-    }))
+
+                setAuthData: (authData: AuthResponse) => {
+                    set({
+                        isAuth: true,
+                        accessToken: authData.accessToken,
+                    });
+                },
+
+                logout: () => {
+                    set({
+                        isAuth: false,
+                        accessToken: null,
+                    });
+                },
+            }),
+            {
+                name: "auth-storage", // ключ в localStorage
+            }
+        )
+    )
 );

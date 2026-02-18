@@ -8,8 +8,18 @@ const Header = () => {
     const location = useLocation();
 
     return (
-        <header className="bg-background border-b fixed top-0 left-0 w-full z-50">
+        <header className="bg-background border-b">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                <div className="flex items-center space-x-6">
+                    <nav className="hidden md:flex space-x-4">
+                        <Button
+                            asChild
+                            variant={location.pathname === '/main' ? 'solid' : 'ghost'}
+                        >
+                            <Link to="/main">Список задач</Link>
+                        </Button>
+                    </nav>
+                </div>
 
                 <div className="flex items-center space-x-4">
                     {isAuth ? (
