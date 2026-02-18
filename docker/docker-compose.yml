@@ -49,6 +49,17 @@ services:
             retries: 5
         networks:
           - backend-network
+    frontend:
+        build:
+          context: ../frontend/voice-task
+          dockerfile: Dockerfile
+        ports:
+          - '3005:80'
+        depends_on:
+          - task-manager
+        networks:
+          - backend-network
+        
     prometheus:
         image: prom/prometheus:v3.9.1
         volumes:
