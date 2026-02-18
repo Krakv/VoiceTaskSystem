@@ -54,7 +54,7 @@ services:
           context: ../frontend/voice-task
           dockerfile: Dockerfile
         ports:
-          - '80:80'
+          - '3005:80'
         depends_on:
           - task-manager
         networks:
