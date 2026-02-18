@@ -1,7 +1,7 @@
-import {TaskList} from "@/components/TaskList.tsx";
+import {TaskManager} from "@/components/TaskManager.tsx";
 
 export const MainPage = () => {
     return (
-        <TaskList/>
+        <TaskManager/>
     )
 }

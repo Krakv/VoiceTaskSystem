@@ -12,12 +12,20 @@ const Header = () => {
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <div className="flex items-center space-x-6">
                     <nav className="hidden md:flex space-x-4">
-                        <Button
-                            asChild
-                            variant={location.pathname === '/main' ? 'solid' : 'ghost'}
-                        >
-                            <Link to="/main">Список задач</Link>
-                        </Button>
+                        {isAuth && (
+                            <>
+                                <Button
+                                    variant={location.pathname === '/main' ? 'solid' : 'outline'}
+                                >
+                                    <Link to="/main">Список задач</Link>
+                                </Button>
+                                <Button
+                                    variant={location.pathname === '/create' ? 'solid' : 'outline'}
+                                >
+                                    <Link to="/create">Создать задачу</Link>
+                                </Button>
+                            </>
+                        )}
                     </nav>
                 </div>
 
@@ -41,7 +49,7 @@ const Header = () => {
                             <Button
                                 asChild
                                 variant={
-                                    location.pathname === '/register' ? 'solid' : 'ghost'
+                                    location.pathname === '/register' ? 'solid' : 'outline'
                                 }
                             >
                                 <Link to="/register">Зарегистрироваться</Link>

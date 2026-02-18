@@ -2,6 +2,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { Route, Routes } from 'react-router-dom';
 import { privateRoutes, publicRoutes } from '@/router';
 import { Layout } from './Layout';
+import {DefaultPage} from "@/pages/DefaultPage.tsx";
 
 const AppRouter = () => {
     const isAuth = useAuthStore((state) => state.isAuth);
@@ -24,6 +25,7 @@ const AppRouter = () => {
                             element={<route.component />}
                         />
                     ))}
+                <Route path="*" element={<DefaultPage />} />
             </Route>
         </Routes>
     );
