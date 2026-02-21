@@ -36,9 +36,11 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
 builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
+builder.Services.AddHostedService<TelegramBotService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
+builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp =>
     sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 

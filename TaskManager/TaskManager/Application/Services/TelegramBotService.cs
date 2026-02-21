@@ -1,11 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
-using System.Threading;
-using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Services.Interfaces;
 using TaskManager.Config;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using static Telegram.Bot.TelegramBotClient;
 
@@ -54,18 +51,9 @@ public class TelegramBotService : BackgroundService, IBotService
                 using var scope = _scopeFactory.CreateScope();
                 var speechProcessingClient = scope.ServiceProvider.GetRequiredService<ISpeechProcessingClient>();
                 var intentDispatcher = scope.ServiceProvider.GetRequiredService<IIntentDispatcher>();
-
-                var request = new CommandRequest(Guid.NewGuid(), messageText!);
-
-                var response = await speechProcessingClient.SendCommand(request); // Отправляем команду на обработку
                 
-                if (response != null)
-                {
-                    var intentResult = await intentDispatcher.DispatchAsync(new IntentCommand(response.Parameters, chatId));
-
-                    // Пример ответа на сообщение
-                    await SendCommand(chatId, intentResult.message, stoppingToken: cancellationToken);
-                }
+                // Пример ответа на сообщение
+                await SendCommand(chatId, "Message Recieved", stoppingToken: cancellationToken);
             }
 
         }
