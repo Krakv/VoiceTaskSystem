@@ -49,8 +49,6 @@ public class TelegramBotService : BackgroundService, IBotService
                 Console.WriteLine($"Received a message from chat {chatId}: {messageText}");
 
                 using var scope = _scopeFactory.CreateScope();
-                var speechProcessingClient = scope.ServiceProvider.GetRequiredService<ISpeechProcessingClient>();
-                var intentDispatcher = scope.ServiceProvider.GetRequiredService<IIntentDispatcher>();
                 
                 // Пример ответа на сообщение
                 await SendCommand(chatId, "Message Recieved", stoppingToken: cancellationToken);
