@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
@@ -18,6 +19,7 @@ using TaskManager.Config;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
 using TaskManager.Pipeline;
+using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,10 +35,17 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 #region Services
 
+builder.Services.AddSingleton<ITelegramBotClient>(sp =>
+{
+    var config = sp.GetRequiredService<IOptions<TelegramBotConfig>>().Value;
+    return new TelegramBotClient(config.AuthToken);
+});
+builder.Services.AddHostedService<TelegramBotService>();
+builder.Services.AddSingleton<IBotService, TelegramBotAdapter>();
+
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
 builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
-builder.Services.AddHostedService<TelegramBotService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
