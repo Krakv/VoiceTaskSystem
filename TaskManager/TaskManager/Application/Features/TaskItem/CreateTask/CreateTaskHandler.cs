@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Globalization;
+using TaskManager.Application.Domain.Builders;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
@@ -14,18 +15,16 @@ public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user, I
 
     public async Task<string> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = new TaskManager.Application.Domain.Entities.TaskItem()
-        {
-            OwnerId = _user.UserId,
-            ProjectName = request.ProjectName,
-            Title = request.Title,
-            Description = request.Description,
-            Status = request.Status,
-            Priority = request.Priority,
-            Tags = request.Tags,
-            DueDate = string.IsNullOrEmpty(request.DueDate) ? null : DateTimeOffset.Parse(request.DueDate, CultureInfo.InvariantCulture),
-            ParentTaskId = string.IsNullOrEmpty(request.ParentTaskId) ? null : Guid.Parse(request.ParentTaskId)
-        };
+        var task = new TaskItemBuilder(_user.UserId)
+            .SetProject(request.ProjectName)
+            .SetTitle(request.Title)
+            .SetDescription(request.Description)
+            .SetStatus(request.Status)
+            .SetPriority(request.Priority)
+            .SetTags(request.Tags)
+            .SetDueDate(request.DueDate)
+            .SetParent(request.ParentTaskId)
+            .Build();
 
         await _context.AddAsync(task, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
