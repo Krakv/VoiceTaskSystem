@@ -1,8 +1,7 @@
 name: Build and Test
 
 on:
-  push:
-    branches: [ main, dev, api-gateway ]
+  workflow_dispatch:
   pull_request:
     branches: [ main ]
 
