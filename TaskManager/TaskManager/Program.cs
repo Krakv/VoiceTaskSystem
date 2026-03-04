@@ -30,6 +30,7 @@ builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 #endregion MediatR
@@ -42,7 +43,12 @@ builder.Services.AddSingleton<ITelegramBotClient>(sp =>
     return new TelegramBotClient(config.AuthToken);
 });
 builder.Services.AddHostedService<TelegramBotService>();
-builder.Services.AddSingleton<IBotService, TelegramBotAdapter>();
+builder.Services.AddSingleton<TelegramBotAdapter>();
+builder.Services.AddSingleton<IBotService>(sp =>
+    new RetryBotService(
+        sp.GetRequiredService<TelegramBotAdapter>(),
+        sp.GetRequiredService<ILogger<RetryBotService>>()
+    ));
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
