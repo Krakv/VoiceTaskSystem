@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Text;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
+using TaskManager.Application.Services.Factories;
 using TaskManager.Application.Services.Interfaces;
 using TaskManager.Config;
 using TaskManager.Infrastructure.Repository;
@@ -46,7 +47,14 @@ builder.Services.AddSingleton<IBotService, TelegramBotAdapter>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
 builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
-builder.Services.AddScoped<IEmailService, FakeEmailService>();
+
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddSingleton<EmailServiceFactory, FakeEmailServiceFactory>();
+else
+    builder.Services.AddSingleton<EmailServiceFactory, SmtpEmailServiceFactory>();
+
+builder.Services.AddSingleton<IEmailService>(sp =>
+    sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
