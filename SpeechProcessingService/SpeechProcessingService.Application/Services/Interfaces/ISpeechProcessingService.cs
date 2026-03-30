@@ -1,6 +1,6 @@
 ﻿using SpeechProcessingService.Application.DTOs.Responses;
 
-namespace SpeechProcessingService.Application.Services.Services.Interfaces;
+namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface ISpeechProcessingService
 {

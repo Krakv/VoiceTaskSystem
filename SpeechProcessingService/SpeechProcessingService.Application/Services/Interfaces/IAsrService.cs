@@ -1,4 +1,4 @@
-﻿namespace SpeechProcessingService.Application.Services.Services.Interfaces;
+﻿namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface IAsrService
 {
