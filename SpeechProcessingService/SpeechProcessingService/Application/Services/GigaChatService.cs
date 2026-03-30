@@ -35,12 +35,12 @@ public class GigaChatService : IGenAIService
         await _auth.UpdateToken();
 
         //request / отправка промпта. Чтобы исключить историю переписки - необходимо в методе указать false для аргумента UseHistory (по умолчанию UseHistory = true)
-        var result = await completion.SendRequest(_auth.LastResponse.GigaChatAuthorizationResponse?.AccessToken, prompt, useHistory: false);
+        var result = await completion.SendRequest(_auth.LastResponse.GigaChatAuthorizationResponse?.AccessToken!, prompt, useHistory: false);
 
         if (result.RequestSuccessed)
         {
-            Console.WriteLine(result.GigaChatCompletionResponse.Choices.LastOrDefault().Message.Content);
-            return result.GigaChatCompletionResponse.Choices.LastOrDefault().Message.Content;
+            Console.WriteLine(result.GigaChatCompletionResponse!.Choices.LastOrDefault()!.Message.Content);
+            return result.GigaChatCompletionResponse.Choices.LastOrDefault()!.Message.Content;
         }
 
         Console.WriteLine(result.ErrorTextIfFailed);

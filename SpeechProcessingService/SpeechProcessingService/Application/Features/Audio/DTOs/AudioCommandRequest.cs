@@ -2,5 +2,5 @@
 
 public class AudioCommandRequest
 {
-    public IFormFile AudioFile { get; set; }
+    public IFormFile AudioFile { get; set; } = null!;
 }

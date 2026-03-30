@@ -9,6 +9,8 @@ public class ProcessAudioCommandHandler(ISpeechProcessingService speechProcessin
 
     public async Task<ProcessAudioResponse> Handle(ProcessAudioCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await _speechProcessingService.ProcessCommandAsync(request.AudioFile);
+
+        return new ProcessAudioResponse(result.CommandId, result.Parameters);
     }
 }

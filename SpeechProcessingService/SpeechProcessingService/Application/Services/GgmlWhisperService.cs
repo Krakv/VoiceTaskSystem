@@ -8,7 +8,7 @@ namespace SpeechProcessingService.Application.Services;
 
 public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory httpClientFactory) : IAsrService
 {
-    private WhisperFactory _factory = WhisperFactory.FromPath(model.Value.Path);
+    private readonly WhisperFactory _factory = WhisperFactory.FromPath(model.Value.Path);
     private readonly WhisperGgmlDownloader _downloader = new(httpClientFactory.CreateClient());
     private readonly string _modelPath = model.Value.Path;
 
@@ -29,7 +29,7 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
     {
         await EnsureModelDownloadedAsync();
 
-        var tempPath = Path.GetTempFileName() + ".wav";
+        var tempPath = Path.GetRandomFileName() + ".wav";
 
         try
         {

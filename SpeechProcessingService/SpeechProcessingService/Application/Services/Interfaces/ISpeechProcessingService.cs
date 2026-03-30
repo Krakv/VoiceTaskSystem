@@ -4,5 +4,5 @@ namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface ISpeechProcessingService
 {
-    Task<CommandResponse> ProcessCommandAsync(string command);
+    Task<CommandResponse> ProcessCommandAsync(IFormFile audioFile);
 }

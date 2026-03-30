@@ -3,5 +3,5 @@ namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface IEntityExtractionService
 {
-    Dictionary<string, string> ExtractEntities(string command, string intent);
+    Task<Dictionary<string, string>> ExtractEntitiesAsync(string command, string intent);
 }

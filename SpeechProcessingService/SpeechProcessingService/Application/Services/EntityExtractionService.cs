@@ -6,7 +6,7 @@ public class EntityExtractionService(IGenAIService genService) : IEntityExtracti
 {
     private readonly IGenAIService _genService = genService;
 
-    public Dictionary<string, string> ExtractEntities(string command, string intent)
+    public Task<Dictionary<string, string>> ExtractEntitiesAsync(string command, string intent)
     {
         var prompt = $"""
             Необходимо выделить в предложении следующие сущности (Если они есть):
@@ -24,7 +24,7 @@ public class EntityExtractionService(IGenAIService genService) : IEntityExtracti
             Вот сообщение, которое надо разробрать на сущности: "{command}"
             """;
 
-        return HandleAnswer(prompt);
+        return Task.FromResult(HandleAnswer(prompt));
     }
 
     public Dictionary<string, string> HandleAnswer(string prompt)
