@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpeechProcessingService.Application.Features.Text.ClassifyIntent;
 using SpeechProcessingService.Application.Features.Text.ExtractEntities;
 
-namespace SpeechProcessingService.Application.Features.Text;
+namespace SpeechProcessingService.API.Controllers;
 
 [Route("api/text/[controller]")]
 [ApiController]

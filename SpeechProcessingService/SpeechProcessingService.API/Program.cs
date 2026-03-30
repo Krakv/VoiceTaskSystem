@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
 using Microsoft.ML.Tokenizers;
+using SpeechProcessingService.API.Config;
 using SpeechProcessingService.Application.Services;
 using SpeechProcessingService.Application.Services.Interfaces;
-using SpeechProcessingService.Config;
 using Whisper.net.Ggml;
 
 var builder = WebApplication.CreateBuilder(args);

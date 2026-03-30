@@ -4,7 +4,7 @@ using SpeechProcessingService.Config;
 using Whisper.net;
 using Whisper.net.Ggml;
 
-namespace SpeechProcessingService.Application.Services;
+namespace SpeechProcessingService.Infrastructure.Services;
 
 public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory httpClientFactory) : IAsrService
 {

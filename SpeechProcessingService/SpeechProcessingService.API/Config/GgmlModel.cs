@@ -1,4 +1,4 @@
-﻿namespace SpeechProcessingService.Config;
+﻿namespace SpeechProcessingService.API.Config;
 
 public class GgmlModel
 {

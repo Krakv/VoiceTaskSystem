@@ -5,7 +5,7 @@ using Microsoft.ML.Tokenizers;
 using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Config;
 
-namespace SpeechProcessingService.Application.Services;
+namespace SpeechProcessingService.Infrastructure.Services;
 
 /// <summary>
 /// Сервис для классификации намерений пользователя по текстовой команде.

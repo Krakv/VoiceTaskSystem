@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpeechProcessingService.Application.Features.Audio.ProcessAudio;
 using SpeechProcessingService.Application.Features.Audio.RecognizeSpeech;
 
-namespace SpeechProcessingService.Application.Features.Audio;
+namespace SpeechProcessingService.API.Controllers;
 
 [Route("api/speech/[controller]")]
 [ApiController]

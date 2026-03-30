@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SpeechProcessingService.Application.Services.Interfaces;
+using SpeechProcessingService.Application.Services.Services.Interfaces;
 
 namespace SpeechProcessingService.Application.Features.Text.ClassifyIntent;
 

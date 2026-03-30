@@ -1,7 +1,7 @@
 ﻿using SpeechProcessingService.Application.DTOs.Responses;
-using SpeechProcessingService.Application.Services.Interfaces;
+using SpeechProcessingService.Application.Services.Services.Interfaces;
 
-namespace SpeechProcessingService.Application.Services;
+namespace SpeechProcessingService.Application.Services.Services;
 
 public class SpeechProcessingService(
     IIntentClassificationService intentClassifier, 

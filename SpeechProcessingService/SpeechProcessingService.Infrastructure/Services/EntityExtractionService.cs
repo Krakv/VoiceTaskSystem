@@ -1,6 +1,6 @@
 ﻿using SpeechProcessingService.Application.Services.Interfaces;
 
-namespace SpeechProcessingService.Application.Services;
+namespace SpeechProcessingService.Infrastructure.Services;
 
 public class EntityExtractionService(IGenAIService genService) : IEntityExtractionService
 {

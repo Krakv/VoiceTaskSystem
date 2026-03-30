@@ -1,5 +1,4 @@
-﻿
-namespace SpeechProcessingService.Application.Services.Interfaces;
+﻿namespace SpeechProcessingService.Application.Services.Services.Interfaces;
 
 public interface IEntityExtractionService
 {
