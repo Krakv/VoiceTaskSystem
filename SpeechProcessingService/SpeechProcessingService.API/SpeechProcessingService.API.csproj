@@ -24,10 +24,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Domain\" />
-    <Folder Include="Application\DTOs\Requests\" />
-    <Folder Include="Application\Features\Text\DTOs\" />
-    <Folder Include="Application\Services\SpeechProcessing\" />
     <Folder Include="Controllers\" />
   </ItemGroup>
 

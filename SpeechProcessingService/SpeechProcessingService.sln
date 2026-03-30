@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36127.28 d17.14
+VisualStudioVersion = 17.14.36915.13 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechProcessingService", "SpeechProcessingService\SpeechProcessingService.csproj", "{81B5B745-95DC-41F8-9F60-19E0A3708809}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechProcessingService.Application", "SpeechProcessingService.Application\SpeechProcessingService.Application.csproj", "{18C6418B-2707-49D1-AE35-E9AFA3D0D554}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechProcessingService.Infrastructure", "SpeechProcessingService.Infrastructure\SpeechProcessingService.Infrastructure.csproj", "{0B0B9C7F-9687-4732-91F3-1CF7E0A666BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechProcessingService.API", "SpeechProcessingService.API\SpeechProcessingService.API.csproj", "{2E90069F-358A-2371-D676-4AF6A301180E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{81B5B745-95DC-41F8-9F60-19E0A3708809}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81B5B745-95DC-41F8-9F60-19E0A3708809}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81B5B745-95DC-41F8-9F60-19E0A3708809}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81B5B745-95DC-41F8-9F60-19E0A3708809}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18C6418B-2707-49D1-AE35-E9AFA3D0D554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18C6418B-2707-49D1-AE35-E9AFA3D0D554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18C6418B-2707-49D1-AE35-E9AFA3D0D554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18C6418B-2707-49D1-AE35-E9AFA3D0D554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0B9C7F-9687-4732-91F3-1CF7E0A666BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0B9C7F-9687-4732-91F3-1CF7E0A666BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0B9C7F-9687-4732-91F3-1CF7E0A666BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0B9C7F-9687-4732-91F3-1CF7E0A666BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E90069F-358A-2371-D676-4AF6A301180E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E90069F-358A-2371-D676-4AF6A301180E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E90069F-358A-2371-D676-4AF6A301180E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E90069F-358A-2371-D676-4AF6A301180E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
