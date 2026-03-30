@@ -70,3 +70,7 @@ docker/.env
 /.test
 /SpeechProcessingService/SpeechProcessingService/Models
 TaskManager/TaskManager/schema.sql
+/PythonMLModels/IntentClassifier/model
+/PythonMLModels/IntentClassifier/logs
+/PythonMLModels/IntentClassifier/results
+PythonMLModels/IntentClassifier/model.onnx.data
