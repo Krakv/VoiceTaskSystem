@@ -69,3 +69,4 @@ _ReSharper.*/
 docker/.env
 /.test
 /SpeechProcessingService/SpeechProcessingService/Models
+TaskManager/TaskManager/schema.sql

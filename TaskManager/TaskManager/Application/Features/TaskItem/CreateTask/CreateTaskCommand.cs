@@ -9,6 +9,5 @@ public sealed record CreateTaskCommand(
     string Status,
     string Priority,
     string DueDate,
-    string Tags,
     string ParentTaskId
     ) : IRequest<string>;

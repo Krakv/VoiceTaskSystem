@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using TaskManager.Application.Domain.Entities;
-
+using TaskManager.Application.Domain.Entities.Enum;
 namespace TaskManager.Application.Domain.Builders;
 
 public class TaskItemBuilder
@@ -17,7 +17,7 @@ public class TaskItemBuilder
             TaskId = Guid.NewGuid(),
             OwnerId = ownerId,
             CreatedAt = DateTimeOffset.UtcNow,
-            Status = "Pending"
+            Status = TaskItemStatus.New
         };
     }
 
@@ -31,7 +31,6 @@ public class TaskItemBuilder
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title is required");
-
         _task.Title = title;
         return this;
     }
@@ -44,41 +43,35 @@ public class TaskItemBuilder
 
     public TaskItemBuilder SetStatus(string? status)
     {
-        if (!string.IsNullOrWhiteSpace(status))
-            _task.Status = status;
-
+        if (!string.IsNullOrWhiteSpace(status) &&
+            Enum.TryParse<TaskItemStatus>(status, ignoreCase: true, out var parsed))
+        {
+            _task.Status = parsed;
+        }
         return this;
     }
 
     public TaskItemBuilder SetPriority(string? priority)
     {
-        _task.Priority = priority ?? string.Empty;
-        return this;
-    }
-
-    public TaskItemBuilder SetTags(string? tags)
-    {
-        _task.Tags = tags ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(priority) &&
+            Enum.TryParse<TaskItemPriority>(priority, ignoreCase: true, out var parsed))
+        {
+            _task.Priority = parsed;
+        }
         return this;
     }
 
     public TaskItemBuilder SetDueDate(string? dueDate)
     {
         if (!string.IsNullOrWhiteSpace(dueDate))
-        {
             _task.DueDate = DateTimeOffset.Parse(dueDate, CultureInfo.InvariantCulture);
-        }
-
         return this;
     }
 
     public TaskItemBuilder SetParent(string? parentTaskId)
     {
         if (!string.IsNullOrWhiteSpace(parentTaskId))
-        {
             _task.ParentTaskId = Guid.Parse(parentTaskId);
-        }
-
         return this;
     }
 

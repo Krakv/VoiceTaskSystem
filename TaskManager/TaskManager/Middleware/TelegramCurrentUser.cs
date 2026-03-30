@@ -1,17 +1,14 @@
 ﻿namespace TaskManager.Middleware;
 
-public sealed class TelegramCurrentUser : ICurrentUser
+public sealed class TelegramCurrentUser(ITelegramContextAccessor telegramAccessor) : ICurrentUser
 {
-    private readonly ITelegramContextAccessor _telegramAccessor;
-    public TelegramCurrentUser(ITelegramContextAccessor telegramAccessor) => _telegramAccessor = telegramAccessor;
+    private readonly ITelegramContextAccessor _telegramAccessor = telegramAccessor;
+
     public Guid UserId
     {
         get
         {
-            var update = _telegramAccessor.Update;
-
-            if (update == null)
-                throw new InvalidOperationException("Telegram update is null");
+            var update = _telegramAccessor.Update ?? throw new InvalidOperationException("Telegram update is null");
 
             // проверяем Message
             if (update.Message?.From != null)

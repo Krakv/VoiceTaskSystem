@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace TaskManager.Application.Domain.Entities;
 
 [Table("User")]
 public class User : IdentityUser<Guid>
 {
-    public required string Name { get; set; }
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public ICollection<CommandRequestItem> CommandRequests { get; set; } = [];
-
     public ICollection<TaskItem> Tasks { get; set; } = [];
+    public ICollection<CommandRequestItem> CommandRequests { get; set; } = [];
+    public ICollection<ExternalCalendarAccount> ExternalCalendarAccounts { get; set; } = [];
 }

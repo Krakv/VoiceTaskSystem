@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using TaskManager.Application.Domain.Entities.Enum;
 namespace TaskManager.Application.Domain.Entities;
 
 [Table("Notification")]
@@ -9,18 +11,24 @@ public class NotificationItem
     [Key]
     public Guid NotificationId { get; set; } = Guid.NewGuid();
 
-    public required Guid TaskId { get; set; }
+    public Guid TaskId { get; set; }
     [ForeignKey(nameof(TaskId))]
-    public required TaskItem Task { get; set; }
+    public TaskItem Task { get; set; } = null!;
 
-    public required Guid ServiceId { get; set; }
+    public int ServiceId { get; set; }
     [ForeignKey(nameof(ServiceId))]
-    public required ServiceItem Service { get; set; }
+    public ServiceItem Service { get; set; } = null!;
 
+    [MaxLength(255)]
     public string Description { get; set; } = string.Empty;
-    public required DateTimeOffset ScheduledAt { get; set; }
-    public DateTimeOffset? SentAt { get; set;}
-    public string Status { get; set; } = "Pending";
+
+    [Required]
+    public DateTimeOffset ScheduledAt { get; set; }
+
+    public DateTimeOffset? SentAt { get; set; }
+
+    [Required]
+    public NotificationStatus Status { get; set; } = NotificationStatus.Pending;
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

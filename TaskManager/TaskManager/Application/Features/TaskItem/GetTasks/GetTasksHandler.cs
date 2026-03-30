@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
@@ -22,8 +23,10 @@ public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILo
             .Where(x => x.OwnerId == userId)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(request.Status)) query = query.Where(x => x.Status == request.Status);
-        if (!string.IsNullOrEmpty(request.Priority)) query = query.Where(x => x.Priority == request.Priority);
+        if (!string.IsNullOrEmpty(request.Status) 
+            && Enum.TryParse<TaskItemStatus>(request.Status, ignoreCase: true, out var statusParsed)) query = query.Where(x => x.Status == statusParsed);
+        if (!string.IsNullOrEmpty(request.Priority) 
+            && Enum.TryParse<TaskItemPriority>(request.Priority, ignoreCase: true, out var priorityParsed)) query = query.Where(x => x.Priority == priorityParsed);
 
         var sortColumn = string.IsNullOrEmpty(request.SortBy) ? "DueDate" : request.SortBy;
         var sortOrder = request.SordOrder == "DESC" ? " descending" : "";
@@ -43,7 +46,7 @@ public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILo
 
         var tasks = await query.Select(item => new TaskListElement(
                 item.TaskId, item.ProjectName, item.Title, item.Description,
-                item.Status, item.Priority, item.Tags, item.DueDate,
+                item.Status, item.Priority, item.DueDate,
                 item.CreatedAt, item.UpdatedAt, item.ParentTaskId
             )).ToListAsync(cancellationToken);
 

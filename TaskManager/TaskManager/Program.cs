@@ -12,6 +12,7 @@ using Serilog;
 using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json.Serialization;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
 using TaskManager.Application.Services.Factories;
@@ -67,11 +68,15 @@ builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp =>
     sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 
+builder.Services.AddDataProtection();
 #endregion Services
 
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ContentTypeValidationFilter>();
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>

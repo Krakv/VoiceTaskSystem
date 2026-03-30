@@ -7,19 +7,19 @@ public class RetryBotService(IBotService inner, ILogger<RetryBotService> logger)
     private const int MaxRetries = 3;
     private readonly ILogger<RetryBotService> _logger = logger;
 
-    public async Task SendCommand(long chatId, string command, CancellationToken ct)
+    public async Task SendCommand(long chatId, string command, CancellationToken stoppingToken)
     {
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
             try
             {
-                await inner.SendCommand(chatId, command, ct);
+                await inner.SendCommand(chatId, command, stoppingToken);
                 return;
             }
             catch (Exception ex) when (attempt < MaxRetries)
             {
-                _logger.LogWarning("Attempt {Attempt} failed: {Error}. Retrying...", attempt, ex.Message);
-                await Task.Delay(500 * attempt, ct);
+                _logger.LogWarning(ex, "Attempt {Attempt} failed: {Error}. Retrying...", attempt, ex.Message);
+                await Task.Delay(500 * attempt, stoppingToken);
             }
         }
     }

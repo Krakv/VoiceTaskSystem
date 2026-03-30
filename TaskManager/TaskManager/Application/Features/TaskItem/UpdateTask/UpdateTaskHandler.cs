@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Globalization;
+using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Application.Features.TaskItem.DeleteTask;
 using TaskManager.Exceptions;
@@ -27,10 +28,9 @@ public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user, I
         task.ProjectName = request.ProjectName;
         task.Title = request.Title;
         task.Description = request.Description;
-        task.Status = request.Status;
-        task.Priority = request.Priority;
+        task.Status = Enum.Parse<TaskItemStatus>(request.Status, ignoreCase: true);
+        task.Priority = Enum.Parse<TaskItemPriority>(request.Priority, ignoreCase: true);
         task.DueDate = string.IsNullOrEmpty(request.DueDate) ? null : DateTimeOffset.Parse(request.DueDate, CultureInfo.InvariantCulture);
-        task.Tags = request.Tags;
         task.ParentTaskId = string.IsNullOrEmpty(request.ParentTaskId) ? null : Guid.Parse(request.ParentTaskId);
         task.UpdatedAt = DateTimeOffset.UtcNow;
 
