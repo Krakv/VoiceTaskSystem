@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
 
-builder.Services.Configure<GgmlModel>(builder.Configuration.GetSection("OnnxModel"));
+builder.Services.Configure<GgmlModel>(builder.Configuration.GetSection("GgmlModel"));
 
 builder.Configuration.AddEnvironmentVariables();
 
