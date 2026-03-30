@@ -4,5 +4,5 @@ namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface ISpeechProcessingService
 {
-    CommandResponse ProcessCommand(string command);
+    Task<CommandResponse> ProcessCommandAsync(string command);
 }

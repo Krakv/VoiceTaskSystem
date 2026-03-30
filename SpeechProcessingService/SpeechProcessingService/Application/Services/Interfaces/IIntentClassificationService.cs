@@ -2,5 +2,5 @@
 
 public interface IIntentClassificationService
 {
-    string ClassifyIntent(string commandText);
+    Task<string> ClassifyIntentAsync(string commandText);
 }

@@ -8,16 +8,11 @@ public class SpeechProcessingService(IIntentClassificationService intentClassifi
     private readonly IIntentClassificationService _intentClassifier = intentClassifier;
     private readonly IEntityExtractionService _entityExtractor = entityExtractor;
 
-    public CommandResponse ProcessCommand(string command)
+    public async Task<CommandResponse> ProcessCommandAsync(string command)
     {
-        var intent = _intentClassifier.ClassifyIntent(command);
+        var intent = await _intentClassifier.ClassifyIntentAsync(command);
 
         Dictionary<string, string> parameters = new();
-
-        if (intent == "create_task" || intent == "delete_task")
-        {
-            parameters = _entityExtractor.ExtractEntities(command, intent);
-        }
 
         parameters.Add("intent", intent);
 

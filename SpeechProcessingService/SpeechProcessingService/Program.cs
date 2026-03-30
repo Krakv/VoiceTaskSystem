@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using Microsoft.ML.Tokenizers;
 using SpeechProcessingService.Application.Services;
 using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Config;
@@ -5,11 +7,15 @@ using Whisper.net.Ggml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
+#region Configuration
 
+builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
 builder.Services.Configure<GgmlModel>(builder.Configuration.GetSection("GgmlModel"));
+builder.Services.Configure<IntentOnnxModel>(builder.Configuration.GetSection("IntentOnnxModel"));
 
 builder.Configuration.AddEnvironmentVariables();
+
+#endregion Configuration
 
 #region MediatR
 
@@ -24,6 +30,16 @@ builder.Services.AddScoped<IIntentClassificationService, IntentClassificationSer
 builder.Services.AddScoped<IEntityExtractionService, EntityExtractionService>();
 builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
+
+#region ML-tools
+
+builder.Services.AddSingleton(provider =>
+{
+    var model = provider.GetRequiredService<IOptions<IntentOnnxModel>>().Value;
+    return BertTokenizer.Create(vocabFilePath: model.VocabPath);
+});
+
+#endregion ML-tools
 
 builder.Services.AddControllers();
 
