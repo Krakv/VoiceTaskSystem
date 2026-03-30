@@ -13,6 +13,11 @@ COPY ${GIGACHAT_ROOT_PATH} /usr/local/share/ca-certificates/root.crt
 COPY ${GIGACHAT_SUB_PATH} /usr/local/share/ca-certificates/sub.crt
 RUN update-ca-certificates
 
+RUN apt-get update && apt-get install -y \
+    libgomp1 \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080

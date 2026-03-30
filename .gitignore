@@ -67,3 +67,5 @@ _ReSharper.*/
 
 ## Docker
 docker/.env
+/.test
+/SpeechProcessingService/SpeechProcessingService/Models

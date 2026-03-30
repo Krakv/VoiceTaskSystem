@@ -1,4 +1,4 @@
-﻿namespace SpeechProcessingService.Application.DTOs.Requests;
+﻿namespace SpeechProcessingService.Application.Features.Audio.DTOs;
 
 public record CommandRequest(
     Guid CommandId,

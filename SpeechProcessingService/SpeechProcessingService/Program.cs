@@ -1,10 +1,24 @@
-using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Application.Services;
+using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Config;
+using Whisper.net.Ggml;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
+
+builder.Services.Configure<GgmlModel>(builder.Configuration.GetSection("OnnxModel"));
+
 builder.Configuration.AddEnvironmentVariables();
+
+#region MediatR
+
+builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+#endregion MediatR
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IAsrService, GgmlWhisperService>();
 
 builder.Services.AddScoped<IIntentClassificationService, IntentClassificationService>();
 builder.Services.AddScoped<IEntityExtractionService, EntityExtractionService>();
@@ -12,17 +26,21 @@ builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.App
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
-builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var asrService = scope.ServiceProvider.GetRequiredService<IAsrService>() as GgmlWhisperService;
+    await asrService!.EnsureModelDownloadedAsync();
+}
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -31,4 +49,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
