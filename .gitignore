@@ -74,3 +74,4 @@ TaskManager/TaskManager/schema.sql
 /PythonMLModels/IntentClassifier/logs
 /PythonMLModels/IntentClassifier/results
 PythonMLModels/IntentClassifier/model.onnx.data
+/SpeechProcessingService/SpeechProcessingService.API/Models
