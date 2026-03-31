@@ -1,6 +1,6 @@
-﻿using TaskManager.Application.Services.Interfaces;
+﻿using TaskManager.Notifications.Application.Services.Interfaces;
 
-namespace TaskManager.Application.Services.Factories;
+namespace TaskManager.Notifications.Application.Services.Factories;
 
 public class FakeEmailServiceFactory(ILogger<FakeEmailService> logger) : EmailServiceFactory
 {

@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
 
-namespace TaskManager.Application.Features.TaskItem.GetTasks;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
 
 public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILogger<GetTasksHandler> logger) : IRequestHandler<GetTasksQuery, GetTasksResponse>
 {

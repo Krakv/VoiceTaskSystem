@@ -13,13 +13,13 @@ using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
+using TaskManager.ApiGateway.Middleware;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
 using TaskManager.Application.Services.Factories;
 using TaskManager.Application.Services.Interfaces;
 using TaskManager.Config;
 using TaskManager.Infrastructure.Repository;
-using TaskManager.Middleware;
 using TaskManager.Pipeline;
 using Telegram.Bot;
 

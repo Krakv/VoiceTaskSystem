@@ -3,9 +3,9 @@ using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Application.Domain.Entities;
-using TaskManager.Application.Services.Interfaces;
+using TaskManager.Notifications.Application.Services.Interfaces;
 
-namespace TaskManager.Application.Services;
+namespace TaskManager.Notifications.Application.Services;
 
 public class IntentDispatcher() : IIntentDispatcher
 {

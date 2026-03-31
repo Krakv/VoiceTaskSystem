@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Config;
+﻿namespace TaskManager.Auth.Config;
 
 public class JwtSettings
 {

@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
+﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
 
 public sealed record GetVoiceTaskStatusResponse(
     VoiceIntent Intent,

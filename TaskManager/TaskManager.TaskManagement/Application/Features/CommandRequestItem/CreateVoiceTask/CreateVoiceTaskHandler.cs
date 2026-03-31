@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask;
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask;
 
 public sealed class CreateVoiceTaskHandler : IRequestHandler<CreateVoiceTaskCommand, CreateVoiceTaskResponse>
 {

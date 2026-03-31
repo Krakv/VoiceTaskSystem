@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using TaskManager.Application.Domain.Entities;
-using TaskManager.Application.Features.Events;
 using TaskManager.Application.Services.Interfaces;
+using TaskManager.TaskManagement.Application.Features.Events;
 
-namespace TaskManager.Application.Features.EventHandlers;
+namespace TaskManager.TaskManagement.Application.Features.EventHandlers;
 
 public class TaskCreatedEmailHandler(ILogger<BaseEventHandler<TaskCreatedEvent>> logger, IEmailService emailService, UserManager<User> userManager) : BaseEventHandler<TaskCreatedEvent>(logger)
 {

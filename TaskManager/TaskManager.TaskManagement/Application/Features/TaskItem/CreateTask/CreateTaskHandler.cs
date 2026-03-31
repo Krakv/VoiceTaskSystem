@@ -6,7 +6,7 @@ using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
 using TaskManager.Application.Features.Events;
 
-namespace TaskManager.Application.Features.TaskItem.CreateTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
 
 public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user, ILogger<CreateTaskHandler> logger, IMediator mediator) : IRequestHandler<CreateTaskCommand, string>
 {

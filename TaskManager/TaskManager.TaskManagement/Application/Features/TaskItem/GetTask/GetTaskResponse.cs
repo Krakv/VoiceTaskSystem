@@ -1,6 +1,6 @@
-﻿using TaskManager.Application.Domain.Entities.Enum;
+﻿using TaskManager.TaskManagement.Domain.Entities.Enum;
 
-namespace TaskManager.Application.Features.TaskItem.GetTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
 
 public sealed record GetTaskResponse(
     string Title,

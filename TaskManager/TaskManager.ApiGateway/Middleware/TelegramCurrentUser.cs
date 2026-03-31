@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Middleware;
+﻿namespace TaskManager.ApiGateway.Middleware;
 
 public sealed class TelegramCurrentUser(ITelegramContextAccessor telegramAccessor) : ICurrentUser
 {

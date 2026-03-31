@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.Events;
+namespace TaskManager.TaskManagement.Application.Features.Events;
 
 public sealed class TaskCreatedEvent(Guid TaskId, Guid OwnerId, string? Title) : BaseEvent
 {

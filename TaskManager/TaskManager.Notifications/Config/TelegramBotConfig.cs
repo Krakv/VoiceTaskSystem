@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Config;
+﻿namespace TaskManager.Notifications.Config;
 
 public class TelegramBotConfig
 {

@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Config;
+﻿namespace TaskManager.TaskManagement.Config;
 
 public class SpeechProcessingConfig
 {

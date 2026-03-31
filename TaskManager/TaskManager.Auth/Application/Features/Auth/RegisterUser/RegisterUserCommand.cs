@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Features.Auth.RegisterUser;
+﻿namespace TaskManager.Auth.Application.Features.Auth.RegisterUser;
 
 using MediatR;
 

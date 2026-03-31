@@ -1,5 +1,5 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.CommandRequestItem.ConfirmVoiceTask;
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.ConfirmVoiceTask;
 
 public sealed record ConfirmVoiceTaskCommand(string CommandRequestId) : IRequest<ConfirmVoiceTaskResponse>;

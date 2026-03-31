@@ -13,7 +13,7 @@ using TaskManager.Application.Features.TaskItem.GetTasks;
 using TaskManager.Application.Features.TaskItem.UpdateTask;
 using TaskManager.Application.Features.TaskItem.UpdateTaskPatch;
 
-namespace TaskManager.Application.Features.TaskItem;
+namespace TaskManager.ApiGateway.Controllers;
 
 [ApiController]
 [Authorize]

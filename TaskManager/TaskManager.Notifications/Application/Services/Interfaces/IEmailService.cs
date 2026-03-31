@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Services.Interfaces;
+﻿namespace TaskManager.Notifications.Application.Services.Interfaces;
 
 public interface IEmailService
 {

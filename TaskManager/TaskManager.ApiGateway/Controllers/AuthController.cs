@@ -4,7 +4,7 @@ using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Application.Features.Auth.Login;
 using TaskManager.Application.Features.Auth.RegisterUser;
 
-namespace TaskManager.Application.Features.Auth;
+namespace TaskManager.ApiGateway.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]

@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Common.DTOs.Requests;
+﻿namespace TaskManager.ApiGateway.DTOs.Requests;
 
 public record CommandRequest(
     Guid CommandId,

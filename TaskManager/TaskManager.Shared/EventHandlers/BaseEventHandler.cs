@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using TaskManager.Application.Features.Events;
+using TaskManager.Shared.Events;
 
-namespace TaskManager.Application.Features.EventHandlers;
+namespace TaskManager.Shared.EventHandlers;
 
 public abstract class BaseEventHandler<TEvent>(ILogger<BaseEventHandler<TEvent>> logger) : INotificationHandler<TEvent> where TEvent : BaseEvent
 {

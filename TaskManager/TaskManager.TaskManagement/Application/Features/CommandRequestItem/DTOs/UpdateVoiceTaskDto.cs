@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Features.CommandRequestItem.DTOs;
+﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.DTOs;
 
 public sealed record UpdateVoiceTaskDto(
     string? ProjectName,

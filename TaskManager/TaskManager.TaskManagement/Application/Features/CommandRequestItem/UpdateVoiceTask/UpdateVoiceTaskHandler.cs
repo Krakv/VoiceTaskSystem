@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.CommandRequestItem.UpdateVoiceTask;
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.UpdateVoiceTask;
 
 public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskCommand, UpdateVoiceTaskResponse>
 {

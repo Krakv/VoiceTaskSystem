@@ -1,7 +1,7 @@
-﻿using TaskManager.Application.Services.Interfaces;
+﻿using TaskManager.Notifications.Application.Services.Interfaces;
 using Telegram.Bot;
 
-namespace TaskManager.Application.Services;
+namespace TaskManager.Notifications.Application.Services;
 
 public class TelegramBotAdapter(ITelegramBotClient botClient, ILogger<TelegramBotAdapter> logger) : IBotService
 {

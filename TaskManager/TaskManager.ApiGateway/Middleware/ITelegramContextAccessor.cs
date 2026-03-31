@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Middleware;
+﻿namespace TaskManager.ApiGateway.Middleware;
 
 public interface ITelegramContextAccessor
 {

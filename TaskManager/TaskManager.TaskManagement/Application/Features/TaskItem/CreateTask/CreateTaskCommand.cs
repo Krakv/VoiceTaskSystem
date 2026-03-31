@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.TaskItem.CreateTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
 
 public sealed record CreateTaskCommand(
     string ProjectName,

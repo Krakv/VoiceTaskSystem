@@ -2,8 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using TaskManager.Application.Domain.Entities.Enum;
-namespace TaskManager.Application.Domain.Entities;
+using TaskManager.RulesEngine.Domain.Entities.Enum;
+namespace TaskManager.RulesEngine.Domain.Entities;
 
 [Table("Rule")]
 public class RuleItem

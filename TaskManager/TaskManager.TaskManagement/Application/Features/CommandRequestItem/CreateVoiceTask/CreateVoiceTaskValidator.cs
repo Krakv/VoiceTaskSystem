@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask;
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask;
 
 public sealed class CreateVoiceTaskValidator : AbstractValidator<CreateVoiceTaskCommand>
 {

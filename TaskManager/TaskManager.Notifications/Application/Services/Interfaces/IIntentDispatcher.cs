@@ -2,7 +2,7 @@
 using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Common.DTOs.Responses;
 
-namespace TaskManager.Application.Services.Interfaces;
+namespace TaskManager.Notifications.Application.Services.Interfaces;
 
 public interface IIntentDispatcher
 {

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.CommandRequestItem.DeleteVoiceTask;
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestItem.DeleteVoiceTask;
 
 public sealed class DeleteVoiceTaskHandler : IRequestHandler<DeleteVoiceTaskCommand, DeleteVoiceTaskResponse>
 {

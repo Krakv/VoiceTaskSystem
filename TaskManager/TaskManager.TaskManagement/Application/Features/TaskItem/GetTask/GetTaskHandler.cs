@@ -6,7 +6,7 @@ using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
 
-namespace TaskManager.Application.Features.TaskItem.GetTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
 
 public sealed class GetTaskHandler(AppDbContext context, ICurrentUser user, ILogger<GetTaskHandler> logger) : IRequestHandler<GetTaskQuery, GetTaskResponse>
 {

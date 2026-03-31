@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Net.Mail;
-using TaskManager.Application.Services.Interfaces;
+using TaskManager.Notifications.Application.Services.Interfaces;
 
-namespace TaskManager.Application.Services;
+namespace TaskManager.Notifications.Application.Services;
 
 public class SmtpEmailService : IEmailService
 {

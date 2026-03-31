@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.Events;
+namespace TaskManager.Shared.Events;
 
 public abstract class BaseEvent : INotification
 {

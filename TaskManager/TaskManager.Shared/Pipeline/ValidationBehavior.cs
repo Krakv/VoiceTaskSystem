@@ -2,7 +2,7 @@
 using MediatR;
 using TaskManager.Exceptions;
 
-namespace TaskManager.Pipeline;
+namespace TaskManager.Shared.Pipeline;
 
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskManager.Application.Features.Auth.DTOs;
+namespace TaskManager.Auth.Application.Features.Auth.DTOs;
 
 public class RegisterUserDto
 {

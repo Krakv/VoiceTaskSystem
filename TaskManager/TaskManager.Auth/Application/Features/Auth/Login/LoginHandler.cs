@@ -5,11 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TaskManager.Application.Domain.Entities;
-using TaskManager.Config;
+using TaskManager.Auth.Config;
+using TaskManager.Auth.Domain.Entities;
 using TaskManager.Exceptions;
 
-namespace TaskManager.Application.Features.Auth.Login;
+namespace TaskManager.Auth.Application.Features.Auth.Login;
 
 public class LoginHandler(IOptions<JwtSettings> jwtSettings, UserManager<User> userManager, ILogger<LoginHandler> logger) : IRequestHandler<LoginCommand, string>
 {

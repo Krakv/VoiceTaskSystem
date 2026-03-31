@@ -3,7 +3,7 @@ using System.Text.Json;
 using TaskManager.Application.Common.DTOs.Responses;
 using TaskManager.Exceptions;
 
-namespace TaskManager.Middleware;
+namespace TaskManager.ApiGateway.Middleware;
 
 public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpErrorHandlingMiddleware> logger)
 {

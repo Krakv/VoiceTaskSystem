@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-namespace TaskManager.Application.Domain.Entities;
+namespace TaskManager.Calendar.Domain.Entities;
 
 [Table("ExternalCalendarAccount")]
 public class ExternalCalendarAccount

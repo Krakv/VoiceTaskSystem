@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-namespace TaskManager.Application.Domain.Entities;
+namespace TaskManager.Notifications.Domain.Entities;
 
 [Table("Service")]
 public class ServiceItem

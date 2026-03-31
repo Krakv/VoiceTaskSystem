@@ -1,6 +1,6 @@
-﻿using TaskManager.Application.Domain.Entities.Enum;
+﻿using TaskManager.TaskManagement.Domain.Entities.Enum;
 
-namespace TaskManager.Application.Features.TaskItem.GetTasks;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
 
 public sealed record TaskListElement(
     Guid TaskId,

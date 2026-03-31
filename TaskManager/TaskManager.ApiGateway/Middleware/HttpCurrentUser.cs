@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace TaskManager.Middleware;
+namespace TaskManager.ApiGateway.Middleware;
 
 public sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 {

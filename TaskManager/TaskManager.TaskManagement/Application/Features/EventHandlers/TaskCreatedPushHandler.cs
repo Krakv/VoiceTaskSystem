@@ -1,6 +1,6 @@
-﻿using TaskManager.Application.Features.Events;
+﻿using TaskManager.TaskManagement.Application.Features.Events;
 
-namespace TaskManager.Application.Features.EventHandlers;
+namespace TaskManager.TaskManagement.Application.Features.EventHandlers;
 
 public class TaskCreatedPushHandler(ILogger<TaskCreatedPushHandler> logger) : BaseEventHandler<TaskCreatedEvent>(logger)
 {

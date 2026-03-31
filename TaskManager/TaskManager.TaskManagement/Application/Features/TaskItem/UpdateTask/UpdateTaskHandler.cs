@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using System.Globalization;
-using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Application.Features.TaskItem.CreateTask;
 using TaskManager.Application.Features.TaskItem.DeleteTask;
 using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
 
-namespace TaskManager.Application.Features.TaskItem.UpdateTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTask;
 
 public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskHandler> logger) : IRequestHandler<UpdateTaskCommand, string>
 {

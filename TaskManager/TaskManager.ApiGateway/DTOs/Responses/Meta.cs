@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Common.DTOs.Responses;
+﻿namespace TaskManager.ApiGateway.DTOs.Responses;
 
 public class Meta
 {

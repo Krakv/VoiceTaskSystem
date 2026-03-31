@@ -5,7 +5,7 @@ using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
 
-namespace TaskManager.Application.Features.TaskItem.DeleteTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.DeleteTask;
 
 public sealed class DeleteTaskHandler(AppDbContext context, ICurrentUser user, ILogger<DeleteTaskHandler> logger) : IRequestHandler<DeleteTaskCommand, string>
 {

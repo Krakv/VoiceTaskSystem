@@ -12,7 +12,7 @@ using TaskManager.Application.Features.CommandRequestItem.UpdateVoiceTask;
 using Telegram.Bot.Types;
 using InputFile = TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask.InputFile;
 
-namespace TaskManager.Application.Features.CommandRequestItem;
+namespace TaskManager.ApiGateway.Controllers;
 
 [ApiController]
 [Authorize]

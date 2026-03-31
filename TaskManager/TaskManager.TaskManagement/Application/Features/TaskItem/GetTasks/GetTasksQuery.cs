@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.TaskItem.GetTasks;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
 
 public sealed record GetTasksQuery(
     string? Status,

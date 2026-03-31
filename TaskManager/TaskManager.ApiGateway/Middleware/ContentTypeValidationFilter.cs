@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using TaskManager.Exceptions;
 
-namespace TaskManager.Middleware;
+namespace TaskManager.ApiGateway.Middleware;
 
 public class ContentTypeValidationFilter : IAuthorizationFilter
 {

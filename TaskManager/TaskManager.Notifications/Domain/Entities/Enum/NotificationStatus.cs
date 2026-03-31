@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace TaskManager.Application.Domain.Entities.Enum;
+namespace TaskManager.Notifications.Domain.Entities.Enum;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum NotificationStatus

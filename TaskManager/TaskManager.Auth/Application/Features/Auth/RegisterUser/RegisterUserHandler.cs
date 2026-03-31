@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TaskManager.Application.Domain.Entities;
+using TaskManager.Auth.Domain.Entities;
 using TaskManager.Exceptions;
 
-namespace TaskManager.Application.Features.Auth.RegisterUser;
+namespace TaskManager.Auth.Application.Features.Auth.RegisterUser;
 
 public class RegisterUserHandler(UserManager<User> userManager, ILogger<RegisterUserHandler> logger) : IRequestHandler<RegisterUserCommand, Guid>
 {

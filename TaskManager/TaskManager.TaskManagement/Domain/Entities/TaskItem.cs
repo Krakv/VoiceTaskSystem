@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TaskManager.Application.Domain.Entities.Enum;
-namespace TaskManager.Application.Domain.Entities;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
+namespace TaskManager.TaskManagement.Domain.Entities;
 
 [Table("Task")]
 public class TaskItem

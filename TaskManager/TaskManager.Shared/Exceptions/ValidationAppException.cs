@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Exceptions;
+﻿namespace TaskManager.Shared.Exceptions;
 
 public class ValidationAppException : Exception
 {

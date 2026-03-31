@@ -1,4 +1,4 @@
-﻿namespace TaskManager.Application.Features.TaskItem.DTOs;
+﻿namespace TaskManager.TaskManagement.Application.Features.TaskItem.DTOs;
 
 public sealed record UpdateTaskDto(
     string ProjectName,

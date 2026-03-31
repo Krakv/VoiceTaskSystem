@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using System.Globalization;
-using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
 
-namespace TaskManager.Application.Features.TaskItem.UpdateTaskPatch;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTaskPatch;
 
 public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskPatchHandler> logger) : IRequestHandler<UpdateTaskPatchCommand, string>
 {

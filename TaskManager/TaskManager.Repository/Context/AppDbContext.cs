@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using System.Text.Json;
 using TaskManager.Application.Domain.Entities;
 
-namespace TaskManager.Infrastructure.Repository;
+namespace TaskManager.Repository.Context;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
 {

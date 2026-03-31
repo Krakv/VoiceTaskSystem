@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManager.Application.Features.TaskItem.UpdateTask;
+namespace TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTask;
 
 public sealed record UpdateTaskCommand(
     string TaskId,

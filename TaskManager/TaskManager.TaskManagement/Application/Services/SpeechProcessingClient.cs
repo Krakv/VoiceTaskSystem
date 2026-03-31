@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using TaskManager.Application.Common.DTOs.Requests;
 using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Services.Interfaces;
-using TaskManager.Config;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
+using TaskManager.TaskManagement.Config;
 using Telegram.Bot.Requests.Abstractions;
 
-namespace TaskManager.Application.Services;
+namespace TaskManager.TaskManagement.Application.Services;
 
 public class SpeechProcessingClient(HttpClient httpClient, IOptions<SpeechProcessingConfig> conf) : ISpeechProcessingClient
 {

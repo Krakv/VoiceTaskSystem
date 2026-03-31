@@ -2,8 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using TaskManager.Application.Domain.Entities.Enum;
-namespace TaskManager.Application.Domain.Entities;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
+namespace TaskManager.TaskManagement.Domain.Entities;
 
 [Table("CommandRequest")]
 public class CommandRequestItem

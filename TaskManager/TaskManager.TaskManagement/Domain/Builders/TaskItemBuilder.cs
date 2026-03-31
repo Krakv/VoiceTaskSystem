@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
-using TaskManager.Application.Domain.Entities;
-using TaskManager.Application.Domain.Entities.Enum;
-namespace TaskManager.Application.Domain.Builders;
+using TaskManager.TaskManagement.Domain.Entities;
+using TaskManager.TaskManagement.Domain.Entities.Enum;
+namespace TaskManager.TaskManagement.Domain.Builders;
 
 public class TaskItemBuilder
 {
