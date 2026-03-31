@@ -4,6 +4,7 @@ using SpeechProcessingService.Infrastructure.Services;
 using SpeechProcessingService.Application.Services.Interfaces;
 using Whisper.net.Ggml;
 using SpeechProcessingService.Application.Config;
+using SpeechProcessingService.Application.Features.Audio.ProcessAudio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,13 @@ builder.Configuration.AddEnvironmentVariables();
 
 #region MediatR
 
-builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblies(
+        typeof(Program).Assembly,
+        typeof(ProcessAudioCommandHandler).Assembly
+    );
+});
 
 #endregion MediatR
 
