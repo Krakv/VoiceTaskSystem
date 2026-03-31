@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using TaskManager.Shared.Events;
 
 namespace TaskManager.TaskManagement.Application.Features.Events;
 

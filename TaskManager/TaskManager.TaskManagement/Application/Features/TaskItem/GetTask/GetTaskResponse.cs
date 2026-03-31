@@ -1,4 +1,4 @@
-﻿using TaskManager.TaskManagement.Domain.Entities.Enum;
+﻿using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
 

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Options;
-using TaskManager.Config;
-using TaskManager.Notifications.Application.Services.Interfaces;
+﻿using TaskManager.Notifications.Application.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
-using static Telegram.Bot.TelegramBotClient;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TaskManager.Notifications.Application.Services;
 

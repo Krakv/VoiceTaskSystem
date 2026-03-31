@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
-using System.Text.Json;
-using TaskManager.Application.Domain.Entities;
+using TaskManager.Shared.Domain.Entities;
 
 namespace TaskManager.Repository.Context;
 

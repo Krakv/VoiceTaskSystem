@@ -1,17 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask;
-using TaskManager.Application.Features.TaskItem.CreateTask;
-using TaskManager.Application.Features.TaskItem.DeleteTask;
-using TaskManager.Application.Features.TaskItem.DTOs;
-using TaskManager.Application.Features.TaskItem.GetTask;
-using TaskManager.Application.Features.TaskItem.GetTasks;
-using TaskManager.Application.Features.TaskItem.UpdateTask;
-using TaskManager.Application.Features.TaskItem.UpdateTaskPatch;
+using TaskManager.Shared.DTOs.Responses;
+using TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
+using TaskManager.TaskManagement.Application.Features.TaskItem.DeleteTask;
+using TaskManager.TaskManagement.Application.Features.TaskItem.DTOs;
+using TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
+using TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
+using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTask;
+using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTaskPatch;
 
 namespace TaskManager.ApiGateway.Controllers;
 

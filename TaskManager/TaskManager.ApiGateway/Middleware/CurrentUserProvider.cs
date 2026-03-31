@@ -1,4 +1,6 @@
-﻿namespace TaskManager.ApiGateway.Middleware;
+﻿using TaskManager.TaskManagement.Interfaces;
+
+namespace TaskManager.ApiGateway.Middleware;
 
 public sealed class CurrentUserProvider(
     IHttpContextAccessor httpContextAccessor,

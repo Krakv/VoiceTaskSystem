@@ -14,14 +14,19 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
 using TaskManager.ApiGateway.Middleware;
-using TaskManager.Application.Domain.Entities;
-using TaskManager.Application.Services;
-using TaskManager.Application.Services.Factories;
-using TaskManager.Application.Services.Interfaces;
-using TaskManager.Config;
-using TaskManager.Infrastructure.Repository;
-using TaskManager.Pipeline;
+using TaskManager.Notifications.Application.Services;
+using TaskManager.Notifications.Application.Services.Factories;
+using TaskManager.Notifications.Application.Services.Interfaces;
+using TaskManager.Auth.Config;
+using TaskManager.TaskManagement.Config;
+using TaskManager.Notifications.Config;
+using TaskManager.Repository.Context;
+using TaskManager.Shared.Pipeline;
 using Telegram.Bot;
+using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Domain.Entities;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
+using TaskManager.TaskManagement.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +57,6 @@ builder.Services.AddSingleton<IBotService>(sp =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
-builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
 
 if (builder.Environment.IsDevelopment())
     builder.Services.AddSingleton<EmailServiceFactory, FakeEmailServiceFactory>();

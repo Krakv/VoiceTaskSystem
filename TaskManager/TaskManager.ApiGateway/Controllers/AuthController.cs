@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Features.Auth.Login;
-using TaskManager.Application.Features.Auth.RegisterUser;
+using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Auth.Application.Features.Auth.Login;
+using TaskManager.Auth.Application.Features.Auth.RegisterUser;
 
 namespace TaskManager.ApiGateway.Controllers;
 

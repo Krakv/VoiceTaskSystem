@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using TaskManager.Exceptions;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.ApiGateway.Middleware;
 

@@ -1,10 +1,8 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using TaskManager.Application.Features.TaskItem.CreateTask;
-using TaskManager.Application.Features.TaskItem.DeleteTask;
-using TaskManager.Exceptions;
-using TaskManager.Infrastructure.Repository;
-using TaskManager.Middleware;
+using TaskManager.Shared.Exceptions;
+using TaskManager.Repository.Context;
+using TaskManager.TaskManagement.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
 

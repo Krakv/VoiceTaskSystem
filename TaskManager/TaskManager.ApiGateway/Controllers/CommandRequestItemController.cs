@@ -1,16 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Features.CommandRequestItem.ConfirmVoiceTask;
-using TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask;
-using TaskManager.Application.Features.CommandRequestItem.DeleteVoiceTask;
-using TaskManager.Application.Features.CommandRequestItem.DTOs;
-using TaskManager.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
-using TaskManager.Application.Features.CommandRequestItem.UpdateVoiceTask;
-using Telegram.Bot.Types;
-using InputFile = TaskManager.Application.Features.CommandRequestItem.CreateVoiceTask.InputFile;
+using TaskManager.ApiGateway.DTOs;
+using TaskManager.Shared.DTOs.Responses;
+using TaskManager.TaskManagement.Application.Features.CommandRequestItem.ConfirmVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestItem.DeleteVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
+using TaskManager.TaskManagement.Application.Features.CommandRequestItem.UpdateVoiceTask;
+using InputFile = TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask.InputFile;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -23,9 +21,9 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
 
     [HttpPost]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> CreateVoiceTask([FromForm] CreateVoiceTaskDto dto)
+    public async Task<IActionResult> CreateVoiceTask([FromForm] FormFileDto dto)
     {
-        if (dto.AudioFile == null)
+        if (dto.FormFile == null)
         {
             return BadRequest(new ErrorResponse
             (
@@ -38,13 +36,13 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
             ));
         }
 
-        using var stream = dto.AudioFile.OpenReadStream();
+        using var stream = dto.FormFile.OpenReadStream();
 
         var response = await _mediator.Send(new CreateVoiceTaskCommand(
             new InputFile(
-                fileName: dto.AudioFile.FileName,
-                contentType: dto.AudioFile.ContentType,
-                length: dto.AudioFile.Length,
+                fileName: dto.FormFile.FileName,
+                contentType: dto.FormFile.ContentType,
+                length: dto.FormFile.Length,
                 content: stream
             )
         ));

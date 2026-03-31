@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using TaskManager.Exceptions;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.Shared.Pipeline;
 

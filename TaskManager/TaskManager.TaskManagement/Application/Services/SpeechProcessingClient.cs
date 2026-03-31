@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
-using TaskManager.Application.Common.DTOs.Requests;
-using TaskManager.Application.Common.DTOs.Responses;
+using TaskManager.Shared.DTOs.Requests;
+using TaskManager.Shared.DTOs.Responses;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Config;
-using Telegram.Bot.Requests.Abstractions;
+using System.Net.Http.Json;
 
 namespace TaskManager.TaskManagement.Application.Services;
 

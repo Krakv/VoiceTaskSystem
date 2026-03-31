@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using TaskManager.Shared.Events;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.Shared.EventHandlers;
 

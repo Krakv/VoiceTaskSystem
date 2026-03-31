@@ -1,9 +1,9 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using TaskManager.Application.Domain.Entities;
-using TaskManager.Application.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Identity;
+using TaskManager.Shared.Domain.Entities;
+using TaskManager.Notifications.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Features.Events;
+using TaskManager.Shared.EventHandlers;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.EventHandlers;
 

@@ -6,8 +6,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TaskManager.Auth.Config;
-using TaskManager.Auth.Domain.Entities;
-using TaskManager.Exceptions;
+using TaskManager.Shared.Exceptions;
+using Microsoft.Extensions.Logging;
+using TaskManager.Shared.Domain.Entities;
 
 namespace TaskManager.Auth.Application.Features.Auth.Login;
 

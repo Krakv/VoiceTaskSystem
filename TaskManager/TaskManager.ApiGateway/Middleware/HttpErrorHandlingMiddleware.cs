@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
-using System.Text.Json;
-using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Exceptions;
+﻿using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.ApiGateway.Middleware;
 

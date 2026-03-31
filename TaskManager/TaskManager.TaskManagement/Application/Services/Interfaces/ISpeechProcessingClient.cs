@@ -1,5 +1,5 @@
-﻿using TaskManager.Application.Common.DTOs.Responses;
-using TaskManager.Application.Common.DTOs.Requests;
+﻿using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Shared.DTOs.Requests;
 
 namespace TaskManager.TaskManagement.Application.Services.Interfaces;
 

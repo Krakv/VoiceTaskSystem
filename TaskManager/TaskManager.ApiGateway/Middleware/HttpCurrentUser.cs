@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using TaskManager.TaskManagement.Interfaces;
 
 namespace TaskManager.ApiGateway.Middleware;
 

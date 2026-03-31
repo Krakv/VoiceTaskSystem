@@ -1,11 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using TaskManager.Application.Features.TaskItem.CreateTask;
-using TaskManager.Infrastructure.Repository;
-using TaskManager.Middleware;
-using TaskManager.TaskManagement.Domain.Entities.Enum;
+using TaskManager.Repository.Context;
+using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Domain.Entities.Enum;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
 

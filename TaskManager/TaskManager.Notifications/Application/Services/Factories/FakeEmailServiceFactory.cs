@@ -1,4 +1,5 @@
 ﻿using TaskManager.Notifications.Application.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.Notifications.Application.Services.Factories;
 
