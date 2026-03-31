@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using SpeechProcessingService.Application.DTOs;
 using SpeechProcessingService.Application.Services.Interfaces;
-using SpeechProcessingService.Config;
+using SpeechProcessingService.Application.Config;
 using Whisper.net;
 using Whisper.net.Ggml;
 
@@ -25,7 +26,7 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
         await modelStream.CopyToAsync(fileStream);
     }
 
-    public async Task<string> RecognizeSpeechAsync(IFormFile audioFile)
+    public async Task<string> RecognizeSpeechAsync(AudioFile audioFile)
     {
         await EnsureModelDownloadedAsync();
 
@@ -33,7 +34,7 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
 
         try
         {
-            await using var inputStream = audioFile.OpenReadStream();
+            using var inputStream = new MemoryStream(audioFile.Content);
             await ConvertToWavAsync(inputStream, tempPath);
 
             using var processor = _factory

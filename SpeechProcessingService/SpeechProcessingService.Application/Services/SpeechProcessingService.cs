@@ -1,4 +1,5 @@
-﻿using SpeechProcessingService.Application.DTOs.Responses;
+﻿using SpeechProcessingService.Application.DTOs;
+using SpeechProcessingService.Application.DTOs.Responses;
 using SpeechProcessingService.Application.Services.Interfaces;
 
 namespace SpeechProcessingService.Application.Services;
@@ -12,7 +13,7 @@ public class SpeechProcessingService(
     private readonly IEntityExtractionService _entityExtractor = entityExtractor;
     private readonly IAsrService _asrService = asrService;
 
-    public async Task<CommandResponse> ProcessCommandAsync(IFormFile audioFile)
+    public async Task<CommandResponse> ProcessCommandAsync(AudioFile audioFile)
     {
         var command = await _asrService.RecognizeSpeechAsync(audioFile);
 

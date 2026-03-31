@@ -1,7 +1,7 @@
 ﻿using GigaChatAdapter;
 using Microsoft.Extensions.Options;
 using SpeechProcessingService.Application.Services.Interfaces;
-using SpeechProcessingService.Config;
+using SpeechProcessingService.Application.Config;
 
 namespace SpeechProcessingService.Infrastructure.Services;
 
