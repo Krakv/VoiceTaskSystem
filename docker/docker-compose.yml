@@ -1,8 +1,8 @@
 services:
     task-manager:
         build: 
-            context: ../TaskManager
-            dockerfile: TaskManager/Dockerfile
+            context: ../src/TaskManager
+            dockerfile: TaskManager.ApiGateway/Dockerfile
         ports:
           - "3000:8080"
         environment:
@@ -23,7 +23,7 @@ services:
             condition: service_healthy
     speech-processing-service:
         build: 
-            context: ../SpeechProcessingService
+            context: ../src/SpeechProcessingService
             dockerfile: SpeechProcessingService.API/Dockerfile
         ports:
           - "3001:8080"
@@ -54,7 +54,7 @@ services:
           - backend-network
     frontend:
         build:
-          context: ../frontend/voice-task
+          context: ../src/frontend/voice-task
           dockerfile: Dockerfile
         ports:
           - '3005:80'
