@@ -27,6 +27,8 @@ using TaskManager.TaskManagement.Interfaces;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Services;
+using TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
+using TaskManager.Auth.Application.Features.Auth.Login;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +36,12 @@ builder.Configuration.AddEnvironmentVariables();
 
 #region MediatR
 
-builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
+    typeof(Program).Assembly, 
+    typeof(CreateTaskCommand).Assembly, 
+    typeof(LoginCommand).Assembly
+    ));
+
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
