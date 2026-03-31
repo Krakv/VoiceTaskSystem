@@ -2,7 +2,7 @@ services:
     task-manager:
         build: 
             context: ../TaskManager
-            dockerfile: TaskManager/Dockerfile
+            dockerfile: TaskManager.API/Dockerfile
         ports:
           - "3000:8080"
         environment:
