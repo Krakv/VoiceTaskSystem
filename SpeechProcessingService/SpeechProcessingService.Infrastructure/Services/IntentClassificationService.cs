@@ -4,6 +4,8 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.Tokenizers;
 using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Application.Config;
+using Microsoft.Extensions.Logging;
+using SpeechProcessingService.Infrastructure.Utils;
 
 namespace SpeechProcessingService.Infrastructure.Services;
 
@@ -19,17 +21,20 @@ public class IntentClassificationService : IIntentClassificationService
 {
     private readonly IntentOnnxModel _model;
     private readonly Dictionary<int, string> _id2label;
-    private readonly BertTokenizer _tokenizer;
+    private readonly ILogger<IntentClassificationService> _logger;
+    private BertTokenizer? _tokenizer;
 
     /// <summary>
     /// Создаёт новый экземпляр сервиса IntentClassificationService.
     /// </summary>
     /// <param name="model">Настройки модели ONNX через IOptions.</param>
     /// <param name="tokenizer">Инициализированный токенизатор BERT (может быть синглтоном).</param>
-    public IntentClassificationService(IOptions<IntentOnnxModel> model, BertTokenizer tokenizer)
+    public IntentClassificationService(
+        IOptions<IntentOnnxModel> model,
+        ILogger<IntentClassificationService> logger)
     {
         _model = model.Value;
-        _tokenizer = tokenizer;
+        _logger = logger;
 
         // Словарь id - имя класса
         _id2label = new Dictionary<int, string>
@@ -44,15 +49,68 @@ public class IntentClassificationService : IIntentClassificationService
     }
 
     /// <summary>
-    /// Классифицирует намерение пользователя по текстовой команде.
+    /// Инициализирует сервис: скачивает модель и создает токенизатор.
     /// </summary>
-    /// <param name="commandText">Текст команды или запроса пользователя.</param>
-    /// <returns>
-    /// Строковое название предсказанного класса намерения.
-    /// Например: "TASK_CREATE", "TASK_UPDATE", "TASK_DELETE", "TASK_QUERY", "UNKNOWN" или "AMBIGUOUS".
-    /// </returns>
-    public async Task<string> ClassifyIntentAsync(string commandText)
+    public async Task InitAsync()
     {
+        await InitModelAsync();
+        await InitTokenizerAsync();
+    }
+
+    /// <summary>
+    /// Инициализирует токенизатор BERT на основе скачанного vocab-файла.
+    /// </summary>
+    /// <exception cref="FileNotFoundException">
+    /// Бросается, если vocab-файл не найден по указанному пути.
+    /// </exception>
+    private async Task InitTokenizerAsync()
+    {
+        if (!File.Exists(_model.VocabPath))
+            throw new FileNotFoundException("Vocab file not found", _model.VocabPath);
+
+        _tokenizer = await BertTokenizer.CreateAsync(_model.VocabPath);
+    }
+
+    /// <summary>
+    /// Скачивает все необходимые файлы модели (ONNX, данные модели, токенизатор, словарь).
+    /// </summary>
+    private async Task InitModelAsync()
+    {
+        Directory.CreateDirectory("Models");
+
+        await FileDownloader.EnsureFileAsync(
+            _model.ModelUrl,
+            _model.ModelPath,
+            _logger);
+
+        await FileDownloader.EnsureFileAsync(
+            _model.ModelDataUrl,
+            _model.ModelDataPath,
+            _logger);
+
+        await FileDownloader.EnsureFileAsync(
+            _model.TokenizerUrl,
+            _model.TokenizerPath,
+            _logger);
+
+        await FileDownloader.EnsureFileAsync(
+            _model.VocabUrl,
+            _model.VocabPath,
+            _logger);
+    }
+
+/// <summary>
+/// Классифицирует намерение пользователя по текстовой команде.
+/// </summary>
+/// <param name="commandText">Текст команды или запроса пользователя.</param>
+/// <returns>
+/// Строковое название предсказанного класса намерения.
+/// Например: "TASK_CREATE", "TASK_UPDATE", "TASK_DELETE", "TASK_QUERY", "UNKNOWN" или "AMBIGUOUS".
+/// </returns>
+public async Task<string> ClassifyIntentAsync(string commandText)
+    {
+        if (_tokenizer == null) throw new TypeInitializationException(typeof(BertTokenizer).ToString(), new Exception("Tokenizer not initialized"));
+
         // Токенизация текста
         var ids = _tokenizer.EncodeToIds(commandText);
 
@@ -74,7 +132,7 @@ public class IntentClassificationService : IIntentClassificationService
         var inputIds = padded.Select(x => (long)x).ToArray();
 
         // Прогон через ONNX
-        using var session = new InferenceSession(_model.Path);
+        using var session = new InferenceSession(_model.ModelPath);
 
         var inputIdsTensor = new DenseTensor<long>(inputIds, new int[] { 1, maxLen });
         var attentionMaskTensor = new DenseTensor<long>(attentionMask, new int[] { 1, maxLen });

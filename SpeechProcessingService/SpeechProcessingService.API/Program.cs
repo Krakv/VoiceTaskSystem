@@ -33,26 +33,19 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAsrService, GgmlWhisperService>();
 
-builder.Services.AddScoped<IIntentClassificationService, IntentClassificationService>();
+builder.Services.AddSingleton<IIntentClassificationService, IntentClassificationService>();
 builder.Services.AddScoped<IEntityExtractionService, EntityExtractionService>();
 builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
-
-#region ML-tools
-
-builder.Services.AddSingleton(provider =>
-{
-    var model = provider.GetRequiredService<IOptions<IntentOnnxModel>>().Value;
-    return BertTokenizer.Create(vocabFilePath: model.VocabPath);
-});
-
-#endregion ML-tools
 
 builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+var intentClassificationService = app.Services.GetRequiredService<IIntentClassificationService>();
+await intentClassificationService.InitAsync();
 
 using (var scope = app.Services.CreateScope())
 {

@@ -2,8 +2,13 @@
 
 public class IntentOnnxModel
 {
-    public string Path { get; set; } = "intent_model.onnx";
-    public string TokenizerPath { get; set; } = "intent_tokenizer.json";
-    public string VocabPath { get; set; } = "intent_vocab.txt";
+    public string ModelPath { get; set; } = string.Empty;
+    public string ModelDataPath { get; set; } = string.Empty;
+    public string TokenizerPath { get; set; } = string.Empty;
+    public string VocabPath { get; set; } = string.Empty;
 
+    public string ModelUrl { get; set; } = string.Empty;
+    public string ModelDataUrl { get; set; } = string.Empty;
+    public string TokenizerUrl { get; set; } = string.Empty;
+    public string VocabUrl { get; set; } = string.Empty;
 }

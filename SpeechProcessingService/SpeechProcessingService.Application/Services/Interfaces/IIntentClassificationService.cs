@@ -3,4 +3,5 @@
 public interface IIntentClassificationService
 {
     Task<string> ClassifyIntentAsync(string commandText);
+    Task InitAsync();
 }
