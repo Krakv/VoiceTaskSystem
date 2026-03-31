@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<GigaChatCredentials>(builder.Configuration.GetSection("GigaChatCredentials"));
 builder.Services.Configure<GgmlModel>(builder.Configuration.GetSection("GgmlModel"));
 builder.Services.Configure<IntentOnnxModel>(builder.Configuration.GetSection("IntentOnnxModel"));
+builder.Services.Configure<NerOnnxModel>(builder.Configuration.GetSection("NerOnnxModel"));
 
 builder.Configuration.AddEnvironmentVariables();
 
@@ -34,7 +35,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAsrService, GgmlWhisperService>();
 
 builder.Services.AddSingleton<IIntentClassificationService, IntentClassificationService>();
-builder.Services.AddScoped<IEntityExtractionService, EntityExtractionService>();
+builder.Services.AddSingleton<IEntityExtractionService, EntityExtractionService>();
 builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
 
@@ -46,6 +47,9 @@ var app = builder.Build();
 
 var intentClassificationService = app.Services.GetRequiredService<IIntentClassificationService>();
 await intentClassificationService.InitAsync();
+
+var entityExtractionService = app.Services.GetRequiredService<IEntityExtractionService>();
+await entityExtractionService.InitAsync();
 
 using (var scope = app.Services.CreateScope())
 {

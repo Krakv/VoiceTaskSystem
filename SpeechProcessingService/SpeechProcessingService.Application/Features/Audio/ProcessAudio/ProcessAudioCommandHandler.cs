@@ -11,6 +11,6 @@ public class ProcessAudioCommandHandler(ISpeechProcessingService speechProcessin
     {
         var result = await _speechProcessingService.ProcessCommandAsync(request.AudioFile);
 
-        return new ProcessAudioResponse(result.CommandId, result.Parameters);
+        return new ProcessAudioResponse(result.CommandId, result.TextRecognized, result.Parameters);
     }
 }
