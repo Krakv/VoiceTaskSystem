@@ -19,12 +19,7 @@ public class SpeechProcessingService(
 
         var intent = await _intentClassifier.ClassifyIntentAsync(command);
 
-        Dictionary<string, string> parameters = new();
-
-        if (intent == "create_task" || intent == "delete_task")
-        {
-            parameters = await _entityExtractor.ExtractEntitiesAsync(command, intent);
-        }
+        Dictionary<string, string> parameters = await _entityExtractor.ExtractEntitiesAsync(command);
 
         parameters.Add("intent", intent);
 
