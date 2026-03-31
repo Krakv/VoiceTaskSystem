@@ -23,7 +23,7 @@ public class SpeechProcessingService(
 
         parameters.Add("intent", intent);
 
-        var response = new CommandResponse(Guid.NewGuid(), parameters);
+        var response = new CommandResponse(Guid.NewGuid(), command, parameters);
 
         return response;
     }
