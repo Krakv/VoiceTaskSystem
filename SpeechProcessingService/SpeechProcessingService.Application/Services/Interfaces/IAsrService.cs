@@ -1,6 +1,8 @@
-﻿namespace SpeechProcessingService.Application.Services.Interfaces;
+﻿using SpeechProcessingService.Application.DTOs;
+
+namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface IAsrService
 {
-    Task<string> RecognizeSpeechAsync(IFormFile audioFile);
+    Task<string> RecognizeSpeechAsync(AudioFile audioFile);
 }

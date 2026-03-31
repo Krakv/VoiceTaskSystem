@@ -14,7 +14,7 @@ public class AudioController(IMediator mediator) : ControllerBase
     [HttpPost("process-audio")]
     public async Task<IActionResult> ProcessAudio([FromForm] ProcessAudioCommand command)
     {
-        if (command == null || command.AudioFile == null || command.AudioFile.Length == 0)
+        if (command == null || command.AudioFile == null || command.AudioFile.Content.Length == 0)
             return BadRequest("Audio file is missing.");
 
         var response = await _mediator.Send(command);
@@ -25,7 +25,7 @@ public class AudioController(IMediator mediator) : ControllerBase
     [HttpPost("recognize")]
     public async Task<IActionResult> Recognize([FromForm] RecognizeSpeechCommand command)
     {
-        if (command == null || command.AudioFile == null || command.AudioFile.Length == 0)
+        if (command == null || command.AudioFile == null || command.AudioFile.Content.Length == 0)
             return BadRequest("Audio file is missing.");
 
         var response = await _mediator.Send(command);

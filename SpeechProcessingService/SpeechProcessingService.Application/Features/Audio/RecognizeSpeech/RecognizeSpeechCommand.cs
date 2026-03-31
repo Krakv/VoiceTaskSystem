@@ -1,5 +1,6 @@
 ﻿using MediatR;
+using SpeechProcessingService.Application.DTOs;
 
 namespace SpeechProcessingService.Application.Features.Audio.RecognizeSpeech;
 
-public record RecognizeSpeechCommand(IFormFile AudioFile) : IRequest<string>;
+public record RecognizeSpeechCommand(AudioFile AudioFile) : IRequest<string>;
