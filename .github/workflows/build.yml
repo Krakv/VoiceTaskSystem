@@ -19,6 +19,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Cache Models
+        uses: actions/cache@v3
+        with:
+          path: SpeechProcessingService.API/Models
+          key: ${{ runner.os }}-models
 
       - name: Docker compose up (build)
         uses: hoverkraft-tech/compose-action@v2.4.3
@@ -47,6 +53,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Cache Models
+        uses: actions/cache@v3
+        with:
+          path: SpeechProcessingService.API/Models
+          key: ${{ runner.os }}-models
 
       - name: Docker compose up (tests)
         uses: hoverkraft-tech/compose-action@v2.4.3
