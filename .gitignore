@@ -75,3 +75,6 @@ TaskManager/TaskManager/schema.sql
 /PythonMLModels/IntentClassifier/results
 PythonMLModels/IntentClassifier/model.onnx.data
 /SpeechProcessingService/SpeechProcessingService.API/Models
+/PythonMLModels/EntityExtractor/results
+/PythonMLModels/EntityExtractor/logs
+/PythonMLModels/EntityExtractor/model_ner
