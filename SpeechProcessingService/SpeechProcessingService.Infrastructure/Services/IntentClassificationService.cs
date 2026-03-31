@@ -3,7 +3,7 @@ using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.Tokenizers;
 using SpeechProcessingService.Application.Services.Interfaces;
-using SpeechProcessingService.Config;
+using SpeechProcessingService.Application.Config;
 
 namespace SpeechProcessingService.Infrastructure.Services;
 
