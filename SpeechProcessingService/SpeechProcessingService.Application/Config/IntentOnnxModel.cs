@@ -1,4 +1,4 @@
-﻿namespace SpeechProcessingService.API.Config;
+﻿namespace SpeechProcessingService.Application.Config;
 
 public class IntentOnnxModel
 {
