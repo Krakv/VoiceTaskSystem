@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System.Globalization;
+using TaskManager.Application.Domain.Entities.Enum;
 using TaskManager.Exceptions;
 using TaskManager.Infrastructure.Repository;
 using TaskManager.Middleware;
@@ -23,10 +24,9 @@ public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser us
         if (request.ProjectName is not null) task.ProjectName = request.ProjectName;
         if (request.Title is not null) task.Title = request.Title;
         if (request.Description is not null) task.Description = request.Description;
-        if (request.Status is not null) task.Status = request.Status;
-        if (request.Priority is not null) task.Priority = request.Priority;
+        if (request.Status is not null) task.Status = Enum.Parse<TaskItemStatus>(request.Status, ignoreCase: true);
+        if (request.Priority is not null) task.Priority = Enum.Parse<TaskItemPriority>(request.Priority, ignoreCase: true);
         if (request.DueDate is not null) task.DueDate = string.IsNullOrEmpty(request.DueDate) ? null : DateTimeOffset.Parse(request.DueDate, CultureInfo.InvariantCulture);
-        if (request.Tags is not null) task.Tags = request.Tags;
         if (request.ParentTaskId is not null)
             task.ParentTaskId = string.IsNullOrEmpty(request.ParentTaskId) ? null : Guid.Parse(request.ParentTaskId);
 

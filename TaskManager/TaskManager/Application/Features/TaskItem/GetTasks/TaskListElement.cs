@@ -1,13 +1,14 @@
-﻿namespace TaskManager.Application.Features.TaskItem.GetTasks;
+﻿using TaskManager.Application.Domain.Entities.Enum;
+
+namespace TaskManager.Application.Features.TaskItem.GetTasks;
 
 public sealed record TaskListElement(
     Guid TaskId,
-    string ProjectName,
+    string? ProjectName,
     string Title,
-    string Description,
-    string Status,
-    string Priority,
-    string Tags,
+    string? Description,
+    TaskItemStatus Status,
+    TaskItemPriority Priority,
     DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,

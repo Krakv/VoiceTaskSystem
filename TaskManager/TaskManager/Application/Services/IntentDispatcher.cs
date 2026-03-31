@@ -17,33 +17,7 @@ public class IntentDispatcher() : IIntentDispatcher
 
     public static string ToReadableString(TaskItem task)
     {
-        // Приоритет по умолчанию
-        var priority = string.IsNullOrWhiteSpace(task.Priority) ? "none" : task.Priority;
-
-        // Проект
-        var project = string.IsNullOrWhiteSpace(task.ProjectName) ? "-" : task.ProjectName;
-
-        // Заголовок
-        var title = string.IsNullOrWhiteSpace(task.Title) ? "(без названия)" : task.Title;
-
-        // Описание
-        var description = string.IsNullOrWhiteSpace(task.Description) ? "-" : task.Description;
-
-        // Срок
-        var dueDate = task.DueDate == null
-            ? "не указан"
-            : task.DueDate.Value.ToString("dd.MM.yyyy HH:mm");
-
-        // Статус
-        var status = string.IsNullOrWhiteSpace(task.Status) ? "-" : task.Status;
-
-        return $"""
-            [{priority}] {title}
-            Проект: {project}
-            Описание: {description}
-            Срок: {dueDate}
-            Статус: {status}
-            """;
+        throw new NotImplementedException();
     }
 
     public static string ToReadableList(IEnumerable<TaskItem> tasks)

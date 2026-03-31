@@ -1,12 +1,13 @@
-﻿namespace TaskManager.Application.Features.TaskItem.GetTask;
+﻿using TaskManager.Application.Domain.Entities.Enum;
+
+namespace TaskManager.Application.Features.TaskItem.GetTask;
 
 public sealed record GetTaskResponse(
     string Title,
     string? ProjectName,
     string? Description,
-    string Status,
-    string Priority,
-    string? Tags,
+    TaskItemStatus Status,
+    TaskItemPriority Priority,
     DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,

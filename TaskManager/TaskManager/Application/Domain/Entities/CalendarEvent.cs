@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace TaskManager.Application.Domain.Entities;
 
 [Table("CalendarEvent")]
@@ -11,16 +10,24 @@ public class CalendarEvent
 
     public Guid TaskId { get; set; }
     [ForeignKey(nameof(TaskId))]
-    public TaskItem? Task { get; set; }
+    public TaskItem Task { get; set; } = null!;
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
+    [Required]
     public DateTimeOffset StartTime { get; set; }
-    public DateTimeOffset EndTime { get; set; }
-    public required string Location { get; set; }
-    public required string ExternalEventId { get; set; }
 
-    public required string ExternalAccountId { get; set; }
+    [Required]
+    public DateTimeOffset EndTime { get; set; }
+
+    [MaxLength(255)]
+    public string? Location { get; set; }
+
+    [Required]
+    [MaxLength(512)]
+    public string ExternalEventId { get; set; } = string.Empty;
+
+    public Guid ExternalAccountId { get; set; }
     [ForeignKey(nameof(ExternalAccountId))]
     public ExternalCalendarAccount? ExternalCalendarAccount { get; set; }
 }

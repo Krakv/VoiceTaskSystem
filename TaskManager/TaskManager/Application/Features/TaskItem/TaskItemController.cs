@@ -57,7 +57,6 @@ public class TaskItemController(IMediator mediator) : ControllerBase
             dto.Status,
             dto.Priority,
             dto.DueDate,
-            dto.Tags,
             dto.ParentTaskId
             ));
 
@@ -75,7 +74,6 @@ public class TaskItemController(IMediator mediator) : ControllerBase
             dto.Status,
             dto.Priority,
             dto.DueDate,
-            dto.Tags,
             dto.ParentTaskId
             ));
 

@@ -24,9 +24,12 @@ services:
     speech-processing-service:
         build: 
             context: ../SpeechProcessingService
-            dockerfile: SpeechProcessingService/Dockerfile
+            dockerfile: SpeechProcessingService.API/Dockerfile
         ports:
           - "3001:8080"
+          - "3002:8081"
+        volumes:
+          - speech-models:/app/Models
         environment:
           - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
         networks:
@@ -125,3 +128,6 @@ services:
 networks:
   backend-network:
     driver: bridge
+    
+volumes:
+    speech-models:

@@ -23,7 +23,6 @@ public sealed class CreateTaskHandler(AppDbContext context, ICurrentUser user, I
             .SetDescription(request.Description)
             .SetStatus(request.Status)
             .SetPriority(request.Priority)
-            .SetTags(request.Tags)
             .SetDueDate(request.DueDate)
             .SetParent(request.ParentTaskId)
             .Build();

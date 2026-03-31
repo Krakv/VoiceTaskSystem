@@ -12,8 +12,10 @@ using Serilog;
 using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json.Serialization;
 using TaskManager.Application.Domain.Entities;
 using TaskManager.Application.Services;
+using TaskManager.Application.Services.Factories;
 using TaskManager.Application.Services.Interfaces;
 using TaskManager.Config;
 using TaskManager.Infrastructure.Repository;
@@ -41,12 +43,24 @@ builder.Services.AddSingleton<ITelegramBotClient>(sp =>
     return new TelegramBotClient(config.AuthToken);
 });
 builder.Services.AddHostedService<TelegramBotService>();
-builder.Services.AddSingleton<IBotService, TelegramBotAdapter>();
+builder.Services.AddSingleton<TelegramBotAdapter>();
+builder.Services.AddSingleton<IBotService>(sp =>
+    new RetryBotService(
+        sp.GetRequiredService<TelegramBotAdapter>(),
+        sp.GetRequiredService<ILogger<RetryBotService>>()
+    ));
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISpeechProcessingClient, SpeechProcessingClient>();
 builder.Services.AddScoped<IIntentDispatcher, IntentDispatcher>();
-builder.Services.AddScoped<IEmailService, FakeEmailService>();
+
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddSingleton<EmailServiceFactory, FakeEmailServiceFactory>();
+else
+    builder.Services.AddSingleton<EmailServiceFactory, SmtpEmailServiceFactory>();
+
+builder.Services.AddSingleton<IEmailService>(sp =>
+    sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
@@ -54,11 +68,15 @@ builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp =>
     sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 
+builder.Services.AddDataProtection();
 #endregion Services
 
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ContentTypeValidationFilter>();
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
