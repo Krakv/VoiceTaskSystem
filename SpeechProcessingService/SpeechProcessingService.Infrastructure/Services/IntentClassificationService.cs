@@ -28,7 +28,6 @@ public class IntentClassificationService : IIntentClassificationService
     /// Создаёт новый экземпляр сервиса IntentClassificationService.
     /// </summary>
     /// <param name="model">Настройки модели ONNX через IOptions.</param>
-    /// <param name="tokenizer">Инициализированный токенизатор BERT (может быть синглтоном).</param>
     public IntentClassificationService(
         IOptions<IntentOnnxModel> model,
         ILogger<IntentClassificationService> logger)
