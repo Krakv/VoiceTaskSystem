@@ -3,8 +3,8 @@
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
-ARG GIGACHAT_ROOT_PATH=./SpeechProcessingService/Certificates/russian_trusted_root_ca.cer
-ARG GIGACHAT_SUB_PATH=./SpeechProcessingService/Certificates/russian_trusted_sub_ca.cer
+ARG GIGACHAT_ROOT_PATH=./SpeechProcessingService.API/Certificates/russian_trusted_root_ca.cer
+ARG GIGACHAT_SUB_PATH=./SpeechProcessingService.API/Certificates/russian_trusted_sub_ca.cer
 
 RUN echo "GIGACHAT_ROOT_PATH: ${GIGACHAT_ROOT_PATH}"
 RUN echo "GIGACHAT_SUB_PATH: ${GIGACHAT_SUB_PATH}"
