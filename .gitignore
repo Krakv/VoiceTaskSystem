@@ -80,3 +80,13 @@ PythonMLModels/IntentClassifier/model.onnx.data
 /PythonMLModels/EntityExtractor/model_ner
 PythonMLModels/EntityExtractor/model.onnx
 PythonMLModels/EntityExtractor/ner_task_dataset.json
+/ml/PythonMLModels/EntityExtractor/model_ner
+/ml/PythonMLModels/EntityExtractor/results
+/ml/PythonMLModels/IntentClassifier/logs
+/ml/PythonMLModels/IntentClassifier/model
+/ml/PythonMLModels/IntentClassifier/results
+ml/PythonMLModels/IntentClassifier/model.onnx.data
+/ml/PythonMLModels/EntityExtractor/logs
+ml/PythonMLModels/EntityExtractor/model.onnx
+ml/PythonMLModels/EntityExtractor/ner_task_dataset.json
+/src/SpeechProcessingService/SpeechProcessingService.API/Models
