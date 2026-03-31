@@ -78,3 +78,5 @@ PythonMLModels/IntentClassifier/model.onnx.data
 /PythonMLModels/EntityExtractor/results
 /PythonMLModels/EntityExtractor/logs
 /PythonMLModels/EntityExtractor/model_ner
+PythonMLModels/EntityExtractor/model.onnx
+PythonMLModels/EntityExtractor/ner_task_dataset.json
