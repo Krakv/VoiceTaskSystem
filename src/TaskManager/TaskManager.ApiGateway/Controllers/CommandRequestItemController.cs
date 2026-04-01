@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.ApiGateway.DTOs;
 using TaskManager.Shared.DTOs.Responses;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.ConfirmVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.DeleteVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.UpdateVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.ConfirmVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.CreateVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.DeleteVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
 using InputFile = TaskManager.Shared.DTOs.Requests.InputFile;
 
 namespace TaskManager.ApiGateway.Controllers;

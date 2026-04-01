@@ -13,7 +13,7 @@ public class SpeechProcessingClient(HttpClient httpClient, IOptions<SpeechProces
     private readonly HttpClient _httpClient = httpClient;
     private readonly IOptions<SpeechProcessingConfig> _conf = conf;
 
-    public async Task<CommandResponse?> SendCommand(CommandRequest command)
+    public async Task<CommandResponse?> SendCommand(VoiceCommandRequest command)
     {
         using var content = new MultipartFormDataContent();
 

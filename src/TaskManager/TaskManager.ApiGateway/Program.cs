@@ -27,8 +27,8 @@ using TaskManager.TaskManagement.Interfaces;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Services;
-using TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
 using TaskManager.Auth.Application.Features.Auth.Login;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 
 var builder = WebApplication.CreateBuilder(args);
 

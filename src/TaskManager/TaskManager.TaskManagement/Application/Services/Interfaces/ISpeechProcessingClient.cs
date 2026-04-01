@@ -5,5 +5,5 @@ namespace TaskManager.TaskManagement.Application.Services.Interfaces;
 
 public interface ISpeechProcessingClient
 {
-    Task<CommandResponse?> SendCommand(CommandRequest command);
+    Task<CommandResponse?> SendCommand(VoiceCommandRequest command);
 }

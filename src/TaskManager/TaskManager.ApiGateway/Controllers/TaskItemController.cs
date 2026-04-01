@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Shared.DTOs.Responses;
-using TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.DeleteTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.DTOs;
-using TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
-using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTaskPatch;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.DTOs;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
 
 namespace TaskManager.ApiGateway.Controllers;
 
