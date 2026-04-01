@@ -2,5 +2,6 @@
 
 public record CommandResponse(
     Guid CommandId,
+    string TextRecognized,
     Dictionary<string, string> Parameters
   );

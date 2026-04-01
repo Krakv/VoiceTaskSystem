@@ -8,7 +8,7 @@ using TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateV
 using TaskManager.TaskManagement.Application.Features.CommandRequestItem.DeleteVoiceTask;
 using TaskManager.TaskManagement.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.CommandRequestItem.UpdateVoiceTask;
-using InputFile = TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask.InputFile;
+using InputFile = TaskManager.Shared.DTOs.Requests.InputFile;
 
 namespace TaskManager.ApiGateway.Controllers;
 

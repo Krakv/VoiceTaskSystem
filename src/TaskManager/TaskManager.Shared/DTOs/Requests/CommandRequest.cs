@@ -2,5 +2,5 @@
 
 public record CommandRequest(
     Guid CommandId,
-    string CommandText
+    InputFile InputFile
 );
