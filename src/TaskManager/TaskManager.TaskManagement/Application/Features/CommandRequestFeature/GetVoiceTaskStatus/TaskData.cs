@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
+﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 public sealed record TaskData(
     Guid TaskId,
@@ -9,6 +7,7 @@ public sealed record TaskData(
     string Description,
     string Status,
     string Priority,
+    Guid ParentTaskId,
     DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt
