@@ -16,7 +16,6 @@ public class CommandRequestItem
 
     public CommandIntent? Intent { get; set; }
 
-    [Required]
     [Column(TypeName = "jsonb")]
     public string? Payload { get; set; }
 
