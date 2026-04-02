@@ -6,6 +6,7 @@ using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Application.Config;
 using Microsoft.Extensions.Logging;
 using SpeechProcessingService.Infrastructure.Utils;
+using SpeechProcessingService.Application.DTOs.Responses;
 
 namespace SpeechProcessingService.Infrastructure.Services;
 
@@ -20,7 +21,6 @@ namespace SpeechProcessingService.Infrastructure.Services;
 public class IntentClassificationService : IIntentClassificationService
 {
     private readonly IntentOnnxModel _model;
-    private readonly Dictionary<int, string> _id2label;
     private readonly ILogger<IntentClassificationService> _logger;
     private BertTokenizer? _tokenizer;
 
@@ -34,17 +34,6 @@ public class IntentClassificationService : IIntentClassificationService
     {
         _model = model.Value;
         _logger = logger;
-
-        // Словарь id - имя класса
-        _id2label = new Dictionary<int, string>
-        {
-            {0, "TASK_CREATE"},
-            {1, "TASK_UPDATE"},
-            {2, "TASK_DELETE"},
-            {3, "TASK_QUERY"},
-            {4, "UNKNOWN"},
-            {5, "AMBIGUOUS"}
-        };
     }
 
     /// <summary>
@@ -106,7 +95,7 @@ public class IntentClassificationService : IIntentClassificationService
 /// Строковое название предсказанного класса намерения.
 /// Например: "TASK_CREATE", "TASK_UPDATE", "TASK_DELETE", "TASK_QUERY", "UNKNOWN" или "AMBIGUOUS".
 /// </returns>
-public async Task<string> ClassifyIntentAsync(string commandText)
+public async Task<CommandIntent> ClassifyIntentAsync(string commandText)
     {
         if (_tokenizer == null) throw new TypeInitializationException(typeof(BertTokenizer).ToString(), new Exception("Tokenizer not initialized"));
 
@@ -147,11 +136,8 @@ public async Task<string> ClassifyIntentAsync(string commandText)
         var output = results[0].AsEnumerable<float>().ToArray();
 
         // Получаем индекс класса с максимальной вероятностью
-        int predictedClass = Array.IndexOf(output, output.Max());
+        int predictedClass = Array.IndexOf(output, output.Max()) + 1;
 
-        // Возвращаем имя класса
-        return _id2label.TryGetValue(predictedClass, out var label)
-            ? label
-            : "UNKNOWN";
+        return (CommandIntent)predictedClass;
     }
 }

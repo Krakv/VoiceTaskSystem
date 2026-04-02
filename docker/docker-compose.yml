@@ -32,6 +32,7 @@ services:
           - speech-models:/app/Models
         environment:
           - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
+          - Duckling__BaseUrl=http://duckling:8000
         networks:
           - backend-network
         healthcheck:
@@ -39,6 +40,10 @@ services:
           interval: 30s
           timeout: 10s
           retries: 3
+    duckling:
+        image: rasa/duckling
+        networks:
+          - backend-network
     postgres:
         image: postgres:17
         environment:

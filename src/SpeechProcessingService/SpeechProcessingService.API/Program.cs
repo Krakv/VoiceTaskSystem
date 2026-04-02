@@ -1,8 +1,5 @@
-using Microsoft.Extensions.Options;
-using Microsoft.ML.Tokenizers;
 using SpeechProcessingService.Infrastructure.Services;
 using SpeechProcessingService.Application.Services.Interfaces;
-using Whisper.net.Ggml;
 using SpeechProcessingService.Application.Config;
 using SpeechProcessingService.Application.Features.Audio.ProcessAudio;
 
@@ -33,13 +30,20 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAsrService, GgmlWhisperService>();
+builder.Services.AddScoped<IDateParser, DucklingClient>();
 
 builder.Services.AddSingleton<IIntentClassificationService, IntentClassificationService>();
 builder.Services.AddSingleton<IEntityExtractionService, EntityExtractionService>();
+builder.Services.AddSingleton<IEntityNormalizer, EntityNormalizer>();
 builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(
+            new Newtonsoft.Json.Converters.StringEnumConverter());
+    });
 
 builder.Services.AddSwaggerGen();
 
