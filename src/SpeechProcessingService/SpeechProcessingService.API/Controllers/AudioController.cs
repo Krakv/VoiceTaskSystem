@@ -7,13 +7,13 @@ using SpeechProcessingService.Application.Features.Audio.RecognizeSpeech;
 
 namespace SpeechProcessingService.API.Controllers;
 
-[Route("api/speech/[controller]")]
+[Route("api/speech/audio")]
 [ApiController]
 public class AudioController(IMediator mediator) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
 
-    [HttpPost("process-audio")]
+    [HttpPost("process")]
     public async Task<IActionResult> ProcessAudio([FromForm] ProcessAudioDto dto)
     {
         var formFile = dto.FormFile;
@@ -29,6 +29,7 @@ public class AudioController(IMediator mediator) : ControllerBase
         }
 
         var command = new ProcessAudioCommand(
+            dto.CommandRequestId,
             new AudioFile(
                 formFile.FileName,
                 formFile.ContentType,

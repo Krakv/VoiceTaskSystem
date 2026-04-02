@@ -18,28 +18,26 @@ public class SpeechProcessingService(
     private readonly IAsrService _asrService = asrService;
     private readonly ILogger<SpeechProcessingService> _logger = logger;
 
-    public async Task<CommandResponse> ProcessCommandAsync(AudioFile audioFile, TimeZoneInfo userTimeZone)
+    public async Task<CommandResponse> ProcessCommandAsync(Guid commandRequestId, AudioFile audioFile, TimeZoneInfo userTimeZone)
     {
-        var guid = Guid.NewGuid();
-
         var command = await _asrService.RecognizeSpeechAsync(audioFile);
 
         var intent = await _intentClassifier.ClassifyIntentAsync(command);
-        _logger.LogDebug("Intent recognized as {Intent} | {CommandRequestId}", intent, guid);
+        _logger.LogDebug("Intent recognized as {Intent} | {CommandRequestId}", intent, commandRequestId);
 
         Dictionary<string, string> entities = new();
 
         if (intent != CommandIntent.Ambiguous || intent != CommandIntent.Unknown)
         {
-            _logger.LogDebug("Started to extract entities | {CommandRequestId}", guid);
+            _logger.LogDebug("Started to extract entities | {CommandRequestId}", commandRequestId);
             entities = await _entityExtractor.ExtractEntitiesAsync(command);
-            _logger.LogDebug("Entities extracted: {Entities} | {CommandRequestId}", entities, guid);
+            _logger.LogDebug("Entities extracted: {Entities} | {CommandRequestId}", entities, commandRequestId);
         }
 
         var entitiesNormalized = await _entityNormalizer.NormalizeAsync(entities, userTimeZone);
 
-        var response = new CommandResponse(guid, command, intent, entitiesNormalized);
-        _logger.LogDebug("Command Response was created: {CommandResponse} | {CommandRequestId}", response, guid);
+        var response = new CommandResponse(commandRequestId, command, intent, entitiesNormalized);
+        _logger.LogDebug("Command Response was created: {CommandResponse} | {CommandRequestId}", response, commandRequestId);
 
         return response;
     }

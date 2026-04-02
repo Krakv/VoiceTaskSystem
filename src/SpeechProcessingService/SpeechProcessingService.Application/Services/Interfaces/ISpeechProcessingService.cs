@@ -5,5 +5,5 @@ namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface ISpeechProcessingService
 {
-    Task<CommandResponse> ProcessCommandAsync(AudioFile audioFile, TimeZoneInfo userTimeZone);
+    Task<CommandResponse> ProcessCommandAsync(Guid commandRequestId, AudioFile audioFile, TimeZoneInfo userTimeZone);
 }

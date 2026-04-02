@@ -9,7 +9,7 @@ public class ProcessAudioCommandHandler(ISpeechProcessingService speechProcessin
 
     public async Task<ProcessAudioResponse> Handle(ProcessAudioCommand request, CancellationToken cancellationToken)
     {
-        var result = await _speechProcessingService.ProcessCommandAsync(request.AudioFile, request.UserTimeZone);
+        var result = await _speechProcessingService.ProcessCommandAsync(request.CommandRequestId, request.AudioFile, request.UserTimeZone);
 
         return new ProcessAudioResponse(result.CommandId, result.TextRecognized, result.CommandIntent, result.Entities);
     }
