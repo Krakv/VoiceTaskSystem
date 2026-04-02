@@ -1,7 +1,8 @@
-using SpeechProcessingService.Infrastructure.Services;
-using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Application.Config;
 using SpeechProcessingService.Application.Features.Audio.ProcessAudio;
+using SpeechProcessingService.Application.Services.Interfaces;
+using SpeechProcessingService.Infrastructure.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,11 +40,10 @@ builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.App
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
 
 builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.Converters.Add(
-            new Newtonsoft.Json.Converters.StringEnumConverter());
-    });
+    .AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddSwaggerGen();
 

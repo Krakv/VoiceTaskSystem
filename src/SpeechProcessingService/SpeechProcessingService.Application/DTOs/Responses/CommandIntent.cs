@@ -1,7 +1,9 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace SpeechProcessingService.Application.DTOs.Responses;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CommandIntent
 {
     [EnumMember(Value = "TASK_CREATE")]
