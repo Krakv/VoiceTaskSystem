@@ -29,7 +29,7 @@ services:
           - "3001:8080"
           - "3002:8081"
         volumes:
-          - speech-models:/app/Models
+          - ./Models:/app/Models
         environment:
           - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
           - Duckling__BaseUrl=http://duckling:8000
@@ -50,6 +50,8 @@ services:
           POSTGRES_DB: tasks
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - "5432:5432"
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres"]
             interval: 5s
@@ -133,6 +135,3 @@ services:
 networks:
   backend-network:
     driver: bridge
-    
-volumes:
-    speech-models:
