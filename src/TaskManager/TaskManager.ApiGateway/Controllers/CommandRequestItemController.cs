@@ -36,14 +36,20 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
             ));
         }
 
-        using var stream = dto.FormFile.OpenReadStream();
+        byte[] content;
+
+        using (var ms = new MemoryStream())
+        {
+            await dto.FormFile.CopyToAsync(ms);
+            content = ms.ToArray();
+        }
 
         var response = await _mediator.Send(new CreateVoiceTaskCommand(
             new InputFile(
                 fileName: dto.FormFile.FileName,
                 contentType: dto.FormFile.ContentType,
                 length: dto.FormFile.Length,
-                content: stream
+                content: content
             )
         ));
 

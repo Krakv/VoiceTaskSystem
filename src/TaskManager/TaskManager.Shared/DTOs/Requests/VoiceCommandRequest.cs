@@ -2,5 +2,6 @@
 
 public record VoiceCommandRequest(
     Guid CommandId,
-    InputFile InputFile
+    InputFile FormFile,
+    string UserTimeZone = "Europe/Moscow"
 );

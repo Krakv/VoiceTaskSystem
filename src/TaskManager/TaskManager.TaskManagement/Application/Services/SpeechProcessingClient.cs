@@ -17,13 +17,16 @@ public class SpeechProcessingClient(HttpClient httpClient, IOptions<SpeechProces
     {
         using var content = new MultipartFormDataContent();
 
-        var streamContent = new StreamContent(command.InputFile.Content);
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(command.InputFile.ContentType);
+        var streamContent = new StreamContent(new MemoryStream(command.FormFile.Content));
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(command.FormFile.ContentType);
 
-        content.Add(streamContent, "file", command.InputFile.FileName);
+        content.Add(streamContent, "FormFile", command.FormFile.FileName);
+        content.Add(new StringContent(command.CommandId.ToString()), "CommandRequestId");
+        content.Add(new StringContent(command.UserTimeZone), "UserTimeZone");
 
-        var response = await _httpClient.PostAsJsonAsync(_conf.Value.APIURI, command);
+        var response = await _httpClient.PostAsync(_conf.Value.APIURI, content);
         response.EnsureSuccessStatusCode();
+
         return await response.Content.ReadFromJsonAsync<CommandResponse>();
     }
 }
