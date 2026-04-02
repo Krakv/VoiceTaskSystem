@@ -3,15 +3,16 @@ using TaskManager.Shared.DTOs.Requests;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Repository.Context;
 using TaskManager.TaskManagement.Interfaces;
-using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.Events.VoiceCommandCreationRequested;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.DTOs;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.CreateVoiceTask;
 
-public sealed class CreateVoiceTaskHandler(AppDbContext dbContext, ICurrentUser user, IMediator mediator) : IRequestHandler<CreateVoiceTaskCommand, CreateVoiceTaskResponse>
+public sealed class CreateVoiceTaskHandler(AppDbContext dbContext, ICurrentUser user, IBackgroundTaskQueue queue) : IRequestHandler<CreateVoiceTaskCommand, CreateVoiceTaskResponse>
 {
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ICurrentUser _user = user;
-    private readonly IMediator _mediator = mediator;
+    private readonly IBackgroundTaskQueue _queue = queue;
 
     public async Task<CreateVoiceTaskResponse> Handle(CreateVoiceTaskCommand request, CancellationToken cancellationToken)
     {
@@ -22,7 +23,7 @@ public sealed class CreateVoiceTaskHandler(AppDbContext dbContext, ICurrentUser 
 
         _dbContext.CommandRequestItem.Add(commandRequest);
 
-        var mediatorEvent = new VoiceCommandCreationRequestedEvent
+        var voiceCommandDto = new VoiceCommandCreationRequestedDto
         {
             UserId = _user.UserId,
             VoiceCommandRequest = new VoiceCommandRequest
@@ -32,7 +33,9 @@ public sealed class CreateVoiceTaskHandler(AppDbContext dbContext, ICurrentUser 
             )
         };
 
-        await _mediator.Publish(mediatorEvent, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await _queue.EnqueueAsync(voiceCommandDto);
 
         return await Task.FromResult(new CreateVoiceTaskResponse
         (

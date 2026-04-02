@@ -12,23 +12,25 @@ using Serilog;
 using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskManager.ApiGateway.Middleware;
+using TaskManager.Auth.Application.Features.Auth.Login;
+using TaskManager.Auth.Config;
 using TaskManager.Notifications.Application.Services;
 using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
-using TaskManager.Auth.Config;
-using TaskManager.TaskManagement.Config;
 using TaskManager.Notifications.Config;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Pipeline;
-using Telegram.Bot;
-using TaskManager.TaskManagement.Interfaces;
 using TaskManager.Shared.Domain.Entities;
-using TaskManager.TaskManagement.Application.Services.Interfaces;
-using TaskManager.TaskManagement.Application.Services;
-using TaskManager.Auth.Application.Features.Auth.Login;
+using TaskManager.Shared.Pipeline;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
+using TaskManager.TaskManagement.Application.Services;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
+using TaskManager.TaskManagement.Application.Services.VoiceProcessing;
+using TaskManager.TaskManagement.Config;
+using TaskManager.TaskManagement.Interfaces;
+using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,14 +72,16 @@ if (builder.Environment.IsDevelopment())
 else
     builder.Services.AddSingleton<EmailServiceFactory, SmtpEmailServiceFactory>();
 
-builder.Services.AddSingleton<IEmailService>(sp =>
-    sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
+builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
 builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
-builder.Services.AddScoped<ICurrentUser>(sp =>
-    sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
+builder.Services.AddScoped<ICurrentUser>(sp => sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
+
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<VoiceProcessingWorker>();
+builder.Services.AddScoped<VoiceProcessingHandler>();
 
 builder.Services.AddDataProtection();
 #endregion Services
@@ -87,7 +91,8 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ContentTypeValidationFilter>();
 }).AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
@@ -107,6 +112,11 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("TelegramBot"));
 builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
+
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{
+    options.PropertyNameCaseInsensitive = true;
+});
 
 #endregion Config
 
