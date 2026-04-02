@@ -4,7 +4,6 @@ using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
-using TaskManager.Shared.Models;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
@@ -43,46 +42,31 @@ public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<Ge
         {
             case CommandIntent.TaskCreate:
                 {
-                    TaskItemModel? tempPayload = JsonSerializer.Deserialize<TaskItemModel>(command.Payload);
-
-                    if (tempPayload == null)
-                    {
-                        throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось получить команду");
-                    }
-
-                    payload = ToTaskCreateData(tempPayload, null, $"Текст распознан {command.CreatedAt}");
+                    payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload);
                     break;
                 }
             case CommandIntent.TaskQuery:
                 {
-                    // TODO
+                    payload = JsonSerializer.Deserialize<TaskQueryData>(command.Payload);
+                    break;
+                }
+            case CommandIntent.TaskUpdate:
+                {
+                    payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload);
+                    break;
+                }
+            case CommandIntent.TaskDelete:
+                {
+                    payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload);
                     break;
                 }
             default :
                 {
-                    payload = new TaskDeleteData();
+                    payload = null;
                     break;
                 }
         }
 
         return new GetVoiceTaskStatusResponse(command.Intent, payload);
-    }
-
-    public static TaskCreateData ToTaskCreateData(
-        TaskItemModel model,
-        Guid? parentTaskId,
-        string message = "",
-        bool confirmationRequired = true)
-    {
-        return new TaskCreateData(
-            Title: model.Title ?? string.Empty,
-            Description: model.Description,
-            Status: model.Status?.ToString() ?? TaskItemStatus.New.ToString(),
-            Priority: model.Priority?.ToString() ?? TaskItemPriority.Low.ToString(),
-            DueDate: model.DueDate,
-            Message: message,
-            ParentTaskId: parentTaskId,
-            ConfirmationRequired: confirmationRequired
-        );
     }
 }
