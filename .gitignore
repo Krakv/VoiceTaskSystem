@@ -90,3 +90,4 @@ ml/PythonMLModels/IntentClassifier/model.onnx.data
 ml/PythonMLModels/EntityExtractor/model.onnx
 ml/PythonMLModels/EntityExtractor/ner_task_dataset.json
 /src/SpeechProcessingService/SpeechProcessingService.API/Models
+/docker/Models

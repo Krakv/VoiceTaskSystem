@@ -20,4 +20,7 @@ public enum CommandRequestStatus
 
     [EnumMember(Value = "failed")]
     Failed = 4,
+
+    [EnumMember(Value = "waiting_for_confirmation")]
+    WaitingForConfirmation = 5,
 }

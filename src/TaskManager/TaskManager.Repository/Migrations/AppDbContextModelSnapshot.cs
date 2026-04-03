@@ -17,7 +17,7 @@ namespace TaskManager.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.12")
+                .HasAnnotation("ProductVersion", "9.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -167,7 +167,7 @@ namespace TaskManager.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.CalendarEvent", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.CalendarEvent", b =>
                 {
                     b.Property<Guid>("EventId")
                         .ValueGeneratedOnAdd()
@@ -206,7 +206,7 @@ namespace TaskManager.Migrations
                     b.ToTable("CalendarEvent");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.CommandRequestItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.CommandRequestItem", b =>
                 {
                     b.Property<Guid>("CommandRequestId")
                         .ValueGeneratedOnAdd()
@@ -224,14 +224,13 @@ namespace TaskManager.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Intent")
+                    b.Property<int?>("Intent")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Payload")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("Status")
@@ -247,7 +246,7 @@ namespace TaskManager.Migrations
                     b.ToTable("CommandRequest");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.ExternalCalendarAccount", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", b =>
                 {
                     b.Property<Guid>("ExternalCalendarAccountId")
                         .ValueGeneratedOnAdd()
@@ -280,7 +279,7 @@ namespace TaskManager.Migrations
                     b.ToTable("ExternalCalendarAccount");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.NotificationItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.NotificationItem", b =>
                 {
                     b.Property<Guid>("NotificationId")
                         .ValueGeneratedOnAdd()
@@ -318,7 +317,7 @@ namespace TaskManager.Migrations
                     b.ToTable("Notification");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.RuleItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.RuleItem", b =>
                 {
                     b.Property<Guid>("RuleId")
                         .ValueGeneratedOnAdd()
@@ -348,7 +347,7 @@ namespace TaskManager.Migrations
                     b.ToTable("Rule");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.ServiceItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.ServiceItem", b =>
                 {
                     b.Property<int>("ServiceId")
                         .ValueGeneratedOnAdd()
@@ -386,7 +385,7 @@ namespace TaskManager.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.TaskItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.TaskItem", b =>
                 {
                     b.Property<Guid>("TaskId")
                         .ValueGeneratedOnAdd()
@@ -434,7 +433,7 @@ namespace TaskManager.Migrations
                     b.ToTable("Task");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.User", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -509,13 +508,13 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("CommandRequestItemTaskItem", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.CommandRequestItem", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.CommandRequestItem", null)
                         .WithMany()
                         .HasForeignKey("CommandRequestsCommandRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManager.Application.Domain.Entities.TaskItem", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", null)
                         .WithMany()
                         .HasForeignKey("TaskItemsTaskId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -533,7 +532,7 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -542,7 +541,7 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -557,7 +556,7 @@ namespace TaskManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -566,22 +565,22 @@ namespace TaskManager.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", null)
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.CalendarEvent", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.CalendarEvent", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.ExternalCalendarAccount", "ExternalCalendarAccount")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", "ExternalCalendarAccount")
                         .WithMany("CalendarEvents")
                         .HasForeignKey("ExternalAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManager.Application.Domain.Entities.TaskItem", "Task")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -592,9 +591,9 @@ namespace TaskManager.Migrations
                     b.Navigation("Task");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.CommandRequestItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.CommandRequestItem", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", "Owner")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
                         .WithMany("CommandRequests")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -603,9 +602,9 @@ namespace TaskManager.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.ExternalCalendarAccount", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", "Owner")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
                         .WithMany("ExternalCalendarAccounts")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -614,15 +613,15 @@ namespace TaskManager.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.NotificationItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.NotificationItem", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.ServiceItem", "Service")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.ServiceItem", "Service")
                         .WithMany("Notifications")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManager.Application.Domain.Entities.TaskItem", "Task")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", "Task")
                         .WithMany()
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -633,9 +632,9 @@ namespace TaskManager.Migrations
                     b.Navigation("Task");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.RuleItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.RuleItem", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", "Owner")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -644,15 +643,15 @@ namespace TaskManager.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.TaskItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.TaskItem", b =>
                 {
-                    b.HasOne("TaskManager.Application.Domain.Entities.User", "Owner")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
                         .WithMany("Tasks")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManager.Application.Domain.Entities.TaskItem", "Parent")
+                    b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentTaskId");
 
@@ -661,22 +660,22 @@ namespace TaskManager.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.ExternalCalendarAccount", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", b =>
                 {
                     b.Navigation("CalendarEvents");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.ServiceItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.ServiceItem", b =>
                 {
                     b.Navigation("Notifications");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.TaskItem", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.TaskItem", b =>
                 {
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("TaskManager.Application.Domain.Entities.User", b =>
+            modelBuilder.Entity("TaskManager.Shared.Domain.Entities.User", b =>
                 {
                     b.Navigation("CommandRequests");
 

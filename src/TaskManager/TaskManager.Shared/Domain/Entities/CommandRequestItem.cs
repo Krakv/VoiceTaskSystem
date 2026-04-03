@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.Shared.Domain.Entities;
@@ -16,12 +14,10 @@ public class CommandRequestItem
     [ForeignKey(nameof(OwnerId))]
     public User Owner { get; set; } = null!;
 
-    [Required]
-    public CommandIntent Intent { get; set; }
+    public CommandIntent? Intent { get; set; }
 
-    [Required]
     [Column(TypeName = "jsonb")]
-    public string Payload { get; set; } = string.Empty;
+    public string? Payload { get; set; }
 
     [Required]
     public CommandRequestStatus Status { get; set; } = CommandRequestStatus.Pending;

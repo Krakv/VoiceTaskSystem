@@ -1,7 +1,9 @@
-﻿namespace SpeechProcessingService.Application.Services.Interfaces;
+﻿using SpeechProcessingService.Application.DTOs.Responses;
+
+namespace SpeechProcessingService.Application.Services.Interfaces;
 
 public interface IIntentClassificationService
 {
-    Task<string> ClassifyIntentAsync(string commandText);
+    Task<CommandIntent> ClassifyIntentAsync(string commandText);
     Task InitAsync();
 }

@@ -27,7 +27,7 @@ RUN dotnet build "SpeechProcessingService.API.csproj" -c $BUILD_CONFIGURATION -o
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "SpeechProcessingService.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SpeechProcessingService.API.csproj" -c $BUILD_CONFIGURATION -r linux-x64 --self-contained false -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

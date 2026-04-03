@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.ApiGateway.DTOs;
 using TaskManager.Shared.DTOs.Responses;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.ConfirmVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.DeleteVoiceTask;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.GetVoiceTaskStatus;
-using TaskManager.TaskManagement.Application.Features.CommandRequestItem.UpdateVoiceTask;
-using InputFile = TaskManager.TaskManagement.Application.Features.CommandRequestItem.CreateVoiceTask.InputFile;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.ConfirmVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.CreateVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.DeleteVoiceTask;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
+using InputFile = TaskManager.Shared.DTOs.Requests.InputFile;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -36,14 +36,20 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
             ));
         }
 
-        using var stream = dto.FormFile.OpenReadStream();
+        byte[] content;
+
+        using (var ms = new MemoryStream())
+        {
+            await dto.FormFile.CopyToAsync(ms);
+            content = ms.ToArray();
+        }
 
         var response = await _mediator.Send(new CreateVoiceTaskCommand(
             new InputFile(
                 fileName: dto.FormFile.FileName,
                 contentType: dto.FormFile.ContentType,
                 length: dto.FormFile.Length,
-                content: stream
+                content: content
             )
         ));
 
@@ -61,12 +67,12 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     [HttpPatch("requests/{commandRequestId}")]
     public async Task<IActionResult> UpdateVoiceTask([FromBody] UpdateVoiceTaskDto dto, string commandRequestId)
     {
-        var response = await _mediator.Send(new UpdateVoiceTaskCommand(commandRequestId, dto.ProjectName, dto.Title, dto.Description, dto.Status, dto.DueDate, dto.Priority));
+        var response = await _mediator.Send(new UpdateVoiceTaskCommand(commandRequestId, dto.TaskId, dto.ProjectName, dto.Title, dto.Description, dto.Status, dto.DueDate, dto.Priority, dto.ParentTaskId));
 
         return Success(response);
     }
 
-    [HttpPost("requests/{commandRequestId}")]
+    [HttpPost("requests/{commandRequestId}/confirm")]
     public async Task<IActionResult> ConfirmVoiceTask(string commandRequestId)
     {
         var response = await _mediator.Send(new ConfirmVoiceTaskCommand(commandRequestId));

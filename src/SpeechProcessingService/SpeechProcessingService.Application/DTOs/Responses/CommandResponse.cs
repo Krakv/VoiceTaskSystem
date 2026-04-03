@@ -1,7 +1,10 @@
-﻿namespace SpeechProcessingService.Application.DTOs.Responses;
+﻿using SpeechProcessingService.Application.Models;
+
+namespace SpeechProcessingService.Application.DTOs.Responses;
 
 public record CommandResponse(
     Guid CommandId,
     string TextRecognized,
-    Dictionary<string, string> Parameters
+    CommandIntent CommandIntent,
+    TaskItem Entities
   );

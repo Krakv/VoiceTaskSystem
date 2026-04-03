@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Options;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
-using Tokenizers.DotNet;
 using SpeechProcessingService.Application.Config;
 using SpeechProcessingService.Application.Services.Interfaces;
 using SpeechProcessingService.Infrastructure.Utils;
+using Tokenizers.DotNet;
 
 namespace SpeechProcessingService.Infrastructure.Services;
 
@@ -23,6 +23,7 @@ public class EntityExtractionService: IEntityExtractionService
     private readonly NerOnnxModel _model;
     private readonly Dictionary<int, string> _id2label;
     private Tokenizer? _tokenizer;
+    private InferenceSession? _session;
 
     /// <summary>
     /// Создаёт новый экземпляр сервиса EntityExtractionService.
@@ -64,6 +65,7 @@ public class EntityExtractionService: IEntityExtractionService
     {
         await InitModelAsync();
         await InitTokenizerAsync();
+        _session = new InferenceSession(_model.ModelPath);
     }
 
     /// <summary>
@@ -105,8 +107,8 @@ public class EntityExtractionService: IEntityExtractionService
     /// </returns>
     public async Task<Dictionary<string, string>> ExtractEntitiesAsync(string commandText)
     {
-        if (_tokenizer == null)
-            throw new InvalidOperationException("Tokenizer not initialized");
+        if (_tokenizer == null) throw new TypeInitializationException(typeof(Tokenizer).ToString(), new Exception("Tokenizer not initialized"));
+        if (_session == null) throw new TypeInitializationException(typeof(InferenceSession).ToString(), new Exception("Session not initialized"));
 
         const int maxLen = 64;
         const uint padId = 1;
@@ -129,8 +131,6 @@ public class EntityExtractionService: IEntityExtractionService
         var inputIds = paddedIds.Select(x => (long)x).ToArray();
         var attentionMask = paddedIds.Select((id, i) => i < originalLength ? 1L : 0L).ToArray();
 
-        using var session = new InferenceSession(_model.ModelPath);
-
         var inputIdsTensor = new DenseTensor<long>(inputIds, [1, maxLen]);
         var attentionMaskTensor = new DenseTensor<long>(attentionMask, [1, maxLen]);
 
@@ -140,7 +140,7 @@ public class EntityExtractionService: IEntityExtractionService
             NamedOnnxValue.CreateFromTensor("attention_mask", attentionMaskTensor)
         };
 
-        using var results = session.Run(inputs);
+        using var results = _session.Run(inputs);
         var output = results[0].AsEnumerable<float>().ToArray();
         int numLabels = _id2label.Count;
 

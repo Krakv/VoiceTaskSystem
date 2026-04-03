@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Shared.DTOs.Responses;
-using TaskManager.TaskManagement.Application.Features.TaskItem.CreateTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.DeleteTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.DTOs;
-using TaskManager.TaskManagement.Application.Features.TaskItem.GetTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.GetTasks;
-using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTask;
-using TaskManager.TaskManagement.Application.Features.TaskItem.UpdateTaskPatch;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.DTOs;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -61,8 +61,11 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("{taskId}")]
-    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskDto dto, string taskId)
+    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskPatchDto dto, string taskId)
     {
+        if (dto is null)
+            return BadRequest("Request body cannot be null.");
+
         var response = await _mediator.Send(new UpdateTaskPatchCommand(
             taskId,
             dto.ProjectName,

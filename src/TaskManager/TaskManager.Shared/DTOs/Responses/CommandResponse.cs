@@ -1,6 +1,11 @@
-﻿namespace TaskManager.Shared.DTOs.Responses;
+﻿using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.Models;
+
+namespace TaskManager.Shared.DTOs.Responses;
 
 public record CommandResponse(
     Guid CommandId,
-    Dictionary<string, string> Parameters
+    string TextRecognized,
+    CommandIntent CommandIntent,
+    TaskItemModel Entities
   );
