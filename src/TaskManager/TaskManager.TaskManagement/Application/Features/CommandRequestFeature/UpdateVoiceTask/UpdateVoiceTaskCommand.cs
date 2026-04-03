@@ -4,10 +4,12 @@ namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.
 
 public sealed record UpdateVoiceTaskCommand(
     string CommandRequestId,
+    string? TaskId,
     string? ProjectName,
     string? Title,
     string? Description,
     string? Status,
     string? DueDate,
-    string? Priority
+    string? Priority,
+    string? ParentTaskId
     ) : IRequest<UpdateVoiceTaskResponse>;

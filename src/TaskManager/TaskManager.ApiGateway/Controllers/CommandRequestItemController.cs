@@ -67,7 +67,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
     [HttpPatch("requests/{commandRequestId}")]
     public async Task<IActionResult> UpdateVoiceTask([FromBody] UpdateVoiceTaskDto dto, string commandRequestId)
     {
-        var response = await _mediator.Send(new UpdateVoiceTaskCommand(commandRequestId, dto.ProjectName, dto.Title, dto.Description, dto.Status, dto.DueDate, dto.Priority));
+        var response = await _mediator.Send(new UpdateVoiceTaskCommand(commandRequestId, dto.TaskId, dto.ProjectName, dto.Title, dto.Description, dto.Status, dto.DueDate, dto.Priority, dto.ParentTaskId));
 
         return Success(response);
     }
