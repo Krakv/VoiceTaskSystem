@@ -55,7 +55,7 @@ public class VoiceProcessingHandler(
             // Команда обработана
             entity.Intent = result.CommandIntent;
             entity.Payload = payload;
-            entity.Status = CommandRequestStatus.Accepted;
+            entity.Status = CommandRequestStatus.WaitingForConfirmation;
             _logger.LogInformation("Voice command successfully processed: {CommandRequestId}", request.VoiceCommandRequest.CommandId);
         }
         catch(Exception ex)
