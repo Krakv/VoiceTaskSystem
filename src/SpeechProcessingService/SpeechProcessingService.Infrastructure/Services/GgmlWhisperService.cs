@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using SpeechProcessingService.Application.Config;
 using SpeechProcessingService.Application.DTOs;
 using SpeechProcessingService.Application.Services.Interfaces;
-using SpeechProcessingService.Application.Config;
 using Whisper.net;
 using Whisper.net.Ggml;
 
@@ -12,6 +12,16 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
     private readonly WhisperFactory _factory = WhisperFactory.FromPath(model.Value.Path);
     private readonly WhisperGgmlDownloader _downloader = new(httpClientFactory.CreateClient());
     private readonly string _modelPath = model.Value.Path;
+    private WhisperProcessor? _processor;
+
+    public async Task InitAsync()
+    {
+        await EnsureModelDownloadedAsync();
+        _processor = _factory
+                .CreateBuilder()
+                .WithLanguage("ru")
+                .Build();
+    }
 
     public async Task EnsureModelDownloadedAsync()
     {
@@ -28,7 +38,7 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
 
     public async Task<string> RecognizeSpeechAsync(AudioFile audioFile)
     {
-        await EnsureModelDownloadedAsync();
+        if (_processor == null) throw new TypeInitializationException(typeof(WhisperProcessor).ToString(), new Exception("Whisper processor not initialized"));
 
         var tempPath = Path.GetRandomFileName() + ".wav";
 
@@ -37,15 +47,10 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
             using var inputStream = new MemoryStream(audioFile.Content);
             await ConvertToWavAsync(inputStream, tempPath);
 
-            using var processor = _factory
-                .CreateBuilder()
-                .WithLanguage("ru")
-                .Build();
-
             var segments = new List<string>();
 
             await using var wavStream = File.OpenRead(tempPath);
-            await foreach (var segment in processor.ProcessAsync(wavStream))
+            await foreach (var segment in _processor.ProcessAsync(wavStream))
             {
                 segments.Add(segment.Text);
             }

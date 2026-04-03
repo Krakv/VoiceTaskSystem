@@ -23,6 +23,7 @@ public class IntentClassificationService : IIntentClassificationService
     private readonly IntentOnnxModel _model;
     private readonly ILogger<IntentClassificationService> _logger;
     private BertTokenizer? _tokenizer;
+    private InferenceSession? _session;
 
     /// <summary>
     /// Создаёт новый экземпляр сервиса IntentClassificationService.
@@ -43,6 +44,7 @@ public class IntentClassificationService : IIntentClassificationService
     {
         await InitModelAsync();
         await InitTokenizerAsync();
+        _session = new InferenceSession(_model.ModelPath);
     }
 
     /// <summary>
@@ -98,6 +100,7 @@ public class IntentClassificationService : IIntentClassificationService
 public async Task<CommandIntent> ClassifyIntentAsync(string commandText)
     {
         if (_tokenizer == null) throw new TypeInitializationException(typeof(BertTokenizer).ToString(), new Exception("Tokenizer not initialized"));
+        if (_session == null) throw new TypeInitializationException(typeof(InferenceSession).ToString(), new Exception("Session not initialized"));
 
         // Токенизация текста
         var ids = _tokenizer.EncodeToIds(commandText);
@@ -120,7 +123,6 @@ public async Task<CommandIntent> ClassifyIntentAsync(string commandText)
         var inputIds = padded.Select(x => (long)x).ToArray();
 
         // Прогон через ONNX
-        using var session = new InferenceSession(_model.ModelPath);
 
         var inputIdsTensor = new DenseTensor<long>(inputIds, new int[] { 1, maxLen });
         var attentionMaskTensor = new DenseTensor<long>(attentionMask, new int[] { 1, maxLen });
@@ -131,7 +133,7 @@ public async Task<CommandIntent> ClassifyIntentAsync(string commandText)
             NamedOnnxValue.CreateFromTensor("attention_mask", attentionMaskTensor)
         };
 
-        using var results = session.Run(inputs);
+        using var results = _session.Run(inputs);
 
         var output = results[0].AsEnumerable<float>().ToArray();
 

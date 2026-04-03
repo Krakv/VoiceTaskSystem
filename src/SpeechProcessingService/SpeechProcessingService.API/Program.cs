@@ -30,13 +30,13 @@ builder.Services.AddMediatR(cfg =>
 #endregion MediatR
 
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IAsrService, GgmlWhisperService>();
 builder.Services.AddScoped<IDateParser, DucklingClient>();
 
+builder.Services.AddSingleton<IAsrService, GgmlWhisperService>();
 builder.Services.AddSingleton<IIntentClassificationService, IntentClassificationService>();
 builder.Services.AddSingleton<IEntityExtractionService, EntityExtractionService>();
 builder.Services.AddSingleton<IEntityNormalizer, EntityNormalizer>();
-builder.Services.AddScoped<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
+builder.Services.AddSingleton<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
 
 builder.Services.AddControllers()
@@ -49,17 +49,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var asrService = app.Services.GetRequiredService<IAsrService>();
+await asrService.InitAsync();
+
 var intentClassificationService = app.Services.GetRequiredService<IIntentClassificationService>();
 await intentClassificationService.InitAsync();
 
 var entityExtractionService = app.Services.GetRequiredService<IEntityExtractionService>();
 await entityExtractionService.InitAsync();
-
-using (var scope = app.Services.CreateScope())
-{
-    var asrService = scope.ServiceProvider.GetRequiredService<IAsrService>() as GgmlWhisperService;
-    await asrService!.EnsureModelDownloadedAsync();
-}
 
 if (app.Environment.IsDevelopment())
 {
