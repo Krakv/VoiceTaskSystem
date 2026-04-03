@@ -19,17 +19,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Cache Models
-        uses: actions/cache@v3
-        with:
-          path: SpeechProcessingService.API/Models
-          key: ${{ runner.os }}-models
 
       - name: Docker compose up (build)
         uses: hoverkraft-tech/compose-action@v2.4.3
         with:
-          compose-file: "./docker/docker-compose.yml"
+          compose-file: "./docker/docker-compose.ci.yml"
 
       - name: Docker logs (on failure)
         if: failure()
@@ -53,17 +47,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Cache Models
-        uses: actions/cache@v3
-        with:
-          path: SpeechProcessingService.API/Models
-          key: ${{ runner.os }}-models
 
       - name: Docker compose up (tests)
         uses: hoverkraft-tech/compose-action@v2.4.3
         with:
-          compose-file: "./docker/docker-compose.yml"
+          compose-file: "./docker/docker-compose.ci.yml"
 
       - name: Install Postman CLI
         run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
