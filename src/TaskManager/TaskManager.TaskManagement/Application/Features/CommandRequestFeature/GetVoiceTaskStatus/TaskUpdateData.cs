@@ -2,6 +2,7 @@
 
 public record TaskUpdateData(
     List<Guid> TaskIds,
+    string? ProjectName,
     string? Description,
     string? Status,
     string? Priority,

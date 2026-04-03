@@ -1,6 +1,7 @@
 ﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 public record TaskCreateData(
+    string? ProjectName,
     string Title,
     string? Description,
     string Status,

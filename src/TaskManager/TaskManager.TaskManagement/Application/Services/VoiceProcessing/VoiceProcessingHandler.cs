@@ -55,7 +55,9 @@ public class VoiceProcessingHandler(
             // Команда обработана
             entity.Intent = result.CommandIntent;
             entity.Payload = payload;
-            entity.Status = CommandRequestStatus.WaitingForConfirmation;
+            entity.Status = result.CommandIntent == CommandIntent.TaskQuery 
+                ? CommandRequestStatus.Accepted 
+                : CommandRequestStatus.WaitingForConfirmation;
             _logger.LogInformation("Voice command successfully processed: {CommandRequestId}", request.VoiceCommandRequest.CommandId);
         }
         catch(Exception ex)
@@ -124,6 +126,7 @@ public class VoiceProcessingHandler(
         bool confirmationRequired = true)
     {
         return new TaskCreateData(
+            ProjectName: model.ProjectName,
             Title: model.Title ?? string.Empty,
             Description: model.Description,
             Status: model.Status?.ToString() ?? TaskItemStatus.New.ToString(),
@@ -142,6 +145,7 @@ public class VoiceProcessingHandler(
     {
         return new TaskUpdateData(
             TaskIds: await FindTasksAsync(model.Title, userId),
+            ProjectName: model.ProjectName,
             Description: model.Description,
             Status: model.Status?.ToString() ?? TaskItemStatus.New.ToString(),
             Priority: model.Priority?.ToString() ?? TaskItemPriority.Low.ToString(),
