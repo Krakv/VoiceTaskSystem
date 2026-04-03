@@ -23,12 +23,17 @@ public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<Ge
 
         if (command.Status == CommandRequestStatus.Cancelled)
         {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID отменен");
+            throw new ValidationAppException("CANCELLED", "Запрос с указанным ID отменен");
         }
 
         if (command.Status == CommandRequestStatus.Pending || command.Status == CommandRequestStatus.Processing)
         {
             throw new ValidationAppException("PENDING", "Запрос еще обрабатывается");
+        }
+
+        if (command.Status == CommandRequestStatus.Accepted)
+        {
+            throw new ValidationAppException("ALREADY_CONFIRMED", "Команда уже принята");
         }
 
         if (command.Status == CommandRequestStatus.Failed || command.Intent == null || command.Payload == null)

@@ -23,8 +23,31 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
     public async Task<UpdateVoiceTaskResponse> Handle(UpdateVoiceTaskCommand request, CancellationToken cancellationToken)
     {
         var command = await _dbContext.CommandRequestItem.FindAsync(Guid.Parse(request.CommandRequestId));
+
         if (command == null)
-            throw new ValidationAppException("NOT_FOUND", "Команда не найдена");
+        {
+            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
+        }
+
+        if (command.Status == CommandRequestStatus.Cancelled)
+        {
+            throw new ValidationAppException("CANCELLED", "Запрос с указанным ID отменен");
+        }
+
+        if (command.Status == CommandRequestStatus.Pending || command.Status == CommandRequestStatus.Processing)
+        {
+            throw new ValidationAppException("PENDING", "Запрос еще обрабатывается");
+        }
+
+        if (command.Status == CommandRequestStatus.Accepted)
+        {
+            throw new ValidationAppException("ALREADY_CONFIRMED", "Команда уже принята");
+        }
+
+        if (command.Status == CommandRequestStatus.Failed || command.Intent == null || command.Payload == null)
+        {
+            throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось обработать команду");
+        }
 
         if (command.Payload == null)
             throw new ValidationAppException("INVALID_STATE", "Команда не содержит payload");
@@ -65,7 +88,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
                 }
 
             default:
-                throw new ValidationAppException("INVALID_INTENT", "Команда не поддерживает редактирование");
+                throw new ValidationAppException("INVALID_PARAMS", "Команда не поддерживает редактирование");
         }
 
         command.UpdatedAt = DateTimeOffset.UtcNow;
