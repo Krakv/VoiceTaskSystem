@@ -7,6 +7,5 @@ public sealed record UpdateTaskPatchDto(
     string? Status = null,
     string? Priority = null,
     string? DueDate = null,
-    string? Tags = null,
     string? ParentTaskId = null
 );

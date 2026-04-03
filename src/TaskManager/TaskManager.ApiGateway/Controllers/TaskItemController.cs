@@ -61,8 +61,11 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("{taskId}")]
-    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskDto dto, string taskId)
+    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskPatchDto dto, string taskId)
     {
+        if (dto is null)
+            return BadRequest("Request body cannot be null.");
+
         var response = await _mediator.Send(new UpdateTaskPatchCommand(
             taskId,
             dto.ProjectName,
