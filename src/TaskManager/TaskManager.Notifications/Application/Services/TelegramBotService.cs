@@ -36,10 +36,30 @@ public class TelegramBotService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // UpdateHander - обработчик приходящих Update`ов
-        // ErrorHandler - обработчик ошибок, связанных с Bot API
-        _logger.LogInformation("Started TelegramBotService");
-        await _botClient.ReceiveAsync(UpdateHandler, ErrorHandler, _receiverOptions, stoppingToken); // Запускаем бота
+        _logger.LogInformation("TelegramBotService started");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                _logger.LogInformation("Starting Telegram polling...");
+
+                await _botClient.ReceiveAsync(
+                    UpdateHandler,
+                    ErrorHandler,
+                    _receiverOptions,
+                    stoppingToken
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Telegram bot crashed");
+
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
+
+        _logger.LogInformation("TelegramBotService stopped");
     }
 
     private async Task UpdateHandler(ITelegramBotClient botClient, Telegram.Bot.Types.Update update, CancellationToken cancellationToken)
