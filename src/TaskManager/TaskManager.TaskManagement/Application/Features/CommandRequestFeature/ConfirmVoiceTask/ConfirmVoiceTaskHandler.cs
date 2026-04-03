@@ -9,7 +9,7 @@ using TaskManager.Shared.Exceptions;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
-using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.ConfirmVoiceTask;
 
@@ -75,14 +75,14 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                 case CommandIntent.TaskUpdate:
                     {
                         var updateData = (payload as TaskUpdateData)!;
-                        var resp = await _mediator.Send(new UpdateTaskCommand(
+                        var resp = await _mediator.Send(new UpdateTaskPatchCommand(
                                 updateData.TaskIds.FirstOrDefault().ToString(),
-                                updateData.ProjectName ?? "",
-                                "",
-                                updateData.Description ?? "",
-                                updateData.Status ?? "",
-                                updateData.Priority ?? "",
-                                updateData.DueDate?.ToString() ?? "",
+                                updateData.ProjectName,
+                                null,
+                                updateData.Description,
+                                updateData.Status,
+                                updateData.Priority,
+                                updateData.DueDate?.ToString(),
                                 updateData.ParentTaskId?.ToString()
                             ), cancellationToken);
                         changedTaskId = resp;
