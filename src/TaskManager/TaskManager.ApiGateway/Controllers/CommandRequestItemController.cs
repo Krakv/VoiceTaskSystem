@@ -72,7 +72,7 @@ public class CommandRequestItemController(IMediator mediator) : ControllerBase
         return Success(response);
     }
 
-    [HttpPost("requests/{commandRequestId}")]
+    [HttpPost("requests/{commandRequestId}/confirm")]
     public async Task<IActionResult> ConfirmVoiceTask(string commandRequestId)
     {
         var response = await _mediator.Send(new ConfirmVoiceTaskCommand(commandRequestId));
