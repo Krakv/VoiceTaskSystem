@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import type { LoginFormData } from "../types/auth";
 import { authApi } from "@/api/auth.api.ts";
 import { useAuthStore } from "@/stores/authStore.ts";
@@ -16,7 +16,7 @@ const Login = () => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
 
