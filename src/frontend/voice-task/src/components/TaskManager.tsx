@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react";
 import { taskApi } from "@/api/task.api";
-import {Card} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import {Plus} from "lucide-react";
-
-interface Task {
-    taskId: string;
-    title: string;
-    projectName: string;
-    status: string;
-    priority: string;
-}
+import type {Task} from "@/types/task";
+import {TaskCard} from "@/components/TaskCard.tsx";
+import {TaskSheet} from "@/components/TaskSheet.tsx";
 
 export const TaskManager = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [error, setError] = useState("");
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
     const fetchTasks = async () => {
@@ -27,6 +23,19 @@ export const TaskManager = () => {
         }
     };
 
+    const handleOpen = async (task: Task) => {
+        const { data } = await taskApi.getTaskById(task.taskId);
+        console.log(data.data);
+        setSelectedTask(data.data);
+        setOpen(true);
+    };
+
+    const handleToggle = async (task: Task) => {
+        await taskApi.updateTask(task.taskId, {
+            status: task.status === "Done" ? "InProgress" : "Done",
+        });
+    };
+
     useEffect(() => {
         fetchTasks();
     }, []);
@@ -34,15 +43,6 @@ export const TaskManager = () => {
     const handleCreate = () => {
         navigate("/create");
         console.log("Создать новую задачу");
-    };
-
-    const handleDelete = async (taskId: string) => {
-        try {
-            await taskApi.deleteTask(taskId);
-            setTasks((prev) => prev.filter((t) => t.taskId !== taskId));
-        } catch (err: any) {
-            setError(err.message || "Ошибка удаления");
-        }
     };
 
     return (
@@ -53,26 +53,15 @@ export const TaskManager = () => {
                 <div>Задач нет</div>
             ) : (
                 tasks.map((task) => (
-                    <Card
-                        key={task.taskId}
-                        className="p-4 border rounded-md flex justify-between items-center hover:shadow-md transition-shadow"
-                    >
-                        <Card>
-                            <div>{task.title}</div>
-                            <div>
-                                {task.projectName || "Без проекта"} | {task.status} | {task.priority}
-                            </div>
-                        </Card>
-                        <Button size="sm" onClick={() => handleDelete(task.taskId)}>
-                            Удалить
-                        </Button>
-                    </Card>
+                    <TaskCard key={task.taskId} task={task} onOpen={handleOpen} onToggle={handleToggle}/>
                 ))
             )}
 
+            <TaskSheet task={selectedTask} open={open} onOpenChange={setOpen} />
+
             <Button
                 onClick={handleCreate}
-                className="sticky bottom-4 right-4 rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-lg bg-blue-600 text-white hover:bg-blue-700"
+                className="sticky bottom-4 right-4 rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-lg bg-black text-white hover:bg-gray-600"
             >
                 <Plus className="w-6 h-6" />
             </Button>

@@ -21,7 +21,7 @@ export const BottomNav = () => {
     ];
 
     return (
-        <div className="sticky bottom-0 border-t border-gray-200 bg-white flex justify-around py-2 shadow-md z-50">
+        <div className="sticky bottom-0 flex justify-around py-2 z-50">
             {navItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
