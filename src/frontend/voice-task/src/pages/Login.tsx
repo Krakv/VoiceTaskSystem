@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/authStore.ts";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import {Link} from "react-router-dom";
 
 const Login = () => {
     const setAuthData = useAuthStore((state) => state.setAuthData);
@@ -72,6 +73,13 @@ const Login = () => {
                 <Button type="submit" className="w-full">
                     Войти
                 </Button>
+
+                <div className="mt-4 text-sm text-gray-500">
+                    Еще не зарегистрированы?{" "}
+                    <Link to="/register" className="text-blue-500 hover:underline">
+                        Зарегистрироваться
+                    </Link>
+                </div>
             </form>
         </div>
     );
