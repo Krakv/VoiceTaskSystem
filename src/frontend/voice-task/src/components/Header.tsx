@@ -1,63 +1,47 @@
 import { useAuthStore } from '@/stores/authStore';
-import { Link, useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
+import {ArrowLeft, LogOut} from "lucide-react";
 
 const Header = () => {
-    const isAuth = useAuthStore((state) => state.isAuth);
     const logout = useAuthStore((state) => state.logout);
+    const navigate = useNavigate();
     const location = useLocation();
 
-    return (
-        <header className="bg-background border-b">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                <div className="flex items-center space-x-6">
-                    <nav className="hidden md:flex space-x-4">
-                        {isAuth && (
-                            <>
-                                <Button
-                                    variant={location.pathname === '/main' ? 'ghost' : 'outline'}
-                                >
-                                    <Link to="/main">Список задач</Link>
-                                </Button>
-                                <Button
-                                    variant={location.pathname === '/create' ? 'ghost' : 'outline'}
-                                >
-                                    <Link to="/create">Создать задачу</Link>
-                                </Button>
-                            </>
-                        )}
-                    </nav>
-                </div>
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
-                <div className="flex items-center space-x-4">
-                    {isAuth ? (
-                        <>
-                            <Button variant="outline" onClick={logout}>
-                                Выйти
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button
-                                asChild
-                                variant={
-                                    location.pathname === '/login' ? 'ghost' : 'outline'
-                                }
-                            >
-                                <Link to="/login">Войти</Link>
-                            </Button>
-                            <Button
-                                asChild
-                                variant={
-                                    location.pathname === '/register' ? 'ghost' : 'outline'
-                                }
-                            >
-                                <Link to="/register">Зарегистрироваться</Link>
-                            </Button>
-                        </>
-                    )}
-                </div>
-            </div>
+    const handleBack = () => {
+        navigate(-1);
+    };
+
+    const hideBackButton = location.pathname === "/tasks";
+
+    return (
+        <header className="flex justify-between items-right p-4 bg-white border-b border-gray-200">
+            {!hideBackButton && (
+                <Button
+                    variant="ghost"
+                    className="p-2"
+                    onClick={handleBack}
+                    title="Назад"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </Button>
+            )}
+
+            {!hideBackButton && <div className="flex-1" />}
+
+            <Button
+                variant="ghost"
+                className="p-2"
+                onClick={handleLogout}
+                title="Выйти"
+            >
+                <LogOut className="w-5 h-5" />
+            </Button>
         </header>
     );
 };
