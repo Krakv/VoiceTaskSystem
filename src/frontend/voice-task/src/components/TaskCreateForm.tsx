@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { taskApi, type TaskCreateDto } from "@/api/task.api";
-import {Card} from "@/components/ui/card.tsx";
-import {Input} from "@/components/ui/input.tsx";
-import {Button} from "@/components/ui/button.tsx";
+import { Card } from "@/components/ui/card.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 interface TaskFormProps {
     onSuccess?: () => void;
@@ -44,50 +44,45 @@ export const TaskCreateForm = ({ onSuccess }: TaskFormProps) => {
     };
 
     return (
-        <Card >
+        <Card className="max-w-md mx-auto p-6">
             <div className="flex flex-col gap-4">
-                {error && <div>{error}</div>}
+                {error && <div className="text-red-500 text-sm">{error}</div>}
 
                 <Input
-                    placeholder="Заголовок"
+                    placeholder="Заголовок задачи"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
                 <Input
-                    placeholder="Проект"
+                    placeholder="Проект (необязательно)"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
                 />
-                <select
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value as "Low" | "Medium" | "High")}
-                    style={{
-                        padding: "0.5rem",
-                        borderRadius: 4,
-                        border: "1px solid #CBD5E0",
-                    }}
-                >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                </select>
 
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as "New" | "InProgress" | "Done" | "Canceled")}
-                    style={{
-                        padding: "0.5rem",
-                        borderRadius: 4,
-                        border: "1px solid #CBD5E0",
-                    }}
-                >
-                    <option value="New">New</option>
-                    <option value="InProgress">In Progress</option>
-                    <option value="Done">Done</option>
-                    <option value="Canceled">Canceled</option>
-                </select>
+                <div className="flex gap-2">
+                    <select
+                        value={priority}
+                        onChange={(e) => setPriority(e.target.value as "Low" | "Medium" | "High")}
+                        className="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    >
+                        <option value="Low">Низкий</option>
+                        <option value="Medium">Средний</option>
+                        <option value="High">Высокий</option>
+                    </select>
 
-                <Button onClick={handleSubmit} >
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value as "New" | "InProgress" | "Done" | "Canceled")}
+                        className="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    >
+                        <option value="New">Новая</option>
+                        <option value="InProgress">В работе</option>
+                        <option value="Done">Выполнена</option>
+                        <option value="Canceled">Отменена</option>
+                    </select>
+                </div>
+
+                <Button onClick={handleSubmit} className="mt-2 w-full">
                     Создать задачу
                 </Button>
             </div>
