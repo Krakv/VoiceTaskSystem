@@ -1,14 +1,10 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
-import {
-    Box,
-    Button,
-    Input,
-    Stack,
-    Text,
-    Field
-} from "@chakra-ui/react";
 import type {RegisterFormData} from "../types/auth";
 import {authApi} from "@/api/auth.api.ts";
+import {Input} from "@/components/ui/input.tsx";
+import {Label} from "@/components/ui/label.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {Card} from "@/components/ui/card.tsx";
 
 const Register = () => {
     const [form, setForm] = useState<RegisterFormData>({
@@ -20,7 +16,6 @@ const Register = () => {
     });
 
     const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm(prev => ({
@@ -38,7 +33,6 @@ const Register = () => {
             return;
         }
 
-        setLoading(true);
 
         try {
             const response = await authApi.register(form);
@@ -54,17 +48,15 @@ const Register = () => {
         } catch (err) {
             console.error(err);
             setError("Сетевая ошибка");
-        } finally {
-            setLoading(false);
         }
     };
 
     return (
-        <Box maxW="md" mx="auto" mt="10">
+        <Card >
             <form onSubmit={handleSubmit}>
-                <Stack gap="4">
-                    <Field.Root>
-                        <Field.Label>Уникальное имя пользователя</Field.Label>
+                <div className="flex flex-col gap-4">
+                    <Card>
+                        <Label>Уникальное имя пользователя</Label>
                         <Input
                             name="username"
                             type="text"
@@ -72,10 +64,10 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    <Field.Root>
-                        <Field.Label>Ваше имя</Field.Label>
+                    <Card>
+                        <Label>Ваше имя</Label>
                         <Input
                             name="name"
                             type="text"
@@ -83,10 +75,10 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    <Field.Root>
-                        <Field.Label>Email</Field.Label>
+                    <Card>
+                        <Label>Email</Label>
                         <Input
                             name="email"
                             type="email"
@@ -94,10 +86,10 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    <Field.Root>
-                        <Field.Label>Пароль</Field.Label>
+                    <Card>
+                        <Label>Пароль</Label>
                         <Input
                             name="password"
                             type="password"
@@ -105,10 +97,10 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    <Field.Root>
-                        <Field.Label>Подтвердите пароль</Field.Label>
+                    <Card>
+                        <Label>Подтвердите пароль</Label>
                         <Input
                             name="confirm"
                             type="password"
@@ -116,16 +108,16 @@ const Register = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    {error && <Text color="red.500">{error}</Text>}
+                    {error && <div color="red.500">{error}</div>}
 
-                    <Button type="submit" colorScheme="teal" loading={loading}>
+                    <Button type="submit">
                         Зарегистрироваться
                     </Button>
-                </Stack>
+                </div>
             </form>
-        </Box>
+        </Card>
     );
 };
 

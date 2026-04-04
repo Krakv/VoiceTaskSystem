@@ -4,10 +4,9 @@ export interface TaskCreateDto {
     title: string;
     projectName?: string;
     description: string;
-    status?: "new" | "in_progress" | "done" | "canceled";
-    priority?: "low" | "medium" | "high";
+    status?: "New" | "InProgress" | "Done" | "Canceled";
+    priority?: "Low" | "Medium" | "High";
     dueDate?: string;
-    tags: string;
     parentTaskId?: string | null;
 }
 

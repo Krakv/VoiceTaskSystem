@@ -1,15 +1,11 @@
 import { useState, type ChangeEvent, type SubmitEvent } from "react";
-import {
-    Box,
-    Button,
-    Field,
-    Input,
-    Stack,
-    Text,
-} from "@chakra-ui/react";
 import type { LoginFormData } from "../types/auth";
 import {authApi} from "@/api/auth.api.ts";
 import {useAuthStore} from "@/stores/authStore.ts";
+import {Input} from "@/components/ui/input.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {Card} from "@/components/ui/card.tsx";
+import {Label} from "@/components/ui/label.tsx";
 
 const Login = () => {
     const setAuthData = useAuthStore((state) => state.setAuthData);
@@ -19,7 +15,6 @@ const Login = () => {
     });
 
     const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm(prev => ({
@@ -31,7 +26,6 @@ const Login = () => {
     const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
-        setLoading(true);
 
         try {
             const response = await authApi.login(form)
@@ -47,17 +41,15 @@ const Login = () => {
         } catch (error) {
             console.log(error);
             setError("Сетевая ошибка");
-        } finally {
-            setLoading(false);
         }
     };
 
     return (
-        <Box maxW="md" mx="auto" mt="10">
+        <Card >
             <form onSubmit={handleSubmit}>
-                <Stack gap="4">
-                    <Field.Root>
-                        <Field.Label>Имя пользователя</Field.Label>
+                <div className="flex flex-col gap-4">
+                    <Card>
+                        <Label>Имя пользователя</Label>
                         <Input
                             name="username"
                             type="text"
@@ -65,10 +57,10 @@ const Login = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    <Field.Root>
-                        <Field.Label>Пароль</Field.Label>
+                    <Card>
+                        <Label>Пароль</Label>
                         <Input
                             name="password"
                             type="password"
@@ -76,16 +68,16 @@ const Login = () => {
                             onChange={handleChange}
                             required
                         />
-                    </Field.Root>
+                    </Card>
 
-                    {error && <Text color="red.500">{error}</Text>}
+                    {error && <div color="red.500">{error}</div>}
 
-                    <Button type="submit" colorScheme="teal" loading={loading}>
+                    <Button type="submit" >
                         Войти
                     </Button>
-                </Stack>
+                </div>
             </form>
-        </Box>
+        </Card>
     );
 };
 

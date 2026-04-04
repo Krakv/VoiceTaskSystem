@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/authStore';
 import { Link, useLocation } from 'react-router-dom';
-import {Button} from "@chakra-ui/react";
+import {Button} from "@/components/ui/button.tsx";
 
 const Header = () => {
     const isAuth = useAuthStore((state) => state.isAuth);
@@ -15,12 +15,12 @@ const Header = () => {
                         {isAuth && (
                             <>
                                 <Button
-                                    variant={location.pathname === '/main' ? 'solid' : 'outline'}
+                                    variant={location.pathname === '/main' ? 'ghost' : 'outline'}
                                 >
                                     <Link to="/main">Список задач</Link>
                                 </Button>
                                 <Button
-                                    variant={location.pathname === '/create' ? 'solid' : 'outline'}
+                                    variant={location.pathname === '/create' ? 'ghost' : 'outline'}
                                 >
                                     <Link to="/create">Создать задачу</Link>
                                 </Button>
@@ -41,7 +41,7 @@ const Header = () => {
                             <Button
                                 asChild
                                 variant={
-                                    location.pathname === '/login' ? 'solid' : 'outline'
+                                    location.pathname === '/login' ? 'ghost' : 'outline'
                                 }
                             >
                                 <Link to="/login">Войти</Link>
@@ -49,7 +49,7 @@ const Header = () => {
                             <Button
                                 asChild
                                 variant={
-                                    location.pathname === '/register' ? 'solid' : 'outline'
+                                    location.pathname === '/register' ? 'ghost' : 'outline'
                                 }
                             >
                                 <Link to="/register">Зарегистрироваться</Link>
