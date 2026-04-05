@@ -1,4 +1,5 @@
 ﻿using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.DTOs.Responses;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
 
@@ -11,5 +12,6 @@ public sealed record GetTaskResponse(
     DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,
-    string? ParentTaskId
+    TaskShortInfoDto? ParentTask,
+    List<TaskShortInfoDto>? ChildrenTasks
     );
