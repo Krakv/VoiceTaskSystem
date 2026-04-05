@@ -32,7 +32,7 @@ export const TaskManager = () => {
 
     const handleToggle = async (task: Task) => {
         await taskApi.updateTask(task.taskId, {
-            status: task.status === "Done" ? "InProgress" : "Done",
+            status: task.status === "done" ? "inprogress" : "done",
         });
     };
 
