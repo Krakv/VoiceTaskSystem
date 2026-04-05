@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { taskApi, type TaskCreateDto } from "@/api/task.api";
-import { Card } from "@/components/ui/card.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { Button } from "@/components/ui/button.tsx";
+
+import {Card, CardHeader} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import type { TaskPriority, TaskStatus } from "@/types/task";
+import { DatePickerTime } from "@/components/DatePickerTime";
+import { useNavigate } from "react-router-dom";
 
 interface TaskFormProps {
     onSuccess?: () => void;
@@ -11,81 +19,121 @@ interface TaskFormProps {
 export const TaskCreateForm = ({ onSuccess }: TaskFormProps) => {
     const [title, setTitle] = useState("");
     const [projectName, setProjectName] = useState("");
-    const [priority, setPriority] = useState<"Low" | "Medium" | "High">("Low");
-    const [status, setStatus] = useState<"New" | "InProgress" | "Done" | "Canceled">("New");
+    const [description, setDescription] = useState("");
+    const [dueDate, setDueDate] = useState("");
+
+    const [priority, setPriority] = useState<TaskPriority>("low");
+    const [status, setStatus] = useState<TaskStatus>("new");
+
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const navigate = useNavigate();
+
     const handleSubmit = async () => {
-        if (!title) {
+        if (!title.trim()) {
             setError("Введите заголовок задачи");
             return;
         }
+
         setError("");
+        setLoading(true);
 
         const data: TaskCreateDto = {
             title,
             projectName: projectName || undefined,
-            description: "",
+            description: description || undefined,
+            dueDate: dueDate || undefined,
             priority,
-            status
+            status,
         };
 
         try {
             await taskApi.createTask(data);
+
             setTitle("");
             setProjectName("");
-            setPriority("Low");
-            setStatus("New");
+            setDescription("");
+            setDueDate("");
+            setPriority("low");
+            setStatus("new");
+
             onSuccess?.();
         } catch (err) {
             console.error(err);
             setError("Ошибка создания задачи");
+        } finally {
+            setLoading(false);
+            navigate(-1);
         }
     };
 
     return (
-        <Card className="max-w-md mx-auto p-6">
-            <div className="flex flex-col gap-4">
-                {error && <div className="text-red-500 text-sm">{error}</div>}
+        <Card className="max-w-md mx-auto p-4 rounded-2xl">
+            <CardHeader className="text-base font-bold">Создание задачи</CardHeader>
+            {error && <div className="text-sm text-red-500">{error}</div>}
 
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Заголовок</Label>
                 <Input
-                    placeholder="Заголовок задачи"
+                    placeholder="Например: Сделать отчёт"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Описание</Label>
+                <Textarea
+                    placeholder="Описание задачи..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Проект</Label>
                 <Input
-                    placeholder="Проект (необязательно)"
+                    placeholder="Необязательно"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
                 />
-
-                <div className="flex gap-2">
-                    <select
-                        value={priority}
-                        onChange={(e) => setPriority(e.target.value as "Low" | "Medium" | "High")}
-                        className="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                        <option value="Low">Низкий</option>
-                        <option value="Medium">Средний</option>
-                        <option value="High">Высокий</option>
-                    </select>
-
-                    <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value as "New" | "InProgress" | "Done" | "Canceled")}
-                        className="flex-1 border border-gray-300 rounded-md p-2 text-sm focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    >
-                        <option value="New">Новая</option>
-                        <option value="InProgress">В работе</option>
-                        <option value="Done">Выполнена</option>
-                        <option value="Canceled">Отменена</option>
-                    </select>
-                </div>
-
-                <Button onClick={handleSubmit} className="mt-2 w-full">
-                    Создать задачу
-                </Button>
             </div>
+
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Дедлайн</Label>
+                <DatePickerTime value={dueDate} onChange={setDueDate} />
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Приоритет</Label>
+                <Tabs value={priority} onValueChange={value => setPriority(value as TaskPriority)} className="w-full">
+                    <TabsList className="grid grid-cols-3 w-full">
+                        <TabsTrigger value="low" className="text-green-600">Низкий</TabsTrigger>
+                        <TabsTrigger value="medium" className="text-yellow-600">Средний</TabsTrigger>
+                        <TabsTrigger value="high" className="text-red-600">Высокий</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+
+            <div className="space-y-2">
+                <Label className="text-base font-semibold">Статус</Label>
+                <Tabs value={status} onValueChange={value => setStatus(value as TaskStatus)} className="w-full">
+                    <TabsList className="grid grid-cols-3 w-full">
+                        <TabsTrigger value="new" className="text-gray-700">Новая</TabsTrigger>
+                        <TabsTrigger value="inprogress" className="text-blue-600">В работе</TabsTrigger>
+                        <TabsTrigger value="done" className="text-green-700">Готово</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+
+            <Button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full mt-4"
+            >
+                {loading ? "Создание..." : "Создать задачу"}
+            </Button>
         </Card>
     );
 };

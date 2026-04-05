@@ -1,11 +1,12 @@
 import { api } from "@/api/http";
+import type {TaskPriority, TaskStatus} from "@/types/task.ts";
 
 export interface TaskCreateDto {
     title: string;
     projectName?: string;
     description?: string;
-    status?: "New" | "InProgress" | "Done" | "Canceled";
-    priority?: "Low" | "Medium" | "High";
+    status?: TaskStatus;
+    priority?: TaskPriority;
     dueDate?: string;
     parentTaskId?: string | null;
 }
@@ -14,8 +15,8 @@ export interface TaskUpdateDto {
     title?: string;
     projectName?: string;
     description?: string;
-    status?: "New" | "InProgress" | "Done" | "Canceled";
-    priority?: "Low" | "Medium" | "High";
+    status?: TaskStatus;
+    priority?: TaskPriority;
     dueDate?: string;
     parentTaskId?: string | null;
 }
