@@ -2,6 +2,7 @@
 using SpeechProcessingService.Application.Config;
 using SpeechProcessingService.Application.DTOs;
 using SpeechProcessingService.Application.Services.Interfaces;
+using System.Diagnostics;
 using Whisper.net;
 using Whisper.net.Ggml;
 
@@ -45,7 +46,7 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
         try
         {
             using var inputStream = new MemoryStream(audioFile.Content);
-            await ConvertToWavAsync(inputStream, tempPath);
+            await ConvertWebmToWavAsync(inputStream, tempPath);
 
             var segments = new List<string>();
 
@@ -63,111 +64,36 @@ public class GgmlWhisperService(IOptions<GgmlModel> model, IHttpClientFactory ht
         }
     }
 
-    private static async Task ConvertToWavAsync(Stream input, string outputPath)
+    private static async Task ConvertWebmToWavAsync(Stream webmStream, string outputPath)
     {
-        var samples = ReadWavSamples(input, out int sourceSampleRate, out int sourceChannels);
-
-        if (sourceChannels > 1)
-            samples = ConvertToMono(samples, sourceChannels);
-
-        if (sourceSampleRate != 16000)
-            samples = Resample(samples, sourceSampleRate, 16000);
-
-        await WriteWavAsync(outputPath, samples, 16000);
-    }
-
-    private static float[] ReadWavSamples(Stream stream, out int sampleRate, out int channels)
-    {
-        using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
-
-        reader.ReadBytes(4);  // "RIFF"
-        reader.ReadInt32();   // file size
-        reader.ReadBytes(4);  // "WAVE"
-        reader.ReadBytes(4);  // "fmt "
-        reader.ReadInt32();   // chunk size
-        reader.ReadInt16();   // audio format (1 = PCM)
-        channels = reader.ReadInt16();
-        sampleRate = reader.ReadInt32();
-        reader.ReadInt32();   // byte rate
-        reader.ReadInt16();   // block align
-        int bitsPerSample = reader.ReadInt16();
-
-        while (true)
+        // Сохраняем входной поток во временный файл
+        var tempWebm = Path.GetTempFileName() + ".webm";
+        await using (var fileStream = File.Create(tempWebm))
         {
-            var chunkId = new string(reader.ReadChars(4));
-            int chunkSize = reader.ReadInt32();
-            if (chunkId == "data") break;
-            reader.ReadBytes(chunkSize);
+            await webmStream.CopyToAsync(fileStream);
         }
 
-        var dataBytes = reader.ReadBytes(int.MaxValue / 2);
-        var samples = new float[dataBytes.Length / (bitsPerSample / 8)];
-
-        for (int i = 0; i < samples.Length; i++)
+        // Запускаем ffmpeg
+        var process = new Process
         {
-            if (bitsPerSample == 16)
-                samples[i] = BitConverter.ToInt16(dataBytes, i * 2) / 32768f;
-            else if (bitsPerSample == 32)
-                samples[i] = BitConverter.ToSingle(dataBytes, i * 4);
-            else if (bitsPerSample == 8)
-                samples[i] = (dataBytes[i] - 128) / 128f;
-        }
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-y -i \"{tempWebm}\" -ar 16000 -ac 1 \"{outputPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
 
-        return samples;
-    }
+        process.Start();
+        string stderr = await process.StandardError.ReadToEndAsync();
+        process.WaitForExit();
 
-    private static float[] ConvertToMono(float[] samples, int channels)
-    {
-        var mono = new float[samples.Length / channels];
-        for (int i = 0; i < mono.Length; i++)
-        {
-            float sum = 0;
-            for (int c = 0; c < channels; c++)
-                sum += samples[i * channels + c];
-            mono[i] = sum / channels;
-        }
-        return mono;
-    }
+        if (process.ExitCode != 0)
+            throw new Exception($"FFmpeg conversion failed: {stderr}");
 
-    private static float[] Resample(float[] samples, int fromRate, int toRate)
-    {
-        if (fromRate == toRate) return samples;
-
-        double ratio = (double)toRate / fromRate;
-        var resampled = new float[(int)(samples.Length * ratio)];
-
-        for (int i = 0; i < resampled.Length; i++)
-        {
-            double srcIndex = i / ratio;
-            int lower = (int)srcIndex;
-            int upper = Math.Min(lower + 1, samples.Length - 1);
-            double fraction = srcIndex - lower;
-            resampled[i] = (float)(samples[lower] * (1 - fraction) + samples[upper] * fraction);
-        }
-
-        return resampled;
-    }
-
-    private static async Task WriteWavAsync(string outputPath, float[] samples, int sampleRate)
-    {
-        await using var writer = new BinaryWriter(File.Create(outputPath));
-        int dataSize = samples.Length * 2;
-
-        writer.Write(System.Text.Encoding.UTF8.GetBytes("RIFF"));
-        writer.Write(36 + dataSize);
-        writer.Write(System.Text.Encoding.UTF8.GetBytes("WAVE"));
-        writer.Write(System.Text.Encoding.UTF8.GetBytes("fmt "));
-        writer.Write(16);         // chunk size
-        writer.Write((short)1);   // PCM
-        writer.Write((short)1);   // mono
-        writer.Write(sampleRate);
-        writer.Write(sampleRate * 2); // byte rate
-        writer.Write((short)2);   // block align
-        writer.Write((short)16);  // bits per sample
-        writer.Write(System.Text.Encoding.UTF8.GetBytes("data"));
-        writer.Write(dataSize);
-
-        foreach (var sample in samples)
-            writer.Write((short)(Math.Clamp(sample, -1f, 1f) * 32767));
+        File.Delete(tempWebm);
     }
 }
