@@ -3,6 +3,7 @@
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 
 public sealed record GetTasksQuery(
+    string? Query,
     string? Status,
     string? Priority,
     string? SortBy,
