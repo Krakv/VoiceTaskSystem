@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, statusMap, priorityMap } from "@/utils/task.utils";
+import { formatSmartDate, statusMap, priorityMap } from "@/utils/task.utils";
 import type {FC} from "react";
 import type {Task} from "@/types/task.ts";
 
@@ -47,7 +47,7 @@ export const TaskCard: FC<Props> = ({ task, onOpen, onToggle }) => {
                     <div className="flex flex-wrap gap-2 items-center">
                         {task.dueDate && (
                             <span className="text-xs text-muted-foreground">
-                {formatDate(task.dueDate)}
+                {formatSmartDate(task.dueDate)}
               </span>
                         )}
 

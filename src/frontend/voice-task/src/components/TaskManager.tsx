@@ -23,16 +23,15 @@ export const TaskManager = () => {
         }
     };
 
-    const handleOpen = async (task: Task) => {
-        const { data } = await taskApi.getTaskById(task.taskId);
-        console.log(data.data);
+    const handleOpen = async (taskId: string) => {
+        const { data } = await taskApi.getTaskById(taskId);
         setSelectedTask(data.data);
         setOpen(true);
     };
 
     const handleToggle = async (task: Task) => {
         await taskApi.updateTask(task.taskId, {
-            status: task.status === "done" ? "inprogress" : "done",
+            status: task.status === "done" ? "inProgress" : "done",
         });
     };
 
@@ -42,7 +41,6 @@ export const TaskManager = () => {
 
     const handleCreate = () => {
         navigate("/create");
-        console.log("Создать новую задачу");
     };
 
     return (
@@ -53,11 +51,34 @@ export const TaskManager = () => {
                 <div>Задач нет</div>
             ) : (
                 tasks.map((task) => (
-                    <TaskCard key={task.taskId} task={task} onOpen={handleOpen} onToggle={handleToggle}/>
+                    <TaskCard key={task.taskId} task={task} onOpen={t => handleOpen(t.taskId)} onToggle={handleToggle}/>
                 ))
             )}
 
-            <TaskSheet task={selectedTask} open={open} onOpenChange={setOpen} />
+            <TaskSheet
+                task={selectedTask}
+                open={open}
+                onOpenChange={setOpen}
+                onOpenTask={async (t) => {
+                    setOpen(false);
+                    await handleOpen(t);
+                }}
+                onToggleSubtask={async (taskId, status) => {
+                    await taskApi.updateTask(taskId, {
+                        status: status === "done" ? "inProgress" : "done",
+                    });
+
+                    await handleOpen(selectedTask!.taskId);
+                }}
+                onEdit={(taskId) => {
+                    navigate(`/tasks/${taskId}/edit`);
+                }}
+                onDelete={async (taskId) => {
+                    await taskApi.deleteTask(taskId);
+                    setOpen(false);
+                    await fetchTasks();
+                }}
+            />
 
             <Button
                 onClick={handleCreate}

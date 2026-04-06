@@ -1,4 +1,4 @@
-export type TaskStatus = "new" | "inprogress" | "done" | "canceled";
+export type TaskStatus = "new" | "inProgress" | "done" | "canceled";
 export type TaskPriority = "low" | "medium" | "high";
 
 export interface Task {
@@ -9,6 +9,14 @@ export interface Task {
     status: TaskStatus;
     priority: TaskPriority;
     dueDate?: string;
-    parentTaskId?: string | null;
-    subtasks?: Task[];
+    parentTask?: ShortTaskInfo | null;
+    childrenTasks?: ShortTaskInfo[] | null;
+}
+
+export interface ShortTaskInfo {
+    taskId: string;
+    title: string;
+    status: TaskStatus;
+    priority: TaskPriority;
+    dueDate?: string;
 }

@@ -1,9 +1,12 @@
+import {format, isToday, isTomorrow, isYesterday} from "date-fns";
+import {ru} from "date-fns/locale";
+
 export const statusMap = {
     new: {
         label: "Новая",
         className: "bg-gray-100 text-gray-600",
     },
-    inprogress: {
+    inProgress: {
         label: "В работе",
         className: "bg-blue-100 text-blue-700",
     },
@@ -39,4 +42,24 @@ export const formatDate = (date?: string) => {
         day: "numeric",
         month: "short",
     });
+};
+
+export const formatSmartDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+
+    const date = new Date(dateStr);
+
+    if (isToday(date)) {
+        return `Сегодня, ${format(date, "HH:mm")}`;
+    }
+
+    if (isTomorrow(date)) {
+        return `Завтра, ${format(date, "HH:mm")}`;
+    }
+
+    if (isYesterday(date)) {
+        return "Вчера";
+    }
+
+    return format(date, "d MMM, HH:mm", { locale: ru });
 };

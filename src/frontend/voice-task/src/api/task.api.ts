@@ -8,7 +8,7 @@ export interface TaskCreateDto {
     status?: TaskStatus;
     priority?: TaskPriority;
     dueDate?: string;
-    parentTaskId?: string | null;
+    parentTask?: string | null;
 }
 
 export interface TaskUpdateDto {
