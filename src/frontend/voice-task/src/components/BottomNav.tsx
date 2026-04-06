@@ -21,7 +21,8 @@ export const BottomNav = () => {
     ];
 
     return (
-        <div className="sticky bottom-0 flex justify-around py-2 z-50">
+        <div className="fixed left-0 right-0 bottom-0 flex justify-around py-2 z-50 bg-gray-100"
+             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
             {navItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
@@ -29,7 +30,7 @@ export const BottomNav = () => {
                         key={item.label}
                         onClick={() => navigate(item.path)}
                         variant="ghost"
-                        className={`flex-1 flex flex-col items-center justify-center gap-1 ${
+                        className={`flex-1 flex flex-col items-center justify-center gap-1 mb-1.5 mt-1.5 ${
                             isActive ? "text-blue-600" : "text-gray-500 hover:text-gray-900"
                         }`}
                     >
