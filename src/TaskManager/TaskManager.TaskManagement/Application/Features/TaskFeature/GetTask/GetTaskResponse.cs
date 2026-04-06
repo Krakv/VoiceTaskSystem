@@ -4,6 +4,7 @@ using TaskManager.Shared.DTOs.Responses;
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
 
 public sealed record GetTaskResponse(
+    Guid TaskId,
     string Title,
     string? ProjectName,
     string? Description,

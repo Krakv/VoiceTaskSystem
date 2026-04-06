@@ -39,6 +39,6 @@ public sealed class GetTaskHandler(AppDbContext context, ICurrentUser user, ILog
             .ToList();
 
         _logger.LogDebug("Task with id {TaskId} has been requested", task.TaskId);
-        return new GetTaskResponse(task.Title, task.ProjectName, task.Description, task.Status, task.Priority, task.DueDate, task.CreatedAt, task.UpdatedAt, parent, children);
+        return new GetTaskResponse(task.TaskId, task.Title, task.ProjectName, task.Description, task.Status, task.Priority, task.DueDate, task.CreatedAt, task.UpdatedAt, parent, children);
     }
 }
