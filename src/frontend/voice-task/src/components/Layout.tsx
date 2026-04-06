@@ -4,7 +4,7 @@ import Header from "@/components/Header.tsx";
 
 export const Layout = () => {
     return (
-        <div className="flex justify-center min-h-screen bg-gray-100">
+        <div className="flex justify-center min-h-screen bg-white">
             <div className="flex flex-col w-full max-w-md min-h-screen bg-white relative">
                 <Header/>
 

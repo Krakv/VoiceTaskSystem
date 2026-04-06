@@ -23,7 +23,7 @@ const Header = () => {
         <header className="flex justify-between items-right p-4 ">
             {!hideBackButton && (
                 <Button
-                    variant="ghost"
+                    variant="outline"
                     className="p-2"
                     onClick={handleBack}
                     title="Назад"
