@@ -35,7 +35,7 @@ export function DatePickerTime({ value, onChange }: DatePickerTimeProps) {
     };
 
     return (
-        <FieldGroup className="flex flex-col gap-3 w-full">
+        <FieldGroup className="flex flex-row gap-3 w-full">
             <Field>
                 <FieldLabel htmlFor="date-picker-optional">Срок</FieldLabel>
                 <Popover open={open} onOpenChange={setOpen}>
