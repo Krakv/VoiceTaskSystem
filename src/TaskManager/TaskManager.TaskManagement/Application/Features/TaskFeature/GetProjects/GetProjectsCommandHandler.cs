@@ -16,16 +16,13 @@ public class GetProjectsCommandHandler(AppDbContext context, ICurrentUser user, 
         _logger.LogDebug("Project list has been requested");
         
         var projects = await _context.TaskItems
-            .Where(t => t.OwnerId == _user.UserId && !string.IsNullOrEmpty(t.ProjectName))
-            .Select(t => new
-            {
-                t.ProjectName,
-                Score = FuzzySharp.Fuzz.TokenSetRatio(request.Search, t.ProjectName)
-            })
-            .OrderByDescending(x => x.Score)
+            .Where(t => t.OwnerId == _user.UserId 
+                && !string.IsNullOrEmpty(t.ProjectName)
+                && t.ProjectName.Contains(t.ProjectName)
+                )
+            .Select(x => x.ProjectName)
             .Skip(request.Page * request.PageSize)
             .Take(request.PageSize)
-            .Select(x => x.ProjectName)
             .ToListAsync(cancellationToken);
 
         return new GetProjectsResponse(projects, projects.Count);
