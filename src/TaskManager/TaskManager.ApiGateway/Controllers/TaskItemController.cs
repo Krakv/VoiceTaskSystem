@@ -9,6 +9,7 @@ using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetProjects;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -84,6 +85,14 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> DeleteTask(string taskId)
     {
         var response = await _mediator.Send(new DeleteTaskCommand(taskId));
+
+        return Success(response);
+    }
+
+    [HttpGet("projects/{projectName}")]
+    public async Task<IActionResult> GetProjectNames(string projectName, [FromQuery] int page = 0, [FromQuery] int pageSize = 5)
+    {
+        var response = await _mediator.Send(new GetProjectsCommand(projectName, page, pageSize));
 
         return Success(response);
     }
