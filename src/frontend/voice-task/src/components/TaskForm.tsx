@@ -23,8 +23,9 @@ export const TaskForm = ({ task, onSuccess }: TaskFormProps) => {
     const [description, setDescription] = useState(task?.description || "");
     const [projectName, setProjectName] = useState(task?.projectName || "");
     const [projectsList, setProjectsList] = useState<string[]>([]);
+    const [parentTaskId, setParentTaskId] = useState<string | undefined>(task?.parentTask?.taskId);
     const [parentTaskName, setParentTaskName] = useState(task?.parentTask?.title || "");
-    const [parentTasksList, setParentTasksList] = useState<Task[]>([]);
+    const [parentTasksList, setParentTasksList] = useState<Task[]>(task?.parentTask != null ? [task?.parentTask] : []);
     const [dueDate, setDueDate] = useState(task?.dueDate || "");
     const [priority, setPriority] = useState<TaskPriority>(task?.priority || "low");
     const [status, setStatus] = useState<TaskStatus>(task?.status || "new");
@@ -74,7 +75,7 @@ export const TaskForm = ({ task, onSuccess }: TaskFormProps) => {
             title,
             description: description || undefined,
             projectName: projectName || undefined,
-            parentTaskId: parentTasksList.find((t) => t.title === parentTaskName)?.taskId,
+            parentTaskId: parentTaskId,
             dueDate: dueDate || undefined,
             priority,
             status,
@@ -142,18 +143,23 @@ export const TaskForm = ({ task, onSuccess }: TaskFormProps) => {
             <div className="space-y-2">
                 <Label>Родительская задача</Label>
                 <Combobox
-                    items={parentTasksList.map(t => t.title)}
-                    onValueChange={(value: string | null) => setParentTaskName(value ?? "")}
+                    value={parentTasksList.find(t => t.taskId === parentTaskId) || null}
+                    items={parentTasksList}
+                    onValueChange={(task: Task | null) => {
+                        setParentTaskId(task?.taskId);
+                        setParentTaskName(task?.title || "");
+                    }}
                 >
                     <ComboboxInput
+                        value={parentTaskName}
                         placeholder="Выберите родительскую задачу"
                         onInput={(e) => setParentTaskName((e.target as HTMLInputElement).value)}
                     />
                     <ComboboxContent>
                         <ComboboxEmpty>Задача не найдена</ComboboxEmpty>
                         <ComboboxList>
-                            {(item) => (
-                                <ComboboxItem key={item} value={item}>{item}</ComboboxItem>
+                            {(item: Task) => (
+                                <ComboboxItem key={item.taskId} value={item}>{item.title}</ComboboxItem>
                             )}
                         </ComboboxList>
                     </ComboboxContent>
@@ -181,7 +187,7 @@ export const TaskForm = ({ task, onSuccess }: TaskFormProps) => {
                 <Tabs value={status} onValueChange={value => setStatus(value as TaskStatus)} className="w-full">
                     <TabsList className="grid grid-cols-4 w-full">
                         <TabsTrigger value="new" className="text-gray-700">Новая</TabsTrigger>
-                        <TabsTrigger value="inprogress" className="text-blue-600">В работе</TabsTrigger>
+                        <TabsTrigger value="inProgress" className="text-blue-600">В работе</TabsTrigger>
                         <TabsTrigger value="done" className="text-green-700">Готово</TabsTrigger>
                         <TabsTrigger value="canceled" className="text-red-700">Отменена</TabsTrigger>
                     </TabsList>

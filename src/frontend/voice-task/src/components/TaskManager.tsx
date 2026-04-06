@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { taskApi, GetTasksQuery } from "@/api/task.api";
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
@@ -35,6 +35,10 @@ export const TaskManager = () => {
         });
     };
 
+    const handleEdit = useCallback((taskId: string) => {
+        navigate(`/tasks/${taskId}/edit`);
+    }, [navigate]);
+
     useEffect(() => {
         fetchTasks();
     }, []);
@@ -70,9 +74,7 @@ export const TaskManager = () => {
 
                     await handleOpen(selectedTask!.taskId);
                 }}
-                onEdit={(taskId) => {
-                    navigate(`/tasks/${taskId}/edit`);
-                }}
+                onEdit={handleEdit}
                 onDelete={async (taskId) => {
                     await taskApi.deleteTask(taskId);
                     setOpen(false);
