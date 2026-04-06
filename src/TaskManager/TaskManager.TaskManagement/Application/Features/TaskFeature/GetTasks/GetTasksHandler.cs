@@ -29,7 +29,7 @@ public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILo
             && Enum.TryParse<TaskItemPriority>(request.Priority, ignoreCase: true, out var priorityParsed)) query = query.Where(x => x.Priority == priorityParsed);
 
         var sortColumn = string.IsNullOrEmpty(request.SortBy) ? "DueDate" : request.SortBy;
-        var sortOrder = request.SordOrder == "DESC" ? " descending" : "";
+        var sortOrder = request.SortOrder == "DESC" ? " descending" : "";
         query = query.OrderBy(sortColumn + sortOrder);
 
         if(!Int32.TryParse(request.Limit, out int limit)) limit = 20;
