@@ -42,6 +42,7 @@ export const TaskSheet: FC<Props> = ({task,open,onOpenChange,onOpenTask,onToggle
         priorityMap[task.priority as keyof typeof priorityMap];
 
     return (
+        <>
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent
                 side="bottom"
@@ -259,35 +260,37 @@ export const TaskSheet: FC<Props> = ({task,open,onOpenChange,onOpenTask,onToggle
                             >
                                 Удалить
                             </Button>
-                            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                            Удалить задачу?
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Это действие нельзя отменить. Задача будет удалена навсегда.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
 
-                                    <div className="flex gap-2 mt-4">
-                                        <AlertDialogCancel className="flex-1">
-                                            Отмена
-                                        </AlertDialogCancel>
-
-                                        <AlertDialogAction
-                                            className="flex-1"
-                                            onClick={() => onDelete?.(task.taskId)}
-                                        >
-                                            Удалить
-                                        </AlertDialogAction>
-                                    </div>
-                                </AlertDialogContent>
-                            </AlertDialog>
                         </div>
                     </div>
                 </div>
             </SheetContent>
         </Sheet>
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>
+                        Удалить задачу?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Это действие нельзя отменить. Задача будет удалена навсегда.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <div className="flex gap-2 mt-4">
+                    <AlertDialogCancel className="flex-1">
+                        Отмена
+                    </AlertDialogCancel>
+
+                    <AlertDialogAction
+                        className="flex-1"
+                        onClick={() => onDelete?.(task.taskId)}
+                    >
+                        Удалить
+                    </AlertDialogAction>
+                </div>
+            </AlertDialogContent>
+        </AlertDialog>
+        </>
     );
 };
