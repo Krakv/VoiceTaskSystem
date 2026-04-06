@@ -18,9 +18,10 @@ public class GetProjectsCommandHandler(AppDbContext context, ICurrentUser user, 
         var projects = await _context.TaskItems
             .Where(t => t.OwnerId == _user.UserId 
                 && !string.IsNullOrEmpty(t.ProjectName)
-                && t.ProjectName.Contains(t.ProjectName)
+                && t.ProjectName.Contains(request.Search)
                 )
             .Select(x => x.ProjectName)
+            .Distinct()
             .Skip(request.Page * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
