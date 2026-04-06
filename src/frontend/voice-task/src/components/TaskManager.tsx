@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { taskApi } from "@/api/task.api";
+import { taskApi, GetTasksQuery } from "@/api/task.api";
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import {Plus} from "lucide-react";
@@ -16,7 +16,7 @@ export const TaskManager = () => {
 
     const fetchTasks = async () => {
         try {
-            const res = await taskApi.getTasks();
+            const res = await taskApi.getTasks(new GetTasksQuery());
             setTasks(res.data.data.tasks);
         } catch (err: any) {
             setError(err.message || "Ошибка загрузки");
