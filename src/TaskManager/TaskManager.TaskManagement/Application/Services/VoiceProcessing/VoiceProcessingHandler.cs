@@ -81,6 +81,8 @@ public class VoiceProcessingHandler(
             CommandIntent.TaskUpdate => payloadData as TaskUpdateData,
             CommandIntent.TaskDelete => payloadData as TaskDeleteData,
             CommandIntent.TaskQuery => payloadData as TaskQueryData,
+            CommandIntent.Ambiguous => payloadData as MessageData,
+            CommandIntent.Unknown => payloadData as MessageData,
             _ => null
         };
 
@@ -109,11 +111,11 @@ public class VoiceProcessingHandler(
                 }
             case CommandIntent.Ambiguous:
                 {
-                    throw new ValidationAppException("INVALID_PARAMS", "Не удалось однозначно определить намерение пользователя");
+                    return JsonSerializer.Serialize(new MessageData("Намерение неоднозначно, требуется уточнение"));
                 }
             case CommandIntent.Unknown:
                 {
-                    throw new ValidationAppException("INVALID_PARAMS", "Не удалось определить намерение пользователя");
+                    return JsonSerializer.Serialize(new MessageData("Не удалось определить намерение пользователя"));
                 }
         }
         throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Выявлено некорректное значение намерения");

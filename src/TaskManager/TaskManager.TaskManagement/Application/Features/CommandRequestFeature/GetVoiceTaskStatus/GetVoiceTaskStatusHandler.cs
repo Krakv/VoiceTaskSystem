@@ -21,19 +21,9 @@ public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<Ge
             throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
         }
 
-        if (command.Status == CommandRequestStatus.Cancelled)
-        {
-            throw new ValidationAppException("CANCELLED", "Запрос с указанным ID отменен");
-        }
-
         if (command.Status == CommandRequestStatus.Pending || command.Status == CommandRequestStatus.Processing)
         {
             throw new ValidationAppException("PENDING", "Запрос еще обрабатывается");
-        }
-
-        if (command.Status == CommandRequestStatus.Accepted)
-        {
-            throw new ValidationAppException("ALREADY_CONFIRMED", "Команда уже принята");
         }
 
         if (command.Status == CommandRequestStatus.Failed || command.Intent == null || command.Payload == null)
@@ -65,7 +55,17 @@ public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<Ge
                     payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload);
                     break;
                 }
-            default :
+            case CommandIntent.Ambiguous:
+                {
+                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload);
+                    break; 
+                }
+            case CommandIntent.Unknown:
+                {
+                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload);
+                    break;
+                }
+            default:
                 {
                     payload = null;
                     break;
