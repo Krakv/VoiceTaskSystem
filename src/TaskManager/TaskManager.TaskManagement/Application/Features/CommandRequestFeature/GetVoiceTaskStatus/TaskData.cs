@@ -2,12 +2,12 @@
 
 public sealed record TaskData(
     Guid TaskId,
-    string ProjectName,
+    string? ProjectName,
     string Title,
-    string Description,
-    string Status,
-    string Priority,
-    Guid ParentTaskId,
+    string? Description,
+    string? Status,
+    string? Priority,
+    Guid? ParentTaskId,
     DateTimeOffset? DueDate,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt

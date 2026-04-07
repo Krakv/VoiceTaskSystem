@@ -1,13 +1,19 @@
-import Header from '@/components/Header';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
+import { BottomNav } from "@/components/BottomNav";
+import Header from "@/components/Header.tsx";
 
 export const Layout = () => {
     return (
-        <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1 py-6">
-                <Outlet />
-            </main>
+        <div className="flex justify-center min-h-screen bg-white">
+            <div className="flex flex-col w-full max-w-md min-h-screen bg-white relative">
+                <Header/>
+
+                <main className="flex-1 p-4 overflow-auto">
+                    <Outlet />
+                </main>
+
+                <BottomNav />
+            </div>
         </div>
     );
 };

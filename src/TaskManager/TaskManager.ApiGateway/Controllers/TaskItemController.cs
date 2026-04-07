@@ -9,6 +9,7 @@ using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetProjects;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -28,9 +29,27 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTasks([FromQuery] GetTasksQuery query)
+    public async Task<IActionResult> GetTasks(
+            string? query,
+            string? status,
+            string? priority,
+            string? sortBy,
+            string? sortOrder,
+            string? limit = "20",
+            string? page = "0"
+        )
     {
-        var response = await _mediator.Send(query);
+        var request = new GetTasksQuery(
+            query,
+            status,
+            priority,
+            sortBy,
+            sortOrder,
+            limit,
+            page
+        );
+
+        var response = await _mediator.Send(request);
 
         return Success(response);
     }
@@ -84,6 +103,14 @@ public class TaskItemController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> DeleteTask(string taskId)
     {
         var response = await _mediator.Send(new DeleteTaskCommand(taskId));
+
+        return Success(response);
+    }
+
+    [HttpGet("projects")]
+    public async Task<IActionResult> GetProjectNames([FromQuery] string projectName, [FromQuery] int page = 0, [FromQuery] int pageSize = 5)
+    {
+        var response = await _mediator.Send(new GetProjectsCommand(projectName, page, pageSize));
 
         return Success(response);
     }

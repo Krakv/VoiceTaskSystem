@@ -21,14 +21,15 @@ public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILo
         var query = _context.TaskItems
             .Where(x => x.OwnerId == userId)
             .AsQueryable();
-
+        if (!string.IsNullOrEmpty(request.Query))
+            query = query.Where(x => x.Title.Contains(request.Query));
         if (!string.IsNullOrEmpty(request.Status) 
             && Enum.TryParse<TaskItemStatus>(request.Status, ignoreCase: true, out var statusParsed)) query = query.Where(x => x.Status == statusParsed);
         if (!string.IsNullOrEmpty(request.Priority) 
             && Enum.TryParse<TaskItemPriority>(request.Priority, ignoreCase: true, out var priorityParsed)) query = query.Where(x => x.Priority == priorityParsed);
 
         var sortColumn = string.IsNullOrEmpty(request.SortBy) ? "DueDate" : request.SortBy;
-        var sortOrder = request.SordOrder == "DESC" ? " descending" : "";
+        var sortOrder = request.SortOrder == "DESC" ? " descending" : "";
         query = query.OrderBy(sortColumn + sortOrder);
 
         if(!Int32.TryParse(request.Limit, out int limit)) limit = 20;

@@ -46,6 +46,8 @@ services:
         image: rasa/duckling
         networks:
           - backend-network
+        profiles:
+          - sps
     postgres:
         image: postgres:17
         environment:

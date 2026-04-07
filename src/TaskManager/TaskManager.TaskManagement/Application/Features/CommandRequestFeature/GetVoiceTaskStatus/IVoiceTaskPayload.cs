@@ -7,4 +7,5 @@ namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.
 [JsonDerivedType(typeof(TaskDeleteData))]
 [JsonDerivedType(typeof(TaskUpdateData))]
 [JsonDerivedType(typeof(TaskQueryData))]
+[JsonDerivedType(typeof(MessageData))]
 public interface IVoiceTaskPayload { }

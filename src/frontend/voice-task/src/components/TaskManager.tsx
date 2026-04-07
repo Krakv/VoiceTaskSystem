@@ -1,24 +1,25 @@
-import { useEffect, useState } from "react";
-import { Box, Button, Stack, Text, Spinner } from "@chakra-ui/react";
-import { taskApi } from "@/api/task.api";
-
-interface Task {
-    taskId: string;
-    title: string;
-    projectName: string;
-    status: string;
-    priority: string;
-}
+import {useCallback, useEffect, useState} from "react";
+import { taskApi, GetTasksQuery } from "@/api/task.api";
+import {Button} from "@/components/ui/button.tsx";
+import {useNavigate} from "react-router-dom";
+import {Plus} from "lucide-react";
+import type {Task} from "@/types/task";
+import {TaskCard} from "@/components/TaskCard.tsx";
+import {TaskSheet} from "@/components/TaskSheet.tsx";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 export const TaskManager = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const fetchTasks = async () => {
         setLoading(true);
         try {
-            const res = await taskApi.getTasks();
+            const res = await taskApi.getTasks(new GetTasksQuery());
             setTasks(res.data.data.tasks);
         } catch (err: any) {
             setError(err.message || "Ошибка загрузки");
@@ -27,51 +28,94 @@ export const TaskManager = () => {
         }
     };
 
+    const handleOpen = async (taskId: string) => {
+        const { data } = await taskApi.getTaskById(taskId);
+        setSelectedTask(data.data);
+        setOpen(true);
+    };
+
+    const handleToggle = async (task: Task) => {
+        await taskApi.updateTask(task.taskId, {
+            status: task.status === "done" ? "inProgress" : "done",
+        });
+    };
+
+    const handleEdit = useCallback((taskId: string) => {
+        navigate(`/tasks/${taskId}/edit`);
+    }, [navigate]);
+
     useEffect(() => {
         fetchTasks();
     }, []);
 
-    const handleDelete = async (taskId: string) => {
-        try {
-            await taskApi.deleteTask(taskId);
-            setTasks((prev) => prev.filter((t) => t.taskId !== taskId));
-        } catch (err: any) {
-            setError(err.message || "Ошибка удаления");
-        }
+    const handleCreate = () => {
+        navigate("/create/voice");
     };
 
-    if (loading) return <Spinner size="xl" />;
-
     return (
-        <Stack gap={4}>
-            {error && <Text color="red.500">{error}</Text>}
+        <div className="flex flex-col gap-2">
+            {error && <div color="red.500">{error}</div>}
 
-            {tasks.length === 0 ? (
-                <Text>Задач нет</Text>
+            {loading ? (
+                <>
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                </>
+
             ) : (
-                tasks.map((task) => (
-                    <Box
-                        key={task.taskId}
-                        p={4}
-                        borderWidth="1px"
-                        borderRadius="md"
-                        _hover={{ shadow: "md" }}
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                    >
-                        <Box>
-                            <Text fontWeight="bold">{task.title}</Text>
-                            <Text fontSize="sm">
-                                {task.projectName || "Без проекта"} | {task.status} | {task.priority}
-                            </Text>
-                        </Box>
-                        <Button size="sm" colorScheme="red" onClick={() => handleDelete(task.taskId)}>
-                            Удалить
-                        </Button>
-                    </Box>
-                ))
+                tasks.length === 0 ? (
+                        <div>Задач нет</div>
+                    ) : (
+                        tasks.map((task) => (
+                            <TaskCard key={task.taskId} task={task} onOpen={t => handleOpen(t.taskId)} onToggle={handleToggle}/>
+                        ))
+                    )
             )}
-        </Stack>
+
+            <TaskSheet
+                task={selectedTask}
+                open={open}
+                onOpenChange={setOpen}
+                onOpenTask={async (t) => {
+                    setOpen(false);
+                    await handleOpen(t);
+                }}
+                onToggleSubtask={async (taskId, status) => {
+                    await taskApi.updateTask(taskId, {
+                        status: status === "done" ? "inProgress" : "done",
+                    });
+
+                    await handleOpen(selectedTask!.taskId);
+                }}
+                onEdit={handleEdit}
+                onDelete={async (taskId) => {
+                    await taskApi.deleteTask(taskId);
+                    setOpen(false);
+                    await fetchTasks();
+                }}
+            />
+
+            <div className="fixed bottom-16 right-4 flex max-w-md justify-end">
+                <Button
+                    onClick={handleCreate}
+                    className="relative rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-lg bg-black text-white hover:bg-gray-600"
+                >
+                    <Plus className="w-10 h-10" />
+                </Button>
+            </div>
+        </div>
     );
 };

@@ -1,6 +1,8 @@
-﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
+﻿using TaskManager.Shared.DTOs.Responses;
+
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 public record TaskDeleteData(
-    List<Guid> TaskIds,
+    List<TaskShortInfoDto> Tasks,
     bool ConfirmationRequired = false
     ) : IVoiceTaskPayload;
