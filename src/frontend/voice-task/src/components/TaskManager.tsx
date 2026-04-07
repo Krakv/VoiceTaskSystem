@@ -6,20 +6,25 @@ import {Plus} from "lucide-react";
 import type {Task} from "@/types/task";
 import {TaskCard} from "@/components/TaskCard.tsx";
 import {TaskSheet} from "@/components/TaskSheet.tsx";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 export const TaskManager = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [error, setError] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     const fetchTasks = async () => {
+        setLoading(true);
         try {
             const res = await taskApi.getTasks(new GetTasksQuery());
             setTasks(res.data.data.tasks);
         } catch (err: any) {
             setError(err.message || "Ошибка загрузки");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -44,19 +49,40 @@ export const TaskManager = () => {
     }, []);
 
     const handleCreate = () => {
-        navigate("/create");
+        navigate("/create/voice");
     };
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
             {error && <div color="red.500">{error}</div>}
 
-            {tasks.length === 0 ? (
-                <div>Задач нет</div>
+            {loading ? (
+                <>
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                    <Skeleton className="
+                        p-4 rounded-2xl border bg-gray-100
+                        active:scale-[0.98] transition
+                        space-y-2 h-16 w-full
+                      " />
+                </>
+
             ) : (
-                tasks.map((task) => (
-                    <TaskCard key={task.taskId} task={task} onOpen={t => handleOpen(t.taskId)} onToggle={handleToggle}/>
-                ))
+                tasks.length === 0 ? (
+                        <div>Задач нет</div>
+                    ) : (
+                        tasks.map((task) => (
+                            <TaskCard key={task.taskId} task={task} onOpen={t => handleOpen(t.taskId)} onToggle={handleToggle}/>
+                        ))
+                    )
             )}
 
             <TaskSheet
@@ -82,12 +108,14 @@ export const TaskManager = () => {
                 }}
             />
 
-            <Button
-                onClick={handleCreate}
-                className="sticky bottom-4 right-4 rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-lg bg-black text-white hover:bg-gray-600"
-            >
-                <Plus className="w-6 h-6" />
-            </Button>
+            <div className="fixed bottom-16 right-4 flex max-w-md justify-end">
+                <Button
+                    onClick={handleCreate}
+                    className="relative rounded-full w-14 h-14 p-0 flex items-center justify-center shadow-lg bg-black text-white hover:bg-gray-600"
+                >
+                    <Plus className="w-10 h-10" />
+                </Button>
+            </div>
         </div>
     );
 };
