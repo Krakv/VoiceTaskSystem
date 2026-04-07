@@ -1,12 +1,15 @@
-﻿namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
+﻿using TaskManager.Shared.DTOs.Responses;
+
+namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 public record TaskUpdateData(
-    List<Guid> TaskIds,
+    List<TaskShortInfoDto> Tasks,
     string? ProjectName,
     string? Description,
     string? Status,
     string? Priority,
     DateTimeOffset? DueDate,
     Guid? ParentTaskId,
+    TaskShortInfoDto? ParentTask,
     bool ConfirmationRequired = true
 ) : IVoiceTaskPayload;

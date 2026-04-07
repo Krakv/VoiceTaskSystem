@@ -4,6 +4,7 @@ using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
 using TaskManager.Shared.Models;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.DTOs;
@@ -127,6 +128,7 @@ public class VoiceProcessingHandler(
         string message = "",
         bool confirmationRequired = true)
     {
+        var parent = await FindParentTaskAsync(model.ParentTaskName, userId);
         return new TaskCreateData(
             ProjectName: model.ProjectName,
             Title: model.Title ?? string.Empty,
@@ -135,7 +137,8 @@ public class VoiceProcessingHandler(
             Priority: model.Priority?.ToString() ?? TaskItemPriority.Low.ToString(),
             DueDate: model.DueDate,
             Message: message,
-            ParentTaskId: await FindParentTaskAsync(model.ParentTaskName, userId),
+            ParentTaskId: parent?.TaskId,
+            ParentTask: parent,
             ConfirmationRequired: confirmationRequired
         );
     }
@@ -145,14 +148,16 @@ public class VoiceProcessingHandler(
         Guid userId,
         bool confirmationRequired = true)
     {
+        var parent = await FindParentTaskAsync(model.ParentTaskName, userId);
         return new TaskUpdateData(
-            TaskIds: await FindTasksAsync(model.Title, userId),
+            Tasks: await FindTasksAsync(model.Title, userId),
             ProjectName: model.ProjectName,
             Description: model.Description,
             Status: model.Status?.ToString() ?? TaskItemStatus.New.ToString(),
             Priority: model.Priority?.ToString() ?? TaskItemPriority.Low.ToString(),
             DueDate: model.DueDate,
-            ParentTaskId: await FindParentTaskAsync(model.ParentTaskName, userId),
+            ParentTaskId: parent?.TaskId,
+            ParentTask: parent,
             ConfirmationRequired: confirmationRequired
         );
     }
@@ -186,53 +191,61 @@ public class VoiceProcessingHandler(
         bool confirmationRequired = true)
     {
         return new TaskDeleteData(
-            TaskIds: await FindTasksAsync(model.Title, userId)
+            Tasks: await FindTasksAsync(model.Title, userId)
         );
     }
 
-    private async Task<Guid?> FindParentTaskAsync(string? parentTaskName, Guid userId)
+    private async Task<TaskShortInfoDto?> FindParentTaskAsync(string? parentTaskName, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(parentTaskName))
             return null;
 
         var tasks = await _db.TaskItems
             .Where(t => t.OwnerId == userId)
-            .Select(t => new { t.TaskId, t.Title })
+            .Select(t => new { t.TaskId, t.Title, t.Status, t.Priority, t.DueDate })
             .ToListAsync();
 
         var bestMatch = tasks
             .Select(t => new
             {
                 t.TaskId,
+                t.Title,
+                t.Status,
+                t.Priority,
+                t.DueDate,
                 Score = FuzzySharp.Fuzz.PartialRatio(parentTaskName, t.Title)
             })
             .Where(x => x.Score > 70)
             .OrderByDescending(x => x.Score)
             .FirstOrDefault();
 
-        return bestMatch?.TaskId;
+        return bestMatch == null ? null : new TaskShortInfoDto(bestMatch.TaskId, bestMatch.Title, bestMatch.Status, bestMatch.Priority, bestMatch.DueDate);
     }
 
-    private async Task<List<Guid>> FindTasksAsync(string? taskName, Guid userId)
+    private async Task<List<TaskShortInfoDto>> FindTasksAsync(string? taskName, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(taskName))
             return [];
 
         var tasks = await _db.TaskItems
             .Where(t => t.OwnerId == userId)
-            .Select(t => new { t.TaskId, t.Title })
+            .Select(t => new { t.TaskId, t.Title, t.Status, t.Priority, t.DueDate })
             .ToListAsync();
 
         return tasks
             .Select(t => new
             {
                 t.TaskId,
+                t.Title,
+                t.Status,
+                t.Priority,
+                t.DueDate,
                 Score = FuzzySharp.Fuzz.TokenSetRatio(taskName, t.Title)
             })
             .Where(x => x.Score > 65)
             .OrderByDescending(x => x.Score)
             .Take(5)
-            .Select(x => x.TaskId)
+            .Select(x => new TaskShortInfoDto(x.TaskId, x.Title, x.Status, x.Priority, x.DueDate))
             .ToList();
     }
 

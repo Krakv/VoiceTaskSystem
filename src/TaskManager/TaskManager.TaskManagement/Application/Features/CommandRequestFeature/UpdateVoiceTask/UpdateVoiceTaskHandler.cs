@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
@@ -73,7 +74,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
                 {
                     var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload)
                                   ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
-                    (payload, updatedFields) = UpdateTaskUpdatePayload(payload, request, updatedFields);
+                    (payload, updatedFields) = await UpdateTaskUpdatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
                 }
@@ -82,7 +83,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
                 {
                     var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload)
                                   ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
-                    (payload, updatedFields) = UpdateTaskDeletePayload(payload, request, updatedFields);
+                    (payload, updatedFields) = await UpdateTaskDeletePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
                 }
@@ -145,7 +146,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         return (updatedPayload, updatedFields);
     }
 
-    private static (TaskUpdateData, Dictionary<string, string>) UpdateTaskUpdatePayload(
+    private async Task<(TaskUpdateData, Dictionary<string, string>)> UpdateTaskUpdatePayload(
         TaskUpdateData payload, UpdateVoiceTaskCommand request, Dictionary<string, string> updatedFields)
     {
         void CheckUpdate<T>(string name, T? oldValue, T? newValue)
@@ -156,12 +157,17 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             }
         }
 
-        var newTaskIds = !string.IsNullOrWhiteSpace(request.TaskId)
-            ? new List<Guid> { Guid.Parse(request.TaskId) }
-            : payload.TaskIds;
+        var newTasks = payload.Tasks;
+        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        {
+            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
+        }
 
-        if (!newTaskIds.SequenceEqual(payload.TaskIds))
-            updatedFields[nameof(payload.TaskIds)] = string.Join(",", newTaskIds);
+        if (newTasks == null) newTasks = new List<TaskShortInfoDto>();
+
+        if (!newTasks.SequenceEqual(payload.Tasks))
+            updatedFields[nameof(payload.Tasks)] = string.Join(",", newTasks.Select(t => t.TaskId).ToList());
 
         CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId.ToString(), request.ParentTaskId);
         CheckUpdate(nameof(payload.ProjectName), payload.ProjectName, request.ProjectName);
@@ -185,7 +191,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
         var updatedPayload = payload with
         {
-            TaskIds = newTaskIds,
+            Tasks = newTasks,
             ProjectName = request.ProjectName ?? payload.ProjectName,
             Description = request.Description ?? payload.Description,
             Status = request.Status ?? payload.Status,
@@ -199,19 +205,24 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         return (updatedPayload, updatedFields);
     }
 
-    private static (TaskDeleteData, Dictionary<string, string>) UpdateTaskDeletePayload(
+    private async Task<(TaskDeleteData, Dictionary<string, string>)> UpdateTaskDeletePayload(
         TaskDeleteData payload, UpdateVoiceTaskCommand request, Dictionary<string, string> updatedFields)
     {
-        var newTaskIds = !string.IsNullOrWhiteSpace(request.TaskId)
-            ? new List<Guid> { Guid.Parse(request.TaskId) }
-            : payload.TaskIds;
+        var newTasks = payload.Tasks;
+        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        {
+            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
+        }
 
-        if (!newTaskIds.SequenceEqual(payload.TaskIds))
-            updatedFields[nameof(payload.TaskIds)] = string.Join(",", newTaskIds);
+        if (newTasks == null) newTasks = new List<TaskShortInfoDto>();
+
+        if (!newTasks.SequenceEqual(payload.Tasks))
+            updatedFields[nameof(payload.Tasks)] = string.Join(",", newTasks.Select(t => t.TaskId).ToList());
 
         var updatedPayload = payload with
         {
-            TaskIds = newTaskIds
+            Tasks = newTasks
         };
 
         return (updatedPayload, updatedFields);

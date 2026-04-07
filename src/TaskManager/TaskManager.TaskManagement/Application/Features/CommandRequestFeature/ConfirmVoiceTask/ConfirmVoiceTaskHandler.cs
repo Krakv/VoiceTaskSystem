@@ -94,7 +94,7 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                     {
                         var updateData = (payload as TaskUpdateData)!;
                         var resp = await _mediator.Send(new UpdateTaskPatchCommand(
-                                updateData.TaskIds.FirstOrDefault().ToString(),
+                                updateData.Tasks.FirstOrDefault()?.TaskId.ToString(),
                                 updateData.ProjectName,
                                 null,
                                 updateData.Description,
@@ -111,7 +111,7 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                 case CommandIntent.TaskDelete:
                     {
                         var deleteData = (payload as TaskDeleteData)!;
-                        var resp = await _mediator.Send(new DeleteTaskCommand(deleteData.TaskIds.FirstOrDefault().ToString()), cancellationToken);
+                        var resp = await _mediator.Send(new DeleteTaskCommand(deleteData.Tasks.FirstOrDefault()?.TaskId.ToString()), cancellationToken);
                         changedTaskId = resp;
                         break;
                     }
