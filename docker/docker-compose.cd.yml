@@ -1,0 +1,56 @@
+services:
+    task-manager:
+        container_name: task-manager
+        image: taskmanager.apigateway
+        build: 
+            context: ../src/TaskManager
+            dockerfile: TaskManager.ApiGateway/Dockerfile
+        ports:
+          - "3000:8080"
+        environment:
+          - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+          - TelegramBot__AuthToken=${TELEGRAM_BOT_TOKEN}
+          - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
+          - ASPNETCORE_ENVIRONMENT=Release
+          - JwtSettings__Secret=${JWT_SECRET}
+        networks:
+          - backend-network
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+        depends_on:
+          postgres:
+            condition: service_healthy
+    postgres:
+        container_name: task-manager-db
+        image: postgres:17
+        environment:
+          POSTGRES_DB: tasks
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+          - backend-network
+    frontend:
+        container_name: task-manager-frontend
+        build:
+          context: ../src/frontend/voice-task
+          dockerfile: Dockerfile
+        ports:
+          - '3005:80'
+        depends_on:
+          - task-manager
+        networks:
+          - backend-network
+        
+
+
+networks:
+  backend-network:
+    driver: bridge
