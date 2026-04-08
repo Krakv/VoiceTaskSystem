@@ -31,6 +31,7 @@ services:
         volumes:
           - ./Models:/app/Models
         environment:
+          - ASPNETCORE_ENVIRONMENT=Development
           - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
           - Duckling__BaseUrl=http://duckling:8000
         networks:
@@ -73,6 +74,8 @@ services:
           - task-manager
         networks:
           - backend-network
+        profiles:
+          - front
         
     prometheus:
         image: prom/prometheus:v3.9.1
