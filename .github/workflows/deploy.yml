@@ -22,4 +22,4 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             git pull
-            docker compose up -d --build
+            docker compose -f ./docker/docker-compose.cd.yml up -d --build
