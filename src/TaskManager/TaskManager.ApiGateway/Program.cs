@@ -22,14 +22,17 @@ using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
 using TaskManager.Notifications.Config;
 using TaskManager.Repository.Context;
+using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
+using TaskManager.RulesEngine.Application.Interfaces;
+using TaskManager.RulesEngine.Application.Services;
 using TaskManager.Shared.Domain.Entities;
+using TaskManager.Shared.Interfaces;
 using TaskManager.Shared.Pipeline;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 using TaskManager.TaskManagement.Application.Services;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Services.VoiceProcessing;
 using TaskManager.TaskManagement.Config;
-using TaskManager.TaskManagement.Interfaces;
 using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,7 +44,8 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
     typeof(Program).Assembly, 
     typeof(CreateTaskCommand).Assembly, 
-    typeof(LoginCommand).Assembly
+    typeof(LoginCommand).Assembly,
+    typeof(CreateRuleCommand).Assembly
     ));
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -79,6 +83,7 @@ builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
 builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp => sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 
+builder.Services.AddSingleton<IRuleValidator, RuleValidator>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<VoiceProcessingWorker>();
 builder.Services.AddScoped<VoiceProcessingHandler>();

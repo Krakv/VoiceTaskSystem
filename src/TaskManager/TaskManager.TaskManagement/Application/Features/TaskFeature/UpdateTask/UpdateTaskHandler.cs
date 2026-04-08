@@ -2,7 +2,7 @@
 using System.Globalization;
 using TaskManager.Shared.Exceptions;
 using TaskManager.Repository.Context;
-using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Interfaces;
 using TaskManager.Shared.Domain.Entities.Enum;
 using Microsoft.Extensions.Logging;
 

@@ -34,10 +34,6 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TaskManager.Auth\TaskManager.Auth.csproj" />
     <ProjectReference Include="..\TaskManager.Calendar\TaskManager.Calendar.csproj" />
     <ProjectReference Include="..\TaskManager.Notifications\TaskManager.Notifications.csproj" />

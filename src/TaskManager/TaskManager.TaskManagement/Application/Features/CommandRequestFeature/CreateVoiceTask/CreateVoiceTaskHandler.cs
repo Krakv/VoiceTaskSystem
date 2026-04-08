@@ -2,7 +2,7 @@
 using TaskManager.Shared.DTOs.Requests;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Repository.Context;
-using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.DTOs;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 
