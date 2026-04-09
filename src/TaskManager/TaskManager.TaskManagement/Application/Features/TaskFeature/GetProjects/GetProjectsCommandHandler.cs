@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TaskManager.Repository.Context;
-using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetProjects;
 

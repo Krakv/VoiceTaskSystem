@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using TaskManager.Shared.Domain.Builders;
 using TaskManager.Repository.Context;
-using TaskManager.TaskManagement.Application.Features.Events;
-using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Events;
+using TaskManager.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;

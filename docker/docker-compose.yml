@@ -11,6 +11,7 @@ services:
           - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
           - ASPNETCORE_ENVIRONMENT=Development
           - JwtSettings__Secret=${JWT_SECRET}
+          - Serilog__MinimumLevel=Debug
         networks:
           - backend-network
         healthcheck:
@@ -31,6 +32,7 @@ services:
         volumes:
           - ./Models:/app/Models
         environment:
+          - ASPNETCORE_ENVIRONMENT=Development
           - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
           - Duckling__BaseUrl=http://duckling:8000
         networks:
@@ -73,6 +75,8 @@ services:
           - task-manager
         networks:
           - backend-network
+        profiles:
+          - front
         
     prometheus:
         image: prom/prometheus:v3.9.1

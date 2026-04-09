@@ -1,18 +1,20 @@
 ﻿using MediatR;
-using System.Globalization;
-using TaskManager.Shared.Exceptions;
-using TaskManager.Repository.Context;
-using TaskManager.TaskManagement.Interfaces;
-using TaskManager.Shared.Domain.Entities.Enum;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using TaskManager.Repository.Context;
+using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.Events;
+using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
 
-public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskPatchHandler> logger) : IRequestHandler<UpdateTaskPatchCommand, string>
+public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskPatchHandler> logger, IMediator mediator) : IRequestHandler<UpdateTaskPatchCommand, string>
 {
     private readonly AppDbContext _context = context;
     private readonly ICurrentUser _user = user;
     private readonly ILogger<UpdateTaskPatchHandler> _logger = logger; 
+    private readonly IMediator _mediator = mediator;
 
     public async Task<string> Handle(UpdateTaskPatchCommand request, CancellationToken cancellationToken)
     {
@@ -35,6 +37,7 @@ public sealed class UpdateTaskPatchHandler(AppDbContext context, ICurrentUser us
 
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _mediator.Publish(new TaskUpdatedEvent(task.TaskId, _user.UserId, $"Task {task.TaskId} partially updated"), cancellationToken);
         _logger.LogInformation("Updated task with id {TaskId}", task.TaskId);
         return task.TaskId.ToString();
     }

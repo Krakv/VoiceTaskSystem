@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
-using TaskManager.TaskManagement.Interfaces;
+using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
 

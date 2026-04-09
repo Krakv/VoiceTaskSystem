@@ -1,6 +1,4 @@
-﻿using TaskManager.Shared.Events;
-
-namespace TaskManager.TaskManagement.Application.Features.Events;
+﻿namespace TaskManager.Shared.Events;
 
 public sealed class TaskCreatedEvent(Guid TaskId, Guid OwnerId, string? Title) : BaseEvent
 {

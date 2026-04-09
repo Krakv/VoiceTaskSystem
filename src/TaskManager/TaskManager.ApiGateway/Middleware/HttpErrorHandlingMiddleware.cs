@@ -68,6 +68,9 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 "ALREADY_PROCESSED" => StatusCodes.Status409Conflict,
                 "UNAUTHORIZED" => StatusCodes.Status401Unauthorized,
                 "REGISTRATION_FAILED" => StatusCodes.Status400BadRequest,
+                "INVALID_CONDITION" => StatusCodes.Status400BadRequest,
+                "INVALID_ACTION" => StatusCodes.Status400BadRequest,
+                "INVALID_FIELD" => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError,
             };
 

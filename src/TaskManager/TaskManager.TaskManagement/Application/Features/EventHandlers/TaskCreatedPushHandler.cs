@@ -1,6 +1,6 @@
-﻿using TaskManager.TaskManagement.Application.Features.Events;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TaskManager.Shared.EventHandlers;
+using TaskManager.Shared.Events;
 
 namespace TaskManager.TaskManagement.Application.Features.EventHandlers;
 

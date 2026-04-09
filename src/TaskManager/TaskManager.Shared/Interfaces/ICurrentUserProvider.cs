@@ -1,4 +1,4 @@
-﻿namespace TaskManager.TaskManagement.Interfaces;
+﻿namespace TaskManager.Shared.Interfaces;
 
 public interface ICurrentUserProvider
 {
