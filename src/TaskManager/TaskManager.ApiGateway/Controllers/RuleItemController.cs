@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.ApiGateway.DTOs;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
@@ -11,6 +12,7 @@ using TaskManager.Shared.DTOs.Responses;
 
 namespace TaskManager.ApiGateway.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/rules")]
 public class RuleItemController(IMediator mediator) : ControllerBase
