@@ -11,6 +11,7 @@ services:
           - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
           - ASPNETCORE_ENVIRONMENT=Development
           - JwtSettings__Secret=${JWT_SECRET}
+          - Serilog__MinimumLevel=Debug
         networks:
           - backend-network
         healthcheck:

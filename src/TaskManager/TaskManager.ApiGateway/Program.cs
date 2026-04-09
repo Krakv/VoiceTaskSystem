@@ -162,26 +162,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
-var elasticUri = builder.Configuration["ELASTIC_URI"] ?? "";
-
 builder.Host.UseSerilog((ctx, services, cfg) =>
 {
-    cfg
-        .MinimumLevel.Information()
-        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .Enrich.WithCorrelationId()
-        .Filter.ByExcluding(Matching.WithProperty<string>(
-            "RequestPath", p => p.StartsWith("/metrics")
-        ))
-        .WriteTo.Console()
-        .WriteTo.Elasticsearch(new Serilog.Sinks.Elasticsearch.ElasticsearchSinkOptions(new Uri(elasticUri))
-        {
-            AutoRegisterTemplate = true,
-            IndexFormat = "taskmanager-logs-{0:yyyy.MM.dd}"
-        });
+    cfg.ReadFrom.Configuration(ctx.Configuration);
 });
 
 # endregion Logging
