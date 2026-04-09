@@ -84,6 +84,7 @@ builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp => sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 
 builder.Services.AddSingleton<IRuleValidator, RuleValidator>();
+builder.Services.AddScoped<IRuleApplier, RuleApplier>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<VoiceProcessingWorker>();
 builder.Services.AddScoped<VoiceProcessingHandler>();

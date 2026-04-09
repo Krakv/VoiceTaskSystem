@@ -10,11 +10,13 @@ public class RuleValidator : IRuleValidator
 {
     private static readonly HashSet<string> AllowedFields =
     [
+        "title",
         "priority",
         "status",
         "projectName",
         "dueDate",
-        "description"
+        "description",
+        "parentTaskId"
     ];
 
     public void Validate(
@@ -41,9 +43,6 @@ public class RuleValidator : IRuleValidator
 
             if (!AllowedFields.Contains(c.Field))
                 throw new ValidationAppException("INVALID_FIELD", $"Недопустимое поле: {c.Field}");
-
-            if (string.IsNullOrWhiteSpace(c.Value))
-                throw new ValidationAppException("INVALID_CONDITION", "Value обязателен");
         }
     }
 
@@ -82,7 +81,7 @@ public class RuleValidator : IRuleValidator
         if (!AllowedFields.Contains(action.Field))
             throw new ValidationAppException("INVALID_FIELD", $"Недопустимое поле: {action.Field}");
 
-        if (string.IsNullOrWhiteSpace(action.Value))
+        if (action.Value == null)
             throw new ValidationAppException("INVALID_ACTION", "Value обязателен");
 
         // бизнес-ограничение

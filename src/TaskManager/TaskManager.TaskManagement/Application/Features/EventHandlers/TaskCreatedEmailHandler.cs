@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Notifications.Application.Services.Interfaces;
-using TaskManager.TaskManagement.Application.Features.Events;
 using TaskManager.Shared.EventHandlers;
 using Microsoft.Extensions.Logging;
+using TaskManager.Shared.Events;
 
 namespace TaskManager.TaskManagement.Application.Features.EventHandlers;
 
