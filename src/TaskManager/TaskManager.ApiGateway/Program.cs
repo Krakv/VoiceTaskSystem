@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
-using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -20,6 +19,8 @@ using TaskManager.Auth.Application.Interfaces;
 using TaskManager.Auth.Application.Services;
 using TaskManager.Auth.Config;
 using TaskManager.Auth.Infrastructure;
+using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Calendar.Infrastructure;
 using TaskManager.Notifications.Application.Services;
 using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
@@ -48,7 +49,8 @@ builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
     typeof(Program).Assembly, 
     typeof(CreateTaskCommand).Assembly, 
     typeof(LoginCommand).Assembly,
-    typeof(CreateRuleCommand).Assembly
+    typeof(CreateRuleCommand).Assembly,
+    typeof(CreateCalendarEventCommand).Assembly
     ));
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

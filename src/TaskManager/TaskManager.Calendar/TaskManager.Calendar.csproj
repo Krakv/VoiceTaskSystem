@@ -9,6 +9,7 @@
 	<ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Ical.Net" Version="5.2.1" />
     <PackageReference Include="MediatR" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.12" />
@@ -28,6 +29,8 @@
   </ItemGroup>
 	
 	<ItemGroup>
+	  <ProjectReference Include="..\TaskManager.Auth\TaskManager.Auth.csproj" />
+	  <ProjectReference Include="..\TaskManager.Repository\TaskManager.Repository.csproj" />
 	  <ProjectReference Include="..\TaskManager.Shared\TaskManager.Shared.csproj" />
 	</ItemGroup>
 
