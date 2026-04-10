@@ -1,8 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Auth.Application.Features.Auth.ChangeMyPassword;
+using TaskManager.Auth.Application.Features.Auth.DeleteUser;
+using TaskManager.Auth.Application.Features.Auth.GetMyProfile;
 using TaskManager.Auth.Application.Features.Auth.Login;
 using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Application.Features.Auth.UpdateUserProfile;
+using TaskManager.Shared.DTOs.Responses;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -24,6 +29,39 @@ public class AuthController(IMediator mediator) : ControllerBase
     {
         var token = await _mediator.Send(command);
         return Success(token);
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> Me()
+    {
+        var result = await _mediator.Send(new GetMyProfileQuery());
+
+        return Success(result);
+    }
+
+    [HttpPatch("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileCommand command)
+    {
+        await _mediator.Send(command);
+
+        return Success(new { });
+    }
+
+    [HttpPatch("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangeMyPasswordCommand command)
+    {
+        var result = await _mediator.Send(command);
+
+        return Success(new { isUpdated = result });
+    }
+
+    [Authorize]
+    [HttpDelete("account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        await _mediator.Send(new DeleteUserCommand());
+
+        return Success(new { isDeleted = true });
     }
 
     private OkObjectResult Success<T>(T data) where T : class =>
