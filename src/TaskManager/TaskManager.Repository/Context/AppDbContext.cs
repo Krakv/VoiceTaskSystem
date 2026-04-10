@@ -24,7 +24,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .IsUnique();
 
         builder.Entity<ExternalCalendarAccount>()
-            .HasIndex(x => new { x.OwnerId, x.Provider })
+            .HasIndex(x => new { x.OwnerId, x.BaseUrl })
             .IsUnique();
 
         builder.Entity<ServiceItem>().HasData(
