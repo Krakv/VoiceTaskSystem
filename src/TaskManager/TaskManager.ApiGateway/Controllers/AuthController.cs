@@ -31,6 +31,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         return Success(token);
     }
 
+    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
@@ -39,6 +40,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         return Success(result);
     }
 
+    [Authorize]
     [HttpPatch("profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileCommand command)
     {
@@ -47,6 +49,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         return Success(new { });
     }
 
+    [Authorize]
     [HttpPatch("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangeMyPasswordCommand command)
     {
