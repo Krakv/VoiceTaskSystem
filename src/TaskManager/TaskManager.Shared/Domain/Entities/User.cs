@@ -13,6 +13,9 @@ public class User : IdentityUser<Guid>
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
+    public bool IsDeleted { get; set; } = false;
+    public DateTimeOffset? DeletedAt { get; set; }
+
     public ICollection<TaskItem> Tasks { get; set; } = [];
     public ICollection<CommandRequestItem> CommandRequests { get; set; } = [];
     public ICollection<ExternalCalendarAccount> ExternalCalendarAccounts { get; set; } = [];
