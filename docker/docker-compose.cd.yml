@@ -17,6 +17,7 @@ services:
           - YandexOAuth__RedirectUri=${OAUTH_REDIRECT_URI}
           - YandexOAuth__ClientId=${YANDEX_CLIENT_ID}
           - YandexOAuth__ClientSecret=${YANDEX_CLIENT_SECRET}
+          - SwaggerPrefix=${SWAGGER_PREFIX}
         networks:
           - backend-network
         healthcheck:

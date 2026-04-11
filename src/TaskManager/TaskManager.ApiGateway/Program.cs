@@ -274,10 +274,12 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
 
+var swaggerPrefix = builder.Configuration["SwaggerPrefix"] ?? "";
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Voice Task API V1");
+    c.SwaggerEndpoint($"{swaggerPrefix}/swagger/v1/swagger.json", "Voice Task API V1");
     c.RoutePrefix = string.Empty;
 });
 
