@@ -3,7 +3,7 @@ using TaskManager.Auth.Application.Interfaces;
 using TaskManager.Auth.Infrastructure;
 using TaskManager.Shared.Interfaces;
 
-namespace TaskManager.Auth.Application.Features.OAuth.GetAuthorizeUrl;
+namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetAuthorizeUrl;
 
 public sealed class GetAuthorizeUrlQueryHandler(ICurrentUser user, IStateService stateService, YandexOAuthClient oAuthClient) : IRequestHandler<GetAuthorizeUrlQuery, string>
 {

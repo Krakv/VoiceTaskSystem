@@ -2,23 +2,25 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Auth.Application.Interfaces;
 using TaskManager.Auth.Infrastructure;
+using TaskManager.Calendar.Infrastructure.Interfaces;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Domain.Entities;
+using TaskManager.Shared.Exceptions;
 
-namespace TaskManager.Auth.Application.Features.OAuth.ExchangeOAuthCode;
+namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.ExchangeOAuthCode;
 
-public sealed class ExchangeOAuthCodeCommandHandler(YandexOAuthClient oAuthClient, AppDbContext context, IStateService stateService) : IRequestHandler<ExchangeOAuthCodeCommand>
+public sealed class ExchangeOAuthCodeCommandHandler(YandexOAuthClient oAuthClient, AppDbContext context, ICalDavClient calDavClient, IStateService stateService) : IRequestHandler<ExchangeOAuthCodeCommand>
 {
     private readonly YandexOAuthClient _oAuthClient = oAuthClient;
     private readonly AppDbContext _context = context;
+    private readonly ICalDavClient _calDavClient = calDavClient;
     private readonly IStateService _stateService = stateService;
     public async Task Handle(ExchangeOAuthCodeCommand request, CancellationToken cancellationToken)
     {
         var token = await _oAuthClient.ExchangeCodeAsync(request.Code);
-
         var userId = _stateService.Parse(request.State);
 
-        var baseUrl = "https://caldav.yandex.ru/";
+        var calDavEmail = await _calDavClient.GetUserEmailAsync(token.access_token, cancellationToken);
+        var baseUrl = $"https://caldav.yandex.ru/calendars/{calDavEmail}/events-default/";
 
         var existing = await _context.ExternalCalendarAccount
             .FirstOrDefaultAsync(x => 
@@ -28,12 +30,12 @@ public sealed class ExchangeOAuthCodeCommandHandler(YandexOAuthClient oAuthClien
 
         if (existing is null)
         {
-            var account = new ExternalCalendarAccount
+            var account = new Shared.Domain.Entities.ExternalCalendarAccount
             {
                 OwnerId = userId,
                 BaseUrl = baseUrl,
                 AccessToken = token.access_token,
-                RefreshToken = token.refresh_token ?? throw new Exception("No refresh token"),
+                RefreshToken = token.refresh_token ?? throw new ValidationAppException("INVALID_PARAMS","Нет refresh токена"),
                 ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(token.expires_in)
             };
 

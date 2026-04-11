@@ -1,5 +1,5 @@
 ﻿using MediatR;
 
-namespace TaskManager.Auth.Application.Features.OAuth.ExchangeOAuthCode;
+namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.ExchangeOAuthCode;
 
 public sealed record ExchangeOAuthCodeCommand(string Code, string State) : IRequest;

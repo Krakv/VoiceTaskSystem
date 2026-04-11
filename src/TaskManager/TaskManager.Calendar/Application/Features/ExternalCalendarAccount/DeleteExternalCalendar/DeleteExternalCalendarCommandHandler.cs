@@ -13,7 +13,7 @@ public sealed class DeleteExternalCalendarCommandHandler(AppDbContext context, I
 
         var entity = await context.ExternalCalendarAccount
             .FirstOrDefaultAsync(x =>
-                x.ExternalCalendarAccountId == request.Id &&
+                x.ExternalCalendarAccountId == Guid.Parse(request.Id) &&
                 x.OwnerId == userId,
                 cancellationToken);
 

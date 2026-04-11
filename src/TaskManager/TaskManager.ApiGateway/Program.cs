@@ -20,7 +20,10 @@ using TaskManager.Auth.Application.Services;
 using TaskManager.Auth.Config;
 using TaskManager.Auth.Infrastructure;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Calendar.Application.Interfaces;
+using TaskManager.Calendar.Application.Services;
 using TaskManager.Calendar.Infrastructure;
+using TaskManager.Calendar.Infrastructure.Interfaces;
 using TaskManager.Notifications.Application.Services;
 using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
@@ -98,6 +101,11 @@ builder.Services.AddDataProtection();
 
 builder.Services.AddSingleton<IStateService, OAuthStateService>();
 builder.Services.AddScoped<YandexOAuthClient>();
+builder.Services.AddScoped<ExternalCalendarAccountService>();
+builder.Services.AddScoped<ICalDavClient, CalDavClient>();
+builder.Services.AddScoped<ICalendarIcsGenerator, CalendarIcsGenerator>();
+builder.Services.AddScoped<ICalendarSyncService, YandexCalendarSyncService>();
+
 #endregion Services
 
 builder.Services.AddControllers(options =>

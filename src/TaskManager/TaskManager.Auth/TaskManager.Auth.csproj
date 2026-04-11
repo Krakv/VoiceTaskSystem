@@ -33,4 +33,8 @@
 	  <ProjectReference Include="..\TaskManager.Shared\TaskManager.Shared.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Application\Features\OAuth\" />
+	</ItemGroup>
+
 </Project>

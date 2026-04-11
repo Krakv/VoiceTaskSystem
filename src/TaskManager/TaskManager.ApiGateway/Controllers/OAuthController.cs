@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Auth.Application.Features.OAuth.ExchangeOAuthCode;
-using TaskManager.Auth.Application.Features.OAuth.GetAuthorizeUrl;
+using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.DeleteExternalCalendar;
+using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.ExchangeOAuthCode;
+using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetAuthorizeUrl;
+using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetExternalCalendars;
 using TaskManager.Shared.DTOs.Responses;
 
 namespace TaskManager.ApiGateway.Controllers;
@@ -28,6 +30,24 @@ public class OAuthController(IMediator mediator) : ControllerBase
         var url = await _mediator.Send(new GetAuthorizeUrlQuery());
 
         return Redirect(url);
+    }
+
+    [Authorize]
+    [HttpDelete("accounts/{id:guid}")]
+    public async Task<IActionResult> Disconnect(string id)
+    {
+        await _mediator.Send(new DeleteExternalCalendarCommand(id));
+
+        return Success(new { });
+    }
+
+    [Authorize]
+    [HttpGet("accounts")]
+    public async Task<IActionResult> GetCalendars()
+    {
+        var cals = await _mediator.Send(new GetExternalCalendarsQuery());
+
+        return Success(cals);
     }
 
     private OkObjectResult Success<T>(T data) where T : class =>

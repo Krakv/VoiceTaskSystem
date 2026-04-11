@@ -6,5 +6,6 @@ public sealed record CreateCalendarEventCommand(
     string StartTime,
     string EndTime,
     string? Location,
-    string? TaskId
+    string? TaskId,
+    string? ExternalAccountId
 ) : IRequest<Guid>;
