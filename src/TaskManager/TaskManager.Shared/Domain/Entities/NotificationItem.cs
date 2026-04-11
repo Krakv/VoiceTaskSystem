@@ -10,9 +10,13 @@ public class NotificationItem
     [Key]
     public Guid NotificationId { get; set; } = Guid.NewGuid();
 
-    public Guid TaskId { get; set; }
+    public Guid OwnerId { get; set; }
+    [ForeignKey(nameof(OwnerId))]
+    public User Owner { get; set; } = null!;
+
+    public Guid? TaskId { get; set; }
     [ForeignKey(nameof(TaskId))]
-    public TaskItem Task { get; set; } = null!;
+    public TaskItem? Task { get; set; }
 
     public int ServiceId { get; set; }
     [ForeignKey(nameof(ServiceId))]

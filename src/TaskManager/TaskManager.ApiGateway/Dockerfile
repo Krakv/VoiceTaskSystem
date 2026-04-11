@@ -12,7 +12,16 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["TaskManager.ApiGateway/TaskManager.ApiGateway.csproj", "TaskManager.ApiGateway/"]
+COPY ["TaskManager.Auth/TaskManager.Auth.csproj", "TaskManager.Auth/"]
+COPY ["TaskManager.Calendar/TaskManager.Calendar.csproj", "TaskManager.Calendar/"]
+COPY ["TaskManager.Notifications/TaskManager.Notifications.csproj", "TaskManager.Notifications/"]
+COPY ["TaskManager.Repository/TaskManager.Repository.csproj", "TaskManager.Repository/"]
+COPY ["TaskManager.RulesEngine/TaskManager.RulesEngine.csproj", "TaskManager.RulesEngine/"]
+COPY ["TaskManager.Shared/TaskManager.Shared.csproj", "TaskManager.Shared/"]
+COPY ["TaskManager.TaskManagement/TaskManager.TaskManagement.csproj", "TaskManager.TaskManagement/"]
+
 RUN dotnet restore "./TaskManager.ApiGateway/TaskManager.ApiGateway.csproj"
 COPY . .
 WORKDIR "/src/TaskManager.ApiGateway"

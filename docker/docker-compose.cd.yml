@@ -5,6 +5,7 @@ services:
         build: 
             context: ../src/TaskManager
             dockerfile: TaskManager.ApiGateway/Dockerfile
+            network: host
         ports:
           - "3000:8080"
         environment:

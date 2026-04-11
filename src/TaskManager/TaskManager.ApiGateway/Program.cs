@@ -24,10 +24,12 @@ using TaskManager.Calendar.Application.Interfaces;
 using TaskManager.Calendar.Application.Services;
 using TaskManager.Calendar.Infrastructure;
 using TaskManager.Calendar.Infrastructure.Interfaces;
+using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 using TaskManager.Notifications.Application.Services;
 using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
 using TaskManager.Notifications.Config;
+using TaskManager.Notifications.Pipeline;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Interfaces;
@@ -40,6 +42,7 @@ using TaskManager.TaskManagement.Application.Services;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Services.VoiceProcessing;
 using TaskManager.TaskManagement.Config;
+using TaskManager.TaskManagement.Pipeline;
 using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,10 +56,13 @@ builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
     typeof(CreateTaskCommand).Assembly, 
     typeof(LoginCommand).Assembly,
     typeof(CreateRuleCommand).Assembly,
-    typeof(CreateCalendarEventCommand).Assembly
+    typeof(CreateCalendarEventCommand).Assembly,
+    typeof(CreateNotificationCommand).Assembly
     ));
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TaskAccessBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(NotificationAccessBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 #endregion MediatR
@@ -268,14 +274,11 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Voice Task API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Voice Task API V1");
+    c.RoutePrefix = string.Empty;
+});
 
 await app.RunAsync();
