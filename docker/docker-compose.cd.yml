@@ -13,6 +13,9 @@ services:
           - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
           - ASPNETCORE_ENVIRONMENT=Release
           - JwtSettings__Secret=${JWT_SECRET}
+          - YandexOAuth__RedirectUri=${OAUTH_REDIRECT_URI}
+          - YandexOAuth__ClientId=${YANDEX_CLIENT_ID}
+          - YandexOAuth__ClientSecret=${YANDEX_CLIENT_SECRET}
         networks:
           - backend-network
         healthcheck:

@@ -9,14 +9,21 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using Serilog;
-using Serilog.Filters;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskManager.ApiGateway.Middleware;
 using TaskManager.Auth.Application.Features.Auth.Login;
+using TaskManager.Auth.Application.Interfaces;
+using TaskManager.Auth.Application.Services;
 using TaskManager.Auth.Config;
+using TaskManager.Auth.Infrastructure;
+using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Calendar.Application.Interfaces;
+using TaskManager.Calendar.Application.Services;
+using TaskManager.Calendar.Infrastructure;
+using TaskManager.Calendar.Infrastructure.Interfaces;
 using TaskManager.Notifications.Application.Services;
 using TaskManager.Notifications.Application.Services.Factories;
 using TaskManager.Notifications.Application.Services.Interfaces;
@@ -45,7 +52,8 @@ builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
     typeof(Program).Assembly, 
     typeof(CreateTaskCommand).Assembly, 
     typeof(LoginCommand).Assembly,
-    typeof(CreateRuleCommand).Assembly
+    typeof(CreateRuleCommand).Assembly,
+    typeof(CreateCalendarEventCommand).Assembly
     ));
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -90,6 +98,14 @@ builder.Services.AddHostedService<VoiceProcessingWorker>();
 builder.Services.AddScoped<VoiceProcessingHandler>();
 
 builder.Services.AddDataProtection();
+
+builder.Services.AddSingleton<IStateService, OAuthStateService>();
+builder.Services.AddScoped<YandexOAuthClient>();
+builder.Services.AddScoped<ExternalCalendarAccountService>();
+builder.Services.AddScoped<ICalDavClient, CalDavClient>();
+builder.Services.AddScoped<ICalendarIcsGenerator, CalendarIcsGenerator>();
+builder.Services.AddScoped<ICalendarSyncService, YandexCalendarSyncService>();
+
 #endregion Services
 
 builder.Services.AddControllers(options =>
@@ -118,6 +134,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("TelegramBot"));
 builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
+builder.Services.Configure<YandexOAuthConfig>(builder.Configuration.GetSection("YandexOAuth"));
 
 builder.Services.Configure<JsonSerializerOptions>(options =>
 {

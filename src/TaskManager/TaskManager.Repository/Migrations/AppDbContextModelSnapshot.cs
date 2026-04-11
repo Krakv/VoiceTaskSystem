@@ -179,27 +179,27 @@ namespace TaskManager.Migrations
                     b.Property<DateTimeOffset>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("ExternalAccountId")
+                    b.Property<Guid?>("ExternalAccountId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("ExternalEventId")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
 
                     b.Property<string>("Location")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("TaskId")
+                    b.Property<Guid?>("TaskId")
                         .HasColumnType("uuid");
 
                     b.HasKey("EventId");
 
                     b.HasIndex("ExternalAccountId");
+
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("TaskId");
 
@@ -257,14 +257,15 @@ namespace TaskManager.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
 
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Provider")
-                        .HasColumnType("integer");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
@@ -273,7 +274,7 @@ namespace TaskManager.Migrations
 
                     b.HasKey("ExternalCalendarAccountId");
 
-                    b.HasIndex("OwnerId", "Provider")
+                    b.HasIndex("OwnerId", "BaseUrl")
                         .IsUnique();
 
                     b.ToTable("ExternalCalendarAccount");
@@ -449,11 +450,17 @@ namespace TaskManager.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -576,17 +583,21 @@ namespace TaskManager.Migrations
                 {
                     b.HasOne("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", "ExternalCalendarAccount")
                         .WithMany("CalendarEvents")
-                        .HasForeignKey("ExternalAccountId")
+                        .HasForeignKey("ExternalAccountId");
+
+                    b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", "Task")
                         .WithMany()
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TaskId");
 
                     b.Navigation("ExternalCalendarAccount");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("Task");
                 });

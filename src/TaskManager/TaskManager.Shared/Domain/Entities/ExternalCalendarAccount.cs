@@ -13,7 +13,7 @@ public class ExternalCalendarAccount
     public User Owner { get; set; } = null!;
 
     [Required]
-    public CalendarProvider Provider { get; set; }
+    public string BaseUrl { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(2048)]
@@ -27,11 +27,4 @@ public class ExternalCalendarAccount
     public DateTimeOffset ExpiresAt { get; set; }
 
     public ICollection<CalendarEvent> CalendarEvents { get; set; } = [];
-}
-
-public enum CalendarProvider
-{
-    Yandex = 1,
-    Google = 2,
-    Outlook = 3
 }
