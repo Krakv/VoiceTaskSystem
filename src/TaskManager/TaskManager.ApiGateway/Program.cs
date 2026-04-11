@@ -40,6 +40,7 @@ using TaskManager.TaskManagement.Application.Services;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
 using TaskManager.TaskManagement.Application.Services.VoiceProcessing;
 using TaskManager.TaskManagement.Config;
+using TaskManager.TaskManagement.Pipeline;
 using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +58,7 @@ builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
     ));
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TaskAccessBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 #endregion MediatR
