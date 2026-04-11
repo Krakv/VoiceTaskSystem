@@ -27,10 +27,6 @@ public class CalendarEvent
     [MaxLength(255)]
     public string? Location { get; set; }
 
-    [Required]
-    [MaxLength(512)]
-    public string? ExternalEventId { get; set; }
-
     public Guid? ExternalAccountId { get; set; }
     [ForeignKey(nameof(ExternalAccountId))]
     public ExternalCalendarAccount? ExternalCalendarAccount { get; set; }
