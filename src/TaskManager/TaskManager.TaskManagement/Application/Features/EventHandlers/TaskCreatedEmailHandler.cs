@@ -19,7 +19,7 @@ public class TaskCreatedEmailHandler(ILogger<BaseEventHandler<TaskCreatedEvent>>
         if (user.Email == null) return;
         if (!user.EmailConfirmed) return;
 
-        await _emailService.Send(
+        await _emailService.SendAsync(
             user.Email,
             "Создана новая задача",
             $"Задача '{notification.Title}' была создана с ID {notification.TaskId}");
