@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
 
 export const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "/api/v1",
@@ -23,7 +24,13 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             useAuthStore.getState().logout();
+            toast.error(error.response.data.error.message);
+        } else if (error.response?.data?.error?.message) {
+            toast.error(error.response.data.error.message);
+        } else {
+            toast.error("Неизвестная ошибка");
         }
-        throw error;
+
+        return Promise.reject(error);
     }
-)
+);
