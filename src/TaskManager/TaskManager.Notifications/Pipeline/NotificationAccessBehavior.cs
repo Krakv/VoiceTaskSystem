@@ -16,6 +16,8 @@ public class NotificationAccessBehavior<TRequest, TResponse>(AppDbContext contex
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.NotificationId)) return await next(cancellationToken);
+
         var notif = await _context.NotificationItem
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.NotificationId == Guid.Parse(request.NotificationId), cancellationToken);
