@@ -9,6 +9,9 @@ import {CommandRequestEditPage} from "@/pages/CommandRequestEditPage.tsx";
 import {NotificationsPage} from "@/pages/NotificationsPage.tsx";
 import {NotificationEditPage} from "@/pages/NotificationEditPage.tsx";
 import {NotificationCreatePage} from "@/pages/NotificationCreatePage.tsx";
+import {RuleCreatePage} from "@/pages/Rule/RuleCreatePage.tsx";
+import {RulesPage} from "@/pages/Rule/RulesPage.tsx";
+import {RuleEditPage} from "@/pages/Rule/RuleEditPage.tsx";
 
 export const privateRoutes = [
     { path: '/tasks', component: MainPage },
@@ -20,6 +23,9 @@ export const privateRoutes = [
     { path: '/notifications', component: NotificationsPage },
     { path: '/notifications/create', component: NotificationCreatePage },
     { path: '/notifications/:notificationId/edit', component: NotificationEditPage },
+    { path: '/rules', component: RulesPage },
+    { path: '/rules/create', component: RuleCreatePage },
+    { path: '/rules/:ruleId/edit', component: RuleEditPage },
 ];
 
 export const publicRoutes = [
