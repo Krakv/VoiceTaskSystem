@@ -8,7 +8,7 @@ export const Layout = () => {
             <div className="flex flex-col w-full max-w-md min-h-screen bg-white relative">
                 <Header/>
 
-                <main className="flex-1 p-4 overflow-auto">
+                <main className="flex-1 p-4 overflow-auto pb-32">
                     <Outlet />
                 </main>
 

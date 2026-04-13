@@ -33,7 +33,6 @@ const Login = () => {
             alert("Успешный вход!");
         } catch (error) {
             console.log(error);
-            setError("Сетевая ошибка");
         }
     };
 

@@ -6,6 +6,9 @@ import {TaskCreatePage} from "@/pages/TaskCreatePage.tsx";
 import {VoiceInputPage} from "@/pages/VoiceInputPage.tsx";
 import {VoiceResultPage} from "@/pages/VoiceResultPage.tsx";
 import {CommandRequestEditPage} from "@/pages/CommandRequestEditPage.tsx";
+import {NotificationsPage} from "@/pages/NotificationsPage.tsx";
+import {NotificationEditPage} from "@/pages/NotificationEditPage.tsx";
+import {NotificationCreatePage} from "@/pages/NotificationCreatePage.tsx";
 
 export const privateRoutes = [
     { path: '/tasks', component: MainPage },
@@ -14,6 +17,9 @@ export const privateRoutes = [
     { path: '/create/voice/:id', component: VoiceResultPage },
     { path: '/create/voice/:id/edit', component: CommandRequestEditPage },
     { path: '/tasks/:taskId/edit', component: TaskEditPage },
+    { path: '/notifications', component: NotificationsPage },
+    { path: '/notifications/create', component: NotificationCreatePage },
+    { path: '/notifications/:notificationId/edit', component: NotificationEditPage },
 ];
 
 export const publicRoutes = [
