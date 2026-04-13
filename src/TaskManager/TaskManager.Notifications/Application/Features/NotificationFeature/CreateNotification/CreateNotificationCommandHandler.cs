@@ -13,7 +13,7 @@ public sealed class CreateNotificationCommandHandler(AppDbContext context, ICurr
 
     public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
-        var taskId = Guid.Parse(request.TaskId);
+        Guid? taskId = string.IsNullOrWhiteSpace(request.TaskId) ? null : Guid.Parse(request.TaskId);
 
         var entity = new NotificationItem
         {

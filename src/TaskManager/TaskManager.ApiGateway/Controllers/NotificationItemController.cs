@@ -46,8 +46,7 @@ public class NotificationItemController(IMediator mediator) : ControllerBase
         (
             id,
             dto.Description,
-            dto.ScheduledAt,
-            dto.NotificationStatus
+            dto.ScheduledAt
         );
 
         await _mediator.Send(updateNotifCommand);

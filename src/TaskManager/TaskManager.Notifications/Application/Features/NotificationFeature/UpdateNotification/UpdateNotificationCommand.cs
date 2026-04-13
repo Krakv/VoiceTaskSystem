@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.UpdateNotification;
@@ -7,6 +6,5 @@ namespace TaskManager.Notifications.Application.Features.NotificationFeature.Upd
 public record UpdateNotificationCommand(
     string NotificationId,
     string Description,
-    string ScheduledAt,
-    NotificationStatus Status
+    string ScheduledAt
 ) : IRequest, INotificationAccessRequest;
