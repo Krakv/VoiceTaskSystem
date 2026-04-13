@@ -1,9 +1,14 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
+using TaskManager.RulesEngine.Domain.Actions;
+using TaskManager.RulesEngine.Domain.Conditions;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Interfaces;
+using TaskManager.Shared.Utils;
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.GetRule;
 
@@ -32,6 +37,12 @@ public sealed class GetRuleQueryHandler(AppDbContext dbContext, ILogger<GetRuleQ
 
         _logger.LogInformation("Successfully fetched RuleId: {RuleId} for UserId: {UserId}", ruleId, _user.UserId);
 
-        return new GetRuleResponse(rule);
+        var conditionGroup = JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
+        var actions = JsonSerializer.Deserialize<RuleAction[]>(rule.Action, JsonHelper.Default);
+
+        if (conditionGroup == null || actions == null)
+            throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Произошла ошибка во время получения условий и действий");
+
+        return new GetRuleResponse(rule.RuleId, rule.Event, conditionGroup, actions, rule.IsActive);
     }
 }

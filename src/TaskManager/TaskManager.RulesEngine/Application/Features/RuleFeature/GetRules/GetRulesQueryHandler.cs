@@ -1,10 +1,17 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Data;
+using System.Text.Json;
 using TaskManager.Repository.Context;
+using TaskManager.RulesEngine.Application.Features.RuleFeature.GetRule;
+using TaskManager.RulesEngine.Domain.Actions;
+using TaskManager.RulesEngine.Domain.Conditions;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.Exceptions;
 using TaskManager.Shared.Interfaces;
+using TaskManager.Shared.Utils;
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.GetRules;
 
@@ -39,10 +46,29 @@ public sealed class GetRulesQueryHandler(AppDbContext dbContext, ILogger<GetRule
         }
 
         // Пагинация
-        var rules = await query
+        var rulesRaw = await query
             .Skip(page * limit)
             .Take(limit)
+            .Select(rule => new
+            {
+                rule.RuleId,
+                rule.Event,
+                rule.Condition,
+                rule.Action,
+                rule.IsActive
+            })
             .ToListAsync(cancellationToken);
+
+        var rules = rulesRaw.Select(rule =>
+        {
+            var conditionGroup = JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
+            var actions = JsonSerializer.Deserialize<RuleAction[]>(rule.Action, JsonHelper.Default);
+
+            if (conditionGroup == null || actions == null)
+                throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Ошибка десериализации");
+
+            return new GetRuleResponse(rule.RuleId, rule.Event, conditionGroup, actions, rule.IsActive);
+        }).ToList();
 
         _logger.LogInformation("Fetched {Count} rules for UserId: {UserId}", rules.Count, _user.UserId);
 

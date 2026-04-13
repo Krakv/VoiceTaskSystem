@@ -84,7 +84,7 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger) : 
         {
             if (c is Condition cond)
             {
-                var value = task.GetType().GetProperty(cond.Field,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.GetValue(task)?.ToString()?.ToLower();
+                var value = task.GetType().GetProperty(cond.Field,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.GetValue(task)?.ToString();
                 _logger.LogDebug("Evaluating condition: {Field} {Operator} {Value} (Task value: {TaskValue})", cond.Field, cond.Operator, cond.Value, value);
                 return cond.Operator.ToString() switch
                 {
