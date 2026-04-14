@@ -15,8 +15,8 @@ public sealed class GetCalendarEventsQueryHandler(AppDbContext context) : IReque
             .Select(x => new CalendarEventDto(
                 x.EventId,
                 x.Title,
-                x.StartTime.ToString(),
-                x.EndTime.ToString(),
+                x.StartTime,
+                x.EndTime,
                 x.Location,
                 x.TaskId,
                 x.ExternalAccountId
