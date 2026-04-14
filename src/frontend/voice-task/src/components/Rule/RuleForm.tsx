@@ -100,7 +100,10 @@ const makeCalendar = (): LocalAction => ({
     _id: ++_actionIdCounter,
     type: "CREATE_CALENDAR_EVENT",
     durationMinutes: 60,
+    offsetMinutes: 0,
+    title: "",
     location: "",
+    externalAccountId: "",
 });
 
 // ──────────────────────────────────────────────
@@ -268,23 +271,72 @@ function ActionEditor({
             )}
 
             {action.type === "CREATE_CALENDAR_EVENT" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-3">
                     <div className="space-y-1.5">
-                        <Label className="text-xs">Длительность (минуты)</Label>
+                        <Label className="text-xs">Название события</Label>
                         <Input
-                            type="number"
-                            min={1}
-                            placeholder="60"
-                            value={action.durationMinutes}
-                            onChange={(e) => onChange({ ...action, durationMinutes: Number(e.target.value) } as LocalAction)}
+                            placeholder="Например: Встреча"
+                            value={action.title}
+                            onChange={(e) =>
+                                onChange({ ...action, title: e.target.value } as LocalAction)
+                            }
                         />
                     </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs">Длительность (мин)</Label>
+                            <Input
+                                type="number"
+                                min={1}
+                                value={action.durationMinutes}
+                                onChange={(e) =>
+                                    onChange({
+                                        ...action,
+                                        durationMinutes: Number(e.target.value),
+                                    } as LocalAction)
+                                }
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-xs">Смещение (мин)</Label>
+                            <Input
+                                type="number"
+                                min={0}
+                                value={action.offsetMinutes ?? 0}
+                                onChange={(e) =>
+                                    onChange({
+                                        ...action,
+                                        offsetMinutes: Number(e.target.value),
+                                    } as LocalAction)
+                                }
+                            />
+                        </div>
+                    </div>
+
                     <div className="space-y-1.5">
                         <Label className="text-xs">Место</Label>
                         <Input
-                            placeholder="Офис / онлайн"
+                            placeholder="Офис / Zoom"
                             value={action.location}
-                            onChange={(e) => onChange({ ...action, location: e.target.value } as LocalAction)}
+                            onChange={(e) =>
+                                onChange({ ...action, location: e.target.value } as LocalAction)
+                            }
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label className="text-xs">ID календаря (опционально)</Label>
+                        <Input
+                            placeholder="externalAccountId"
+                            value={action.externalAccountId ?? ""}
+                            onChange={(e) =>
+                                onChange({
+                                    ...action,
+                                    externalAccountId: e.target.value,
+                                } as LocalAction)
+                            }
                         />
                     </div>
                 </div>

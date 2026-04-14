@@ -33,7 +33,10 @@ export interface CreateNotificationAction extends RuleAction {
 export interface CreateCalendarEventAction extends RuleAction {
     type: "CREATE_CALENDAR_EVENT";
     durationMinutes: number;
+    offsetMinutes?: number;
+    title: string;
     location: string;
+    externalAccountId?: string;
 }
 
 export interface RuleItem {
