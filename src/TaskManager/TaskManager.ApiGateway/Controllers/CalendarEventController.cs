@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManager.ApiGateway.DTOs.CalendarEvent;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 using TaskManager.Calendar.Application.Features.CalendarEvent.DeleteCalendarEvent;
+using TaskManager.Calendar.Application.Features.CalendarEvent.GetCalendarEvent;
 using TaskManager.Calendar.Application.Features.CalendarEvent.GetCalendarEvents;
 using TaskManager.Calendar.Application.Features.CalendarEvent.UpdateCalendarEvent;
 using TaskManager.Shared.DTOs.Responses;
@@ -43,6 +44,13 @@ public class CalendarEventsController(IMediator mediator, ICurrentUser user) : C
         return Success(result);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        var result = await _mediator.Send(new GetCalendarEventQuery(_user.UserId.ToString(), id));
+        return Success(result);
+    }
+
     [HttpPut]
     public async Task<IActionResult> Update(UpdateCalendarEventDto dto)
     {
@@ -67,8 +75,6 @@ public class CalendarEventsController(IMediator mediator, ICurrentUser user) : C
         await _mediator.Send(new DeleteCalendarEventCommand(_user.UserId.ToString(), id));
         return Success(new { });
     }
-
-
     private OkObjectResult Success<T>(T data) where T : class =>
         Ok(new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
 

@@ -6,5 +6,6 @@ public sealed record CalendarEventDto(
     string StartTime,
     string EndTime,
     string? Location,
-    Guid? TaskId
+    Guid? TaskId,
+    Guid? ExternalAccountId
 );

@@ -18,7 +18,8 @@ public sealed class GetCalendarEventsQueryHandler(AppDbContext context) : IReque
                 x.StartTime.ToString(),
                 x.EndTime.ToString(),
                 x.Location,
-                x.TaskId
+                x.TaskId,
+                x.ExternalAccountId
             ))
             .ToListAsync(cancellationToken);
     }
