@@ -14,10 +14,10 @@ public sealed class ChangeMyPasswordCommandHandler(
     ILogger<ChangeMyPasswordCommandHandler> logger)
     : IRequestHandler<ChangeMyPasswordCommand, bool>
 {
-    public async Task<bool> Handle(ChangeMyPasswordCommand request, CancellationToken ct)
+    public async Task<bool> Handle(ChangeMyPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users
-            .FirstOrDefaultAsync(x => x.Id == currentUser.UserId, ct);
+            .FirstOrDefaultAsync(x => x.Id == currentUser.UserId, cancellationToken);
 
         if (user is null)
             throw new ValidationAppException(

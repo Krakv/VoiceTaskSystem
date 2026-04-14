@@ -3,7 +3,9 @@
 namespace TaskManager.Calendar.Application.Features.CalendarEvent.UpdateCalendarEvent;
 
 public sealed record UpdateCalendarEventCommand(
-    string Id,
+    string OwnerId,
+    string CalendarEventId,
+    string Title,
     string StartTime,
     string EndTime,
     string? Location,

@@ -20,7 +20,6 @@ public class UpdateNotificationCommandHandler(AppDbContext context) : IRequestHa
 
         entity.Description = request.Description;
         entity.ScheduledAt = DateTimeOffset.Parse(request.ScheduledAt, CultureInfo.InvariantCulture);
-        entity.Status = request.Status;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

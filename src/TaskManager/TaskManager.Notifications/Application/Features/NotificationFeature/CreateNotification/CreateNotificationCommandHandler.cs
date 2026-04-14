@@ -2,23 +2,22 @@
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities;
 using System.Globalization;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 
-public sealed class CreateNotificationCommandHandler(AppDbContext context, ICurrentUser user) : IRequestHandler<CreateNotificationCommand, Guid>
+public sealed class CreateNotificationCommandHandler(AppDbContext context) : IRequestHandler<CreateNotificationCommand, Guid>
 {
     private readonly AppDbContext _context = context;
-    private readonly ICurrentUser _user = user;
 
     public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
-        var taskId = Guid.Parse(request.TaskId);
+        Guid? taskId = string.IsNullOrWhiteSpace(request.TaskId) ? null : Guid.Parse(request.TaskId);
+        Guid ownerId = Guid.Parse(request.OwnerId);
 
         var entity = new NotificationItem
         {
             TaskId = taskId,
-            OwnerId = _user.UserId,
+            OwnerId = ownerId,
             ServiceId = request.ServiceId,
             Description = request.Description,
             ScheduledAt = DateTimeOffset.Parse(request.ScheduledAt, CultureInfo.InvariantCulture)

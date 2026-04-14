@@ -17,68 +17,89 @@ interface DatePickerTimeProps {
     onChange: (value: string) => void;
 }
 
+const toIsoWithOffset = (date: Date) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+
+    const tzOffset = -date.getTimezoneOffset(); // минуты
+    const sign = tzOffset >= 0 ? "+" : "-";
+
+    const hoursOffset = pad(Math.floor(Math.abs(tzOffset) / 60));
+    const minutesOffset = pad(Math.abs(tzOffset) % 60);
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00${sign}${hoursOffset}:${minutesOffset}`;
+};
+
 export function DatePickerTime({ value, onChange }: DatePickerTimeProps) {
     const [open, setOpen] = React.useState(false);
-    const [date, setDate] = React.useState<Date | undefined>(
-        value ? new Date(value) : undefined
-    );
+    const [date, setDate] = React.useState<Date | undefined>();
+
+    React.useEffect(() => {
+        if (value) {
+            setDate(new Date(value));
+        }
+    }, [value]);
 
     const handleDateSelect = (selectedDate: Date | undefined) => {
-        setDate(selectedDate);
-        setOpen(false);
-
-        if (selectedDate) {
-            onChange(selectedDate.toISOString());
-        } else {
+        if (!selectedDate) {
+            setDate(undefined);
             onChange("");
+            return;
         }
+
+        // сохраняем текущее время (если было)
+        const newDate = new Date(selectedDate);
+        if (date) {
+            newDate.setHours(date.getHours(), date.getMinutes());
+        }
+
+        setDate(newDate);
+        setOpen(false);
+        onChange(toIsoWithOffset(newDate));
+    };
+
+    const handleTimeChange = (time: string) => {
+        if (!date) return;
+
+        const [h, m] = time.split(":").map(Number);
+
+        const newDate = new Date(date);
+        newDate.setHours(h, m, 0, 0);
+
+        setDate(newDate);
+        onChange(toIsoWithOffset(newDate));
     };
 
     return (
         <FieldGroup className="flex flex-row gap-3 w-full">
             <Field>
-                <FieldLabel htmlFor="date-picker-optional">Срок</FieldLabel>
+                <FieldLabel>Дата</FieldLabel>
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <Button
                             variant="outline"
-                            id="date-picker-optional"
                             className="w-full justify-between font-normal"
                         >
                             {date ? format(date, "PPP") : "Выберите дату"}
                             <ChevronDownIcon />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent
-                        className="w-auto overflow-hidden p-0"
-                        align="start"
-                    >
+                    <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                             mode="single"
                             selected={date}
-                            captionLayout="dropdown"
-                            defaultMonth={date}
                             onSelect={handleDateSelect}
                         />
                     </PopoverContent>
                 </Popover>
             </Field>
+
             <Field>
-                <FieldLabel htmlFor="time-picker-optional">Время</FieldLabel>
+                <FieldLabel>Время</FieldLabel>
                 <Input
                     type="time"
-                    id="time-picker-optional"
-                    step="1"
-                    defaultValue={date ? format(date, "HH:mm:ss") : "23:59:59"}
-                    onChange={(e) => {
-                        if (!date) return;
-                        const [h, m, s] = e.target.value.split(":").map(Number);
-                        const newDate = new Date(date);
-                        newDate.setHours(h, m, s);
-                        setDate(newDate);
-                        onChange(newDate.toISOString());
-                    }}
-                    className="appearance-none bg-background [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none w-full"
+                    value={date ? format(date, "HH:mm") : ""}
+                    onChange={(e) => handleTimeChange(e.target.value)}
+                    className="w-full"
                 />
             </Field>
         </FieldGroup>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using TaskManager.Calendar.Application.Interfaces;
 using TaskManager.Shared.Domain.Entities;
 
@@ -27,7 +24,7 @@ public sealed class CalendarIcsGenerator : ICalendarIcsGenerator
         sb.AppendLine($"DTSTART:{Format(e.StartTime)}");
         sb.AppendLine($"DTEND:{Format(e.EndTime)}");
 
-        sb.AppendLine($"SUMMARY:{Escape("Task event")}");
+        sb.AppendLine($"SUMMARY:{Escape(e.Title ?? "Новое событие")}");
 
         if (!string.IsNullOrWhiteSpace(e.Location))
             sb.AppendLine($"LOCATION:{Escape(e.Location)}");

@@ -2,8 +2,13 @@
 
 public class CreateCalendarEventAction : RuleAction
 {
-    public int DurationMinutes { get; set; } = default!;
-    public string Location { get; set; } = default!;
+    public int DurationMinutes { get; set; }
+    public int OffsetMinutes { get; set; } = 0;
+
+    public string? Title { get; set; }
+    public string? Location { get; set; }
+
+    public string? ExternalAccountId { get; set; }
 
     public CreateCalendarEventAction()
     {

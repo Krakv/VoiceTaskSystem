@@ -2,8 +2,10 @@
 
 public sealed record CalendarEventDto(
     Guid EventId,
-    string StartTime,
-    string EndTime,
+    string Title,
+    DateTimeOffset StartTime,
+    DateTimeOffset EndTime,
     string? Location,
-    Guid? TaskId
+    Guid? TaskId,
+    Guid? ExternalAccountId
 );

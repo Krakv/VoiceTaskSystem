@@ -195,6 +195,10 @@ namespace TaskManager.Migrations
                     b.Property<Guid?>("TaskId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("EventId");
 
                     b.HasIndex("ExternalAccountId");

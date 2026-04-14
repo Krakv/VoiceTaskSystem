@@ -35,9 +35,21 @@ export const TaskManager = () => {
     };
 
     const handleToggle = async (task: Task) => {
-        await taskApi.updateTask(task.taskId, {
-            status: task.status === "done" ? "inProgress" : "done",
-        });
+        try {
+            await taskApi.updateTask(task.taskId, {
+                status: task.status === "done" ? "inProgress" : "done",
+            });
+
+            setTasks((prev) =>
+                prev.map((t) =>
+                    t.taskId === task.taskId
+                        ? { ...t, status : t.status === "done" ? "inProgress" : "done" }
+                        : t
+                )
+            );
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const handleEdit = useCallback((taskId: string) => {

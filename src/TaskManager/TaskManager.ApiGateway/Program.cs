@@ -1,4 +1,6 @@
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +51,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
+#region Config
+
+builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("TelegramBot"));
+builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
+builder.Services.Configure<YandexOAuthConfig>(builder.Configuration.GetSection("YandexOAuth"));
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{
+    options.PropertyNameCaseInsensitive = true;
+});
+
+#endregion Config
+
 #region MediatR
 
 builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
@@ -91,6 +107,7 @@ else
     builder.Services.AddSingleton<EmailServiceFactory, SmtpEmailServiceFactory>();
 
 builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
+builder.Services.AddScoped<INotificationsProcessingService, NotificationsProcessingService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
@@ -136,18 +153,15 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 
 builder.Services.AddOpenApi();
 
-#region Config
-
-builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("TelegramBot"));
-builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
-builder.Services.Configure<YandexOAuthConfig>(builder.Configuration.GetSection("YandexOAuth"));
-
-builder.Services.Configure<JsonSerializerOptions>(options =>
+builder.Services.AddHangfire(config =>
 {
-    options.PropertyNameCaseInsensitive = true;
+    config.UsePostgreSqlStorage(options =>
+    {
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
 });
 
-#endregion Config
+builder.Services.AddHangfireServer();
 
 # region Auth
 
@@ -274,8 +288,13 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
 
-var swaggerPrefix = builder.Configuration["SwaggerPrefix"] ?? "";
+app.UseHangfireDashboard();
 
+RecurringJob.AddOrUpdate<INotificationsProcessingService>("notification-processing-service",
+    x => x.ProcessNotificationsAsync(),
+    "*/10 * * * * *");
+
+var swaggerPrefix = builder.Configuration["SwaggerPrefix"] ?? "";
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

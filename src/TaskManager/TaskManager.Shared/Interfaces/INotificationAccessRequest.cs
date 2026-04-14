@@ -3,4 +3,5 @@
 public interface INotificationAccessRequest
 {
     string NotificationId { get; } 
+    string OwnerId { get; }
 }

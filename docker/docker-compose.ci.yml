@@ -14,6 +14,9 @@ services:
           - YandexOAuth__RedirectUri=${OAUTH_REDIRECT_URI}
           - YandexOAuth__ClientId=${YANDEX_CLIENT_ID}
           - YandexOAuth__ClientSecret=${YANDEX_CLIENT_SECRET}
+          - Smtp__Username=${SMTP_USERNAME}
+          - Smtp_Password=${SMTP_PASSWORD}
+          - Smtp_From=${SMTP_FROM}
         networks:
           - backend-network
         healthcheck:

@@ -3,4 +3,4 @@ using TaskManager.Notifications.Application.Features.NotificationFeature.GetNoti
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.GetNotifications;
 
-public record GetNotificationsQuery() : IRequest<List<GetNotificationResponse>>;
+public record GetNotificationsQuery(string OwnerId) : IRequest<List<GetNotificationResponse>>;
