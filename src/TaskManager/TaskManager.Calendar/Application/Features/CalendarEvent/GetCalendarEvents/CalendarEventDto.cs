@@ -2,6 +2,7 @@
 
 public sealed record CalendarEventDto(
     Guid EventId,
+    string Title,
     string StartTime,
     string EndTime,
     string? Location,

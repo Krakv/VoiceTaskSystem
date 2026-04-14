@@ -1,14 +1,13 @@
 ﻿using MediatR;
+using System.Globalization;
 using TaskManager.Calendar.Application.Events;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 
-public sealed class CreateCalendarEventCommandHandler(AppDbContext dbContext, ICurrentUser currentUser, IMediator mediator) : IRequestHandler<CreateCalendarEventCommand, Guid>
+public sealed class CreateCalendarEventCommandHandler(AppDbContext dbContext, IMediator mediator) : IRequestHandler<CreateCalendarEventCommand, Guid>
 {
     private readonly AppDbContext _dbContext = dbContext;
-    private readonly ICurrentUser _currentUser = currentUser;
     private readonly IMediator _mediator = mediator;
 
     public async Task<Guid> Handle(CreateCalendarEventCommand request, CancellationToken cancellationToken)
@@ -16,9 +15,10 @@ public sealed class CreateCalendarEventCommandHandler(AppDbContext dbContext, IC
         var entity = new TaskManager.Shared.Domain.Entities.CalendarEvent
         {
             EventId = Guid.NewGuid(),
-            OwnerId = _currentUser.UserId,
-            StartTime = DateTimeOffset.Parse(request.StartTime),
-            EndTime = DateTimeOffset.Parse(request.EndTime),
+            Title = request.Title,
+            OwnerId = Guid.Parse(request.OwnerId),
+            StartTime = DateTimeOffset.Parse(request.StartTime, CultureInfo.InvariantCulture),
+            EndTime = DateTimeOffset.Parse(request.EndTime, CultureInfo.InvariantCulture),
             Location = request.Location,
             TaskId = string.IsNullOrWhiteSpace(request.TaskId)
                 ? null

@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
+using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Interfaces;
 using TaskManager.RulesEngine.Domain.Actions;
@@ -13,10 +16,11 @@ using TaskManager.Shared.Utils;
 
 namespace TaskManager.RulesEngine.Application.Services;
 
-public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger) : IRuleApplier
+public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IMediator mediator) : IRuleApplier
 {
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<RuleApplier> _logger = logger;
+    private readonly IMediator _mediator = mediator;
 
     public async Task ApplyRulesAsync(TaskItem task, RuleEvent ruleEvent, Guid userId, CancellationToken ct = default)
     {
@@ -112,43 +116,103 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger) : 
         switch (action)
         {
             case SetFieldAction set:
-                var prop = task.GetType().GetProperty(set.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                if (prop == null || !prop.CanWrite) break;
-                _logger.LogDebug("Setting field {Field} to value {Value} on TaskId: {TaskId}", set.Field, set.Value, task.TaskId);
-
-                Type targetType = prop.PropertyType;
-
-                var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-
-                object? value;
-
-                if (underlyingType == typeof(Guid))
                 {
-                    value = Guid.Parse(set.Value);
-                }
-                else if (underlyingType == typeof(DateTimeOffset))
-                {
-                    value = DateTimeOffset.Parse(set.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                }
-                else if (underlyingType.IsEnum)
-                {
-                    value = Enum.Parse(underlyingType, set.Value, true);
-                }
-                else
-                {
-                    value = Convert.ChangeType(set.Value, underlyingType);
-                }
+                    var prop = task.GetType().GetProperty(set.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (prop == null || !prop.CanWrite) break;
+                    _logger.LogDebug("Setting field {Field} to value {Value} on TaskId: {TaskId}", set.Field, set.Value, task.TaskId);
 
-                prop.SetValue(task, value);
-                break;
+                    Type targetType = prop.PropertyType;
+
+                    var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+                    object? value;
+
+                    if (underlyingType == typeof(Guid))
+                    {
+                        value = Guid.Parse(set.Value);
+                    }
+                    else if (underlyingType == typeof(DateTimeOffset))
+                    {
+                        value = DateTimeOffset.Parse(set.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                    }
+                    else if (underlyingType.IsEnum)
+                    {
+                        value = Enum.Parse(underlyingType, set.Value, true);
+                    }
+                    else
+                    {
+                        value = Convert.ChangeType(set.Value, underlyingType);
+                    }
+
+                    prop.SetValue(task, value);
+                    break;
+                }
 
             case CreateNotificationAction notif:
-                // TODO
-                break;
+                {
+                    var baseDate = task.DueDate;
+
+                    if (baseDate == null)
+                    {
+                        _logger.LogWarning("Task {TaskId} has no DueDate for notification", task.TaskId);
+                        break;
+                    }
+
+                    var dueDate = (DateTimeOffset)baseDate;
+
+                    var scheduledAt = dueDate.AddMinutes(-notif.OffsetMinutes);
+
+                    await _mediator.Send(new CreateNotificationCommand(
+                        task.OwnerId.ToString(),
+                        notif.ServiceId,
+                        notif.Description,
+                        scheduledAt.ToString("O"),
+                        task.TaskId.ToString()
+                    ));
+
+                    _logger.LogDebug(
+                        "Created notification for TaskId {TaskId} at {ScheduledAt}",
+                        task.TaskId,
+                        scheduledAt
+                    );
+
+                    break;
+                }
 
             case CreateCalendarEventAction calendar:
-                // TODO
-                break;
+                {
+                    var baseDate = task.DueDate;
+
+                    if (baseDate == null)
+                    {
+                        _logger.LogWarning("Task {TaskId} has no DueDate for calendar event", task.TaskId);
+                        break;
+                    }
+
+                    var startTime = (DateTimeOffset)baseDate;
+
+                    var endTime = startTime.AddMinutes(calendar.DurationMinutes);
+
+                    await _mediator.Send(new CreateCalendarEventCommand(
+                        task.OwnerId.ToString(),
+                        calendar.Title ?? "Новое событие",
+                        startTime.ToString("O"),
+                        endTime.ToString("O"),
+                        calendar.Location,
+                        task.TaskId.ToString(),
+                        calendar.ExternalAccountId
+                    ));
+
+                    _logger.LogDebug(
+                        "Created calendar event for TaskId {TaskId} from {Start} to {End}",
+                        task.TaskId,
+                        startTime,
+                        endTime
+                    );
+
+                    break;
+                }
+                
         }
 
         await Task.CompletedTask;

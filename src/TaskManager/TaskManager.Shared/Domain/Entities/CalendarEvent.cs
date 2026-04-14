@@ -8,6 +8,7 @@ public class CalendarEvent
 {
     [Key]
     public Guid EventId { get; set; } = Guid.NewGuid();
+    public string Title { get; set; } = null!;
     public Guid OwnerId { get; set; }
     [ForeignKey(nameof(OwnerId))]
     public User Owner { get; set; } = null!;
