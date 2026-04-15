@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { notificationApi } from "@/api/notification.api";
-import type { NotificationItem } from "@/types/notification";
+import type {NotificationItem, NotificationServiceType} from "@/types/notification";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,8 @@ import { useNavigate } from "react-router-dom";
 import type { Task } from "@/types/task";
 
 const SERVICES = [
-    { id: 1, name: "Telegram" },
-    { id: 2, name: "Email" }
+    { id: "telegram", name: "Telegram" },
+    { id: "email", name: "Email" }
 ] as const;
 
 interface NotificationFormProps {
@@ -24,7 +24,7 @@ interface NotificationFormProps {
 
 export const NotificationForm = ({ notification, onSuccess }: NotificationFormProps) => {
     const [description, setDescription]     = useState(notification?.description || "");
-    const [serviceId, setServiceId]         = useState<number>(notification?.serviceId ?? 1);
+    const [serviceId, setServiceId]         = useState<NotificationServiceType>(notification?.serviceId ?? "email");
     const [scheduledAt, setScheduledAt]     = useState(notification?.scheduledAt || "");
     const [taskId, setTaskId]               = useState<string | undefined>(notification?.taskId ?? undefined);
     const [taskName, setTaskName]           = useState(notification?.task?.title || "");
@@ -101,8 +101,8 @@ export const NotificationForm = ({ notification, onSuccess }: NotificationFormPr
                 <div className="space-y-2">
                     <Label>Канал отправки</Label>
                     <Tabs
-                        value={String(serviceId)}
-                        onValueChange={(v) => setServiceId(Number(v))}
+                        value={serviceId}
+                        onValueChange={(v) => setServiceId(v as NotificationServiceType)}
                         className="w-full"
                     >
                         <TabsList className={`grid grid-cols-${SERVICES.length} w-full`}>

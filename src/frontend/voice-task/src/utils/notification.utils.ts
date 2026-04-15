@@ -1,5 +1,5 @@
-import {Send, Mail, Bell, type LucideProps} from "lucide-react";
-import type { NotificationStatus } from "@/types/notification";
+import {Send, Mail, type LucideProps} from "lucide-react";
+import type {NotificationServiceType, NotificationStatus} from "@/types/notification";
 import type {FC} from "react";
 
 export const notificationStatusMap: Record<NotificationStatus, { label: string; className: string }> = {
@@ -10,8 +10,7 @@ export const notificationStatusMap: Record<NotificationStatus, { label: string; 
     cancelled:  { label: "Отменено",   className: "bg-gray-100  text-gray-600   border-gray-200" },
 };
 
-export const serviceIconMap: Record<number, { Icon: FC<LucideProps>; bgClassName: string; colorClassName: string, label: string }> = {
-    1: { Icon: Send,  bgClassName: "bg-blue-50",   colorClassName: "text-blue-700", label: "Telegram" },   // Telegram
-    2: { Icon: Mail,  bgClassName: "bg-pink-50",   colorClassName: "text-pink-700", label: "Email" },   // Email
-    3: { Icon: Bell,  bgClassName: "bg-amber-50",  colorClassName: "text-amber-700", label: "Push" },  // Push
+export const serviceIconMap: Record<NotificationServiceType, { Icon: FC<LucideProps>; bgClassName: string; colorClassName: string, label: string }> = {
+    "telegram": { Icon: Send,  bgClassName: "bg-blue-50",   colorClassName: "text-blue-700", label: "Telegram" },   // Telegram
+    "email": { Icon: Mail,  bgClassName: "bg-pink-50",   colorClassName: "text-pink-700", label: "Email" },   // Email
 };

@@ -18,9 +18,7 @@ public class NotificationItem
     [ForeignKey(nameof(TaskId))]
     public TaskItem? Task { get; set; }
 
-    public int ServiceId { get; set; }
-    [ForeignKey(nameof(ServiceId))]
-    public ServiceItem Service { get; set; } = null!;
+    public NotificationServiceType ServiceId { get; set; }
 
     [MaxLength(255)]
     public string Description { get; set; } = string.Empty;

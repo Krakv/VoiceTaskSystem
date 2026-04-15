@@ -1,10 +1,12 @@
-﻿namespace TaskManager.RulesEngine.Domain.Actions;
+﻿using TaskManager.Shared.Domain.Entities.Enum;
+
+namespace TaskManager.RulesEngine.Domain.Actions;
 
 public class CreateNotificationAction : RuleAction
 {
     public string Description { get; set; } = default!;
     public int OffsetMinutes { get; set; } = default!;
-    public int ServiceId { get; set; } = 2;
+    public NotificationServiceType ServiceId { get; set; } = NotificationServiceType.Email;
 
     public CreateNotificationAction()
     {

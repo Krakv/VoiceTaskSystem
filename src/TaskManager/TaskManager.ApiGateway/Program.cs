@@ -57,6 +57,7 @@ builder.Services.Configure<TelegramBotConfig>(builder.Configuration.GetSection("
 builder.Services.Configure<SpeechProcessingConfig>(builder.Configuration.GetSection("SpeechProcessingConfig"));
 builder.Services.Configure<YandexOAuthConfig>(builder.Configuration.GetSection("YandexOAuth"));
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<FrontendOptions>(builder.Configuration.GetSection("Frontend"));
 
 builder.Services.Configure<JsonSerializerOptions>(options =>
 {
@@ -105,9 +106,10 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddSingleton<EmailServiceFactory, FakeEmailServiceFactory>();
 else
     builder.Services.AddSingleton<EmailServiceFactory, SmtpEmailServiceFactory>();
-
-builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
+builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
+builder.Services.AddScoped<INotificationSender, TelegramNotificationSender>();
 builder.Services.AddScoped<INotificationsProcessingService, NotificationsProcessingService>();
+builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailServiceFactory>().CreateEmailService());
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();

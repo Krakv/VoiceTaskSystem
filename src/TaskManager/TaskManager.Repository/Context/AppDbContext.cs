@@ -13,7 +13,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<ExternalCalendarAccount> ExternalCalendarAccount { get; set; }
     public DbSet<NotificationItem> NotificationItem { get; set; }
     public DbSet<RuleItem> RuleItem { get; set; }
-    public DbSet<ServiceItem> ServiceItem { get; set; }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -32,10 +31,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<ServiceItem>()
-            .HasIndex(x => x.ServiceName)
-            .IsUnique();
-
         builder.Entity<ExternalCalendarAccount>()
             .HasIndex(x => new { x.OwnerId, x.BaseUrl })
             .IsUnique();
@@ -51,10 +46,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .WithMany(x => x.Children)
             .HasForeignKey(x => x.ParentTaskId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<ServiceItem>().HasData(
-            new ServiceItem { ServiceId = 1, ServiceName = "Telegram" },
-            new ServiceItem { ServiceId = 2, ServiceName = "Email" }
-        );
     }
 }

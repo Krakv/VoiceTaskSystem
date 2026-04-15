@@ -1,7 +1,8 @@
 import {api} from "@/api/http.ts";
+import type {NotificationServiceType} from "@/types/notification.ts";
 
 export interface NotificationCreateDto {
-    serviceId: number;
+    serviceId: NotificationServiceType;
     description: string;
     scheduledAt: string;
     taskId?: string | null;

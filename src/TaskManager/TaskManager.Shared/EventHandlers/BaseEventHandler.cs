@@ -16,7 +16,7 @@ public abstract class BaseEventHandler<TEvent>(ILogger<BaseEventHandler<TEvent>>
 
     protected virtual void Log(TEvent notification)
     {
-        _logger.LogInformation("Event {EventId} | {Event} | User {UserId}", notification.EventId, notification.Event, notification.UserId);
+        _logger.LogInformation("Event {EventId} | {Event} ", notification.EventId, notification.Event);
     }
 
     protected abstract Task Process(TEvent notification, CancellationToken cancellationToken);

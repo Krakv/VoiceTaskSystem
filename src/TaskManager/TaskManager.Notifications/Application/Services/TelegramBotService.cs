@@ -1,10 +1,12 @@
-﻿using TaskManager.Notifications.Application.Services.Interfaces;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using TaskManager.Notifications.Application.Services.Interfaces;
+using TaskManager.Shared.Events;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace TaskManager.Notifications.Application.Services;
 
@@ -62,23 +64,51 @@ public class TelegramBotService : BackgroundService
         _logger.LogInformation("TelegramBotService stopped");
     }
 
-    private async Task UpdateHandler(ITelegramBotClient botClient, Telegram.Bot.Types.Update update, CancellationToken cancellationToken)
+    private async Task UpdateHandler(
+    ITelegramBotClient botClient,
+    Telegram.Bot.Types.Update update,
+    CancellationToken cancellationToken)
     {
         try
         {
-            // Тут обрабатываем приходящие Update`ы
-            if (update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text) // Если пришло текстовое сообщение
+            if (update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text)
             {
-                var chatId = update.Message.Chat.Id; // Получаем Id чата, из которого пришло сообщение
-                var messageText = update.Message.Text; // Получаем текст сообщения
-                _logger.LogInformation("Received a message from chat {ChatId}: {MessageText}", chatId, messageText);
+                var chatId = update.Message.Chat.Id;
+                var messageText = update.Message.Text;
+
+                _logger.LogInformation(
+                    "Received a message from chat {ChatId}: {MessageText}",
+                    chatId,
+                    messageText);
 
                 using var scope = _scopeFactory.CreateScope();
-                
-                // Пример ответа на сообщение
-                await _adapter.SendCommand(chatId, "Message Recieved", stoppingToken: cancellationToken);
-            }
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
+                if (messageText.StartsWith("/start"))
+                {
+                    var parts = messageText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    if (parts.Length > 1)
+                    {
+                        var token = parts[1];
+
+                        await mediator.Publish(new TelegramLinkRequestedEvent(token, chatId), cancellationToken);
+
+                        await _adapter.SendCommand(
+                            chatId,
+                            "Telegram успешно привязан ✅",
+                            stoppingToken: cancellationToken);
+
+                        return;
+                    }
+                }
+
+                // обычная логика
+                await _adapter.SendCommand(
+                    chatId,
+                    "Message received",
+                    stoppingToken: cancellationToken);
+            }
         }
         catch (Exception ex)
         {
