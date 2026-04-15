@@ -3,6 +3,6 @@
 namespace TaskManager.Auth.Application.Features.Auth.UpdateUserProfile;
 
 public record UpdateUserProfileCommand(
-    string Name,
+    string? Name,
     string? Email
 ) : IRequest;

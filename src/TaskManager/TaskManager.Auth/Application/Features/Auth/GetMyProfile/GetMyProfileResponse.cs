@@ -1,3 +1,3 @@
 ﻿namespace TaskManager.Auth.Application.Features.Auth.GetMyProfile;
 
-public sealed record GetMyProfileResponse(Guid Id, string Name, string? Email);
+public sealed record GetMyProfileResponse(Guid Id, string Name, string? Email, bool EmailVerified, List<Guid> ExternalCalendarAccountIds, string? TelegramChatId);
