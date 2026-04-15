@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TaskManager.Repository.Context;
@@ -11,9 +12,11 @@ using TaskManager.Repository.Context;
 namespace TaskManager.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415110039_AddUserTelegramTokensLogic")]
+    partial class AddUserTelegramTokensLogic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -596,8 +599,7 @@ namespace TaskManager.Migrations
                 {
                     b.HasOne("TaskManager.Shared.Domain.Entities.ExternalCalendarAccount", "ExternalCalendarAccount")
                         .WithMany("CalendarEvents")
-                        .HasForeignKey("ExternalAccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ExternalAccountId");
 
                     b.HasOne("TaskManager.Shared.Domain.Entities.User", "Owner")
                         .WithMany()
@@ -684,8 +686,7 @@ namespace TaskManager.Migrations
 
                     b.HasOne("TaskManager.Shared.Domain.Entities.TaskItem", "Parent")
                         .WithMany("Children")
-                        .HasForeignKey("ParentTaskId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParentTaskId");
 
                     b.Navigation("Owner");
 

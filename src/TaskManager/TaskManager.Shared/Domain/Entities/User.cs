@@ -16,6 +16,10 @@ public class User : IdentityUser<Guid>
     public bool IsDeleted { get; set; } = false;
     public DateTimeOffset? DeletedAt { get; set; }
 
+    public string? TelegramChatId { get; set; }
+    public string? TelegramToken { get; set; }
+    public DateTimeOffset? TelegramTokenExpiresAt { get; set; }
+
     public ICollection<TaskItem> Tasks { get; set; } = [];
     public ICollection<CommandRequestItem> CommandRequests { get; set; } = [];
     public ICollection<ExternalCalendarAccount> ExternalCalendarAccounts { get; set; } = [];
