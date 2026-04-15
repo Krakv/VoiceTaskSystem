@@ -3,7 +3,7 @@ using TaskManager.Shared.Events;
 
 namespace TaskManager.Calendar.Application.Events;
 
-public sealed class CalendarEventCreatedEvent(Guid ownerId, CalendarEvent calendarEvent) : BaseEvent
+public sealed class CalendarEventCreatedEvent(Guid ownerId, CalendarEvent calendarEvent) : UserEvent
 {
     public CalendarEvent CalendarEvent { get; init; } = calendarEvent;
     public override Guid UserId { get; init; } = ownerId;

@@ -2,7 +2,7 @@
 
 namespace TaskManager.Calendar.Application.Events;
 
-public sealed class CalendarEventDeletedEvent(Guid ownerId, Guid calendarEventId, Guid? externalAccountId) : BaseEvent
+public sealed class CalendarEventDeletedEvent(Guid ownerId, Guid calendarEventId, Guid? externalAccountId) : UserEvent
 {
     public Guid CalendarEventId { get; init; } = calendarEventId;
     public Guid? ExternalAccountId { get; init; } = externalAccountId;

@@ -1,6 +1,6 @@
 ﻿namespace TaskManager.Shared.Events;
 
-public sealed class TaskUpdatedEvent(Guid TaskId, Guid OwnerId, string? Title) : BaseEvent
+public sealed class TaskUpdatedEvent(Guid TaskId, Guid OwnerId, string? Title) : UserEvent
 {
     public Guid TaskId { get; init; } = TaskId;
     public string? Title { get; init; } = Title;

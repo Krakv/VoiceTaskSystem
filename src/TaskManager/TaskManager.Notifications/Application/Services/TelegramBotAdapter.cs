@@ -1,6 +1,6 @@
-﻿using TaskManager.Notifications.Application.Services.Interfaces;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Microsoft.Extensions.Logging;
+using TaskManager.Notifications.Application.Services.Interfaces;
 
 namespace TaskManager.Notifications.Application.Services;
 
