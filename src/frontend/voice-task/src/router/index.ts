@@ -15,6 +15,8 @@ import {RuleEditPage} from "@/pages/Rule/RuleEditPage.tsx";
 import {CalendarPage} from "@/pages/Calendar/CalendarPage.tsx";
 import {CalendarCreatePage} from "@/pages/Calendar/CalendarCreatePage.tsx";
 import {CalendarEditPage} from "@/pages/Calendar/CalendarEditPage.tsx";
+import {AccountPage} from "@/pages/Account/AccountPage.tsx";
+import {ConfirmEmailPage} from "@/pages/Account/ConfirmEmailPage.tsx";
 
 export const privateRoutes = [
     { path: '/tasks', component: MainPage },
@@ -32,6 +34,8 @@ export const privateRoutes = [
     { path: '/calendar', component: CalendarPage },
     { path: '/calendar/create', component: CalendarCreatePage },
     { path: '/calendar/:eventId/edit', component: CalendarEditPage },
+    { path: '/account', component: AccountPage },
+    { path: '/email-confirm', component: ConfirmEmailPage },
 ];
 
 export const publicRoutes = [
