@@ -22,7 +22,7 @@ public class UnlinkTelegramCommandHandler(
         if (user is null)
             throw new ValidationAppException("NOT_FOUND", "Пользователь не найден");
 
-        if (string.IsNullOrEmpty(user.TelegramChatId))
+        if (user.TelegramChatId is null)
             throw new ValidationAppException("CONFLICT", "Telegram не привязан");
 
         user.TelegramChatId = null;

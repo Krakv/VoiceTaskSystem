@@ -2,14 +2,18 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Auth.Application.Features.Auth.ChangeMyPassword;
+using TaskManager.Auth.Application.Features.Auth.ConfirmEmail;
 using TaskManager.Auth.Application.Features.Auth.DeleteUser;
 using TaskManager.Auth.Application.Features.Auth.GenerateTelegramLinkToken;
 using TaskManager.Auth.Application.Features.Auth.GetMyProfile;
 using TaskManager.Auth.Application.Features.Auth.Login;
 using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Application.Features.Auth.SendEmailVerification;
 using TaskManager.Auth.Application.Features.Auth.UnlinkTelegramChat;
 using TaskManager.Auth.Application.Features.Auth.UpdateUserProfile;
+using TaskManager.ApiGateway.DTOs.Auth;
 using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -40,6 +44,22 @@ public class AuthController(IMediator mediator) : ControllerBase
         var result = await _mediator.Send(new GetMyProfileQuery());
 
         return Success(result);
+    }
+
+    [Authorize]
+    [HttpPost("email/send-verification")]
+    public async Task<IActionResult> SendVerification()
+    {
+        await _mediator.Send(new SendEmailVerificationCommand());
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("email/confirm")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto request)
+    {
+        await _mediator.Send(new ConfirmEmailCommand(request.Token));
+        return Ok();
     }
 
     [Authorize]

@@ -6,11 +6,22 @@ using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.Notifications.Application.Services;
 
-public class NotificationsProcessingService(AppDbContext dbContext, ILogger<NotificationsProcessingService> logger, IEmailService email) : INotificationsProcessingService
+public class NotificationsProcessingService : INotificationsProcessingService
 {
-    private readonly AppDbContext _dbContext = dbContext;
-    private readonly ILogger<NotificationsProcessingService> _logger = logger;
-    private readonly IEmailService _email = email;
+    private readonly AppDbContext _dbContext;
+    private readonly ILogger<NotificationsProcessingService> _logger;
+    private readonly Dictionary<NotificationServiceType, INotificationSender> _sendersMap;
+
+    public NotificationsProcessingService(
+        AppDbContext dbContext,
+        ILogger<NotificationsProcessingService> logger,
+        IEnumerable<INotificationSender> senders)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+        _sendersMap = senders.ToDictionary(s => s.ServiceId);
+    }
+
     public async Task ProcessNotificationsAsync()
     {
         var now = DateTimeOffset.UtcNow;
@@ -34,27 +45,25 @@ public class NotificationsProcessingService(AppDbContext dbContext, ILogger<Noti
         {
             try
             {
-                var userEmail = n.Owner?.Email;
-                var userEmailConfirmed = n.Owner?.EmailConfirmed;
-
-                if (!string.IsNullOrWhiteSpace(userEmail) && (userEmailConfirmed ?? false))
+                if (!_sendersMap.TryGetValue(n.ServiceId, out var sender) || sender == null)
                 {
-                    await _email.SendAsync(userEmail, "Task Event", n.Description);
-                    _logger.LogDebug("Sent {NotificationsId} notification", n.NotificationId);
-
-                    n.Status = NotificationStatus.Sent;
-                    n.SentAt = now;
-                }
-                else
-                {
-                    _logger.LogDebug("Email not available for user {UserId}", n.OwnerId);
-                    _logger.LogDebug("Owner {OwnerName}?, {OwnerEmail}", n.Owner?.Name, userEmail);
+                    _logger.LogWarning("No sender found for service {ServiceId}", n.ServiceId);
                     n.Status = NotificationStatus.Failed;
+                    continue;
                 }
+
+                await sender.SendAsync(n);
+
+                _logger.LogDebug("Sent {NotificationId} via service {ServiceId}", n.NotificationId, n.ServiceId);
+
+                n.Status = NotificationStatus.Sent;
+                n.SentAt = now;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to process {Id}", n.NotificationId);
+                _logger.LogError(ex,
+                    "Unable to process notification {NotificationId} for service {ServiceId}",
+                    n.NotificationId, n.ServiceId);
 
                 n.Status = NotificationStatus.Failed;
             }

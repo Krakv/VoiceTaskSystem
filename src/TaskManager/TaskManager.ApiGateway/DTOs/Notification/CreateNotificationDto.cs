@@ -1,7 +1,9 @@
-﻿namespace TaskManager.ApiGateway.DTOs.Notification;
+﻿using TaskManager.Shared.Domain.Entities.Enum;
+
+namespace TaskManager.ApiGateway.DTOs.Notification;
 
 public sealed record CreateNotificationDto(
-    int ServiceId,
+    NotificationServiceType ServiceId,
     string Description,
     string ScheduledAt,
     string? TaskId

@@ -16,7 +16,7 @@ public class User : IdentityUser<Guid>
     public bool IsDeleted { get; set; } = false;
     public DateTimeOffset? DeletedAt { get; set; }
 
-    public string? TelegramChatId { get; set; }
+    public long? TelegramChatId { get; set; }
     public string? TelegramToken { get; set; }
     public DateTimeOffset? TelegramTokenExpiresAt { get; set; }
 
