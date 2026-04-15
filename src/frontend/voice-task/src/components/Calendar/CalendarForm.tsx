@@ -13,6 +13,7 @@ import type { Task } from "@/types/task";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { debounce } from "lodash";
 import { useCallback } from "react";
+import {toast} from "sonner";
 
 interface CalendarEventFormProps {
     event?: CalendarEvent;
@@ -33,7 +34,6 @@ export const CalendarEventForm = ({ event, onSuccess }: CalendarEventFormProps) 
     const [externalAccounts, setExternalAccounts] = useState<ExternalCalendarAccount[]>([]);
 
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -71,19 +71,18 @@ export const CalendarEventForm = ({ event, onSuccess }: CalendarEventFormProps) 
 
     const handleSubmit = async () => {
         if (!title.trim()) {
-            setError("Введите название события");
+            toast.error("Введите название события");
             return;
         }
         if (!startDate) {
-            setError("Укажите время начала");
+            toast.error("Укажите время начала");
             return;
         }
         if (!endDate) {
-            setError("Укажите время окончания");
+            toast.error("Укажите время окончания");
             return;
         }
 
-        setError("");
         setLoading(true);
 
         const data: CalendarEventCreateDto = {
@@ -104,7 +103,7 @@ export const CalendarEventForm = ({ event, onSuccess }: CalendarEventFormProps) 
             onSuccess?.();
             navigate(-1);
         } catch {
-            setError("Ошибка сохранения события");
+            toast.error("Ошибка сохранения события");
         } finally {
             setLoading(false);
         }
@@ -112,12 +111,6 @@ export const CalendarEventForm = ({ event, onSuccess }: CalendarEventFormProps) 
 
     return (
         <div className="max-w-md mx-auto p-2 rounded-2xl space-y-6 pb-16">
-            <h2 className="text-lg font-bold">
-                {event ? "Редактирование события" : "Создание события"}
-            </h2>
-
-            {error && <div className="text-sm text-red-500">{error}</div>}
-
             <div className="space-y-2">
                 <Label>Название</Label>
                 <Input

@@ -8,14 +8,15 @@ import {formatTime} from "@/utils/calendar.utils.ts";
 interface EventCardProps {
     event: CalendarEvent;
     showDate?: boolean;
+    onClick?: () => void;
 }
 
-export const CalendarCard = ({ event, showDate }: EventCardProps) => {
+export const CalendarCard = ({ event, showDate, onClick }: EventCardProps) => {
     const start = parseISO(event.startTime);
     const todayEvent = isToday(start);
 
     return (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors">
+        <div className="flex items-start gap-3 px-4 py-3 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors" onClick={onClick}>
             {/* Цветная полоска */}
             <div
                 className={`mt-0.5 w-1 self-stretch rounded-full flex-shrink-0 ${
