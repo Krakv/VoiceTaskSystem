@@ -7,10 +7,10 @@ import type { RuleItem } from "@/types/rule";
 import { RuleCard } from "@/components/Rule/RuleCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import {RuleSheet} from "@/components/Rule/RuleSheet.tsx";
+import {toast} from "sonner";
 
 export const RuleManager = () => {
     const [rules, setRules] = useState<RuleItem[]>([]);
-    const [error, setError] = useState("");
     const [selected, setSelected] = useState<RuleItem | null>(null);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -43,7 +43,7 @@ export const RuleManager = () => {
                 )
             );
         } catch {
-            setError("Ошибка переключения правила");
+            toast.error("Ошибка переключения правила");
         }
     };
 
@@ -59,8 +59,6 @@ export const RuleManager = () => {
 
     return (
         <div className="flex flex-col gap-2">
-            {error && <div className="text-red-500">{error}</div>}
-
             {loading ? (
                 <>
                     <Skeleton className="h-16 rounded-2xl" />

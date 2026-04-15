@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Auth.Application.Features.Auth.ChangeMyPassword;
 using TaskManager.Auth.Application.Features.Auth.DeleteUser;
+using TaskManager.Auth.Application.Features.Auth.GenerateTelegramLinkToken;
 using TaskManager.Auth.Application.Features.Auth.GetMyProfile;
 using TaskManager.Auth.Application.Features.Auth.Login;
 using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Application.Features.Auth.UnlinkTelegramChat;
 using TaskManager.Auth.Application.Features.Auth.UpdateUserProfile;
 using TaskManager.Shared.DTOs.Responses;
 
@@ -38,6 +40,24 @@ public class AuthController(IMediator mediator) : ControllerBase
         var result = await _mediator.Send(new GetMyProfileQuery());
 
         return Success(result);
+    }
+
+    [Authorize]
+    [HttpGet("telegram-link-token")]
+    public async Task<IActionResult> GetTelegramLinkToken()
+    {
+        var result = await _mediator.Send(new GenerateTelegramLinkTokenCommand());
+
+        return Success(result);
+    }
+
+    [Authorize]
+    [HttpDelete("telegram-link")]
+    public async Task<IActionResult> UnlinkTelegram()
+    {
+        await _mediator.Send(new UnlinkTelegramCommand());
+
+        return Success(new {});
     }
 
     [Authorize]

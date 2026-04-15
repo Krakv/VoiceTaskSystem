@@ -14,8 +14,7 @@ import type { Task } from "@/types/task";
 
 const SERVICES = [
     { id: 1, name: "Telegram" },
-    { id: 2, name: "Email" },
-    { id: 3, name: "Push" },
+    { id: 2, name: "Email" }
 ] as const;
 
 interface NotificationFormProps {

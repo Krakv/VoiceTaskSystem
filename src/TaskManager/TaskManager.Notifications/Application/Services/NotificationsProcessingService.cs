@@ -35,8 +35,9 @@ public class NotificationsProcessingService(AppDbContext dbContext, ILogger<Noti
             try
             {
                 var userEmail = n.Owner?.Email;
+                var userEmailConfirmed = n.Owner?.EmailConfirmed;
 
-                if (!string.IsNullOrWhiteSpace(userEmail))
+                if (!string.IsNullOrWhiteSpace(userEmail) && (userEmailConfirmed ?? false))
                 {
                     await _email.SendAsync(userEmail, "Task Event", n.Description);
                     _logger.LogDebug("Sent {NotificationsId} notification", n.NotificationId);

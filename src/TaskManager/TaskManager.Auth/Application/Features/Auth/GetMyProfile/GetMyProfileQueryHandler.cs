@@ -14,15 +14,16 @@ public sealed class GetMyProfileQueryHandler(UserManager<User> userManager, ICur
         var userId = currentUser.UserId;
 
         var user = await userManager.Users
+            .Include(x => x.ExternalCalendarAccounts)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
 
         if (user is null)
-            throw new ValidationAppException("USER_NOT_FOUND", "User not found");
+            throw new ValidationAppException("NOT_FOUND", "Пользователь не найден");
 
         if (user.IsDeleted)
-            throw new ValidationAppException("USER_DELETED", "User is deleted");
+            throw new ValidationAppException("CONFLICT", "Пользователь удален");
 
-        return new GetMyProfileResponse(user.Id, user.Name, user.Email);
+        return new GetMyProfileResponse(user.Id, user.Name, user.Email, user.EmailConfirmed, user.ExternalCalendarAccounts.Select(x => x.ExternalCalendarAccountId).ToList(), user.TelegramChatId);
     }
 }

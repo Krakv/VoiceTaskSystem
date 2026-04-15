@@ -29,7 +29,7 @@ public class OAuthController(IMediator mediator) : ControllerBase
     {
         var url = await _mediator.Send(new GetAuthorizeUrlQuery());
 
-        return Redirect(url);
+        return Success(url);
     }
 
     [Authorize]

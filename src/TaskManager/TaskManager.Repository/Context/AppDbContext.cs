@@ -40,10 +40,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasIndex(x => new { x.OwnerId, x.BaseUrl })
             .IsUnique();
 
+        builder.Entity<CalendarEvent>()
+            .HasOne(x => x.ExternalCalendarAccount)
+            .WithMany(x => x.CalendarEvents)
+            .HasForeignKey(x => x.ExternalAccountId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<TaskItem>()
+            .HasOne(x => x.Parent)
+            .WithMany(x => x.Children)
+            .HasForeignKey(x => x.ParentTaskId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Entity<ServiceItem>().HasData(
             new ServiceItem { ServiceId = 1, ServiceName = "Telegram" },
-            new ServiceItem { ServiceId = 2, ServiceName = "Email" },
-            new ServiceItem { ServiceId = 3, ServiceName = "Push" }
+            new ServiceItem { ServiceId = 2, ServiceName = "Email" }
         );
     }
 }

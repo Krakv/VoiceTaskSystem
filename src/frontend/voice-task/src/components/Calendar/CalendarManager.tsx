@@ -9,12 +9,13 @@ import {
 import { format, parseISO, isToday, isFuture } from "date-fns";
 import {CalendarDay, type Modifiers} from "react-day-picker";
 import { ru } from "date-fns/locale";
-import {CalendarDays, Plus} from "lucide-react";
+import {Plus} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {useNavigate} from "react-router-dom";
 import {CalendarCard} from "@/components/Calendar/CalendarCard.tsx";
 import {DayEventsTooltip} from "@/components/Calendar/DayEventsTooltip.tsx";
 import {formatDateLabel} from "@/utils/calendar.utils.ts";
+import {CalendarEventSheet} from "@/components/Calendar/CalendarSheet.tsx";
 
 // Группировка событий по дате (YYYY-MM-DD)
 function groupEventsByDate(events: CalendarEvent[]): Record<string, CalendarEvent[]> {
@@ -30,6 +31,8 @@ export const CalendarManager = () => {
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+    const [sheetOpen, setSheetOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -51,6 +54,11 @@ export const CalendarManager = () => {
         navigate("/calendar/create");
     };
 
+    const handleOpenEvent = (event: CalendarEvent) => {
+        setSelectedEvent(event);
+        setSheetOpen(true);
+    };
+
     const grouped = groupEventsByDate(events);
 
     // Ближайшие события (сегодня и будущие, отсортированные)
@@ -70,12 +78,6 @@ export const CalendarManager = () => {
 
     return (
         <div className="flex flex-col gap-6 pb-24">
-            {/* Заголовок */}
-            <div className="flex items-center gap-2 pt-1">
-                <CalendarDays className="w-5 h-5 text-slate-400" />
-                <h1 className="text-lg font-semibold text-slate-900 tracking-tight">Календарь</h1>
-            </div>
-
             {/* Большой календарь */}
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 {loading ? (
@@ -158,7 +160,11 @@ export const CalendarManager = () => {
                     ) : (
                         <div className="flex flex-col gap-2">
                             {selectedDayEvents.map((event) => (
-                                <CalendarCard key={event.eventId} event={event} />
+                                <CalendarCard
+                                    key={event.eventId}
+                                    event={event}
+                                    onClick={() => handleOpenEvent(event)}
+                                />
                             ))}
                         </div>
                     )}
@@ -181,7 +187,11 @@ export const CalendarManager = () => {
                 ) : (
                     <div className="flex flex-col gap-2">
                         {upcomingEvents.map((event) => (
-                            <CalendarCard key={event.eventId} event={event} showDate />
+                            <CalendarCard
+                                key={event.eventId}
+                                event={event}
+                                onClick={() => handleOpenEvent(event)}
+                            />
                         ))}
                     </div>
                 )}
@@ -195,6 +205,20 @@ export const CalendarManager = () => {
                     <Plus className="w-10 h-10" />
                 </Button>
             </div>
+
+            <CalendarEventSheet
+                event={selectedEvent}
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
+                onEdit={(id) => navigate(`/calendar/${id}/edit`)}
+                onDelete={async (id) => {
+                    await calendarEventApi.deleteCalendarEvent(id);
+
+                    setEvents((prev) => prev.filter((e) => e.eventId !== id));
+                    setSheetOpen(false);
+                }}
+                onOpenTask={(taskId) => navigate(`/tasks/${taskId}`)}
+            />
         </div>
     );
 };
