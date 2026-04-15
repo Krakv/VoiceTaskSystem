@@ -24,14 +24,18 @@ namespace TaskManager.Migrations
                 name: "IX_Notification_ServiceId",
                 table: "Notification");
 
-            migrationBuilder.AlterColumn<long>(
-                name: "TelegramChatId",
-                table: "AspNetUsers",
-                type: "bigint",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+            migrationBuilder.Sql(
+                @"UPDATE ""AspNetUsers""
+                  SET ""TelegramChatId"" = NULL
+                  WHERE ""TelegramChatId"" !~ '^\d+$';"
+            );
+
+            migrationBuilder.Sql(
+                @"ALTER TABLE ""AspNetUsers"" 
+                  ALTER COLUMN ""TelegramChatId"" 
+                  TYPE bigint 
+                  USING ""TelegramChatId""::bigint;"
+            );
         }
 
         /// <inheritdoc />
