@@ -18,6 +18,7 @@ services:
           - Smtp__Username=${SMTP_USERNAME}
           - Smtp__Password=${SMTP_PASSWORD}
           - Smtp__From=${SMTP_FROM}
+          - Frontend_Url=${FRONTEND_URL}
         networks:
           - backend-network
         healthcheck:
