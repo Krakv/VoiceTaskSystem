@@ -50,6 +50,7 @@ services:
         build:
           context: ../src/frontend/voice-task
           dockerfile: Dockerfile
+          network: host
         ports:
           - '3005:80'
         depends_on:
