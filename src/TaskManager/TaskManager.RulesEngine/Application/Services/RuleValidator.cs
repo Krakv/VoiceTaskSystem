@@ -21,20 +21,20 @@ public class RuleValidator : IRuleValidator
 
     public void Validate(
         RuleEvent ruleEvent,
-        ConditionGroup condition,
+        ConditionGroup? condition,
         IEnumerable<RuleAction> actions)
     {
         ValidateConditions(condition);
         ValidateActions(ruleEvent, actions);
     }
 
-    private static void ValidateConditions(ConditionGroup condition)
+    private static void ValidateConditions(ConditionGroup? condition)
     {
         if (condition == null)
-            throw new ValidationAppException("INVALID_CONDITION", "Condition не может быть null");
+            return;
 
         if (condition.Conditions == null || condition.Conditions.Count == 0)
-            throw new ValidationAppException("INVALID_CONDITION", "Нет условий");
+            return;
 
         foreach (var c in condition.Conditions)
         {
