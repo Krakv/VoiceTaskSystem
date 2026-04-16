@@ -8,6 +8,6 @@ public interface IRuleValidator
 {
     void Validate(
         RuleEvent ruleEvent,
-        ConditionGroup condition,
+        ConditionGroup? condition,
         IEnumerable<RuleAction> actions);
 }

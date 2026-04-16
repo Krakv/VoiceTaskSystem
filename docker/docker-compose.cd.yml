@@ -2,13 +2,13 @@ services:
     task-manager:
         container_name: task-manager
         image: taskmanager.apigateway
-        build: 
+        build:
             context: ../src/TaskManager
             dockerfile: TaskManager.ApiGateway/Dockerfile
             network: host
-        ports:
-          - "3000:8080"
+        network_mode: host
         environment:
+          - ASPNETCORE_HTTP_PORTS=3000
           - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
           - TelegramBot__AuthToken=${TELEGRAM_BOT_TOKEN}
           - SpeechProcessingConfig__APIURI=${SPEECH_PROCESSING_SERVICE_URI}
@@ -19,13 +19,11 @@ services:
           - YandexOAuth__ClientSecret=${YANDEX_CLIENT_SECRET}
           - SwaggerPrefix=${SWAGGER_PREFIX}
           - Smtp__Username=${SMTP_USERNAME}
-          - Smtp_Password=${SMTP_PASSWORD}
-          - Smtp_From=${SMTP_FROM}
+          - Smtp__Password=${SMTP_PASSWORD}
+          - Smtp__From=${SMTP_FROM}
           - Frontend_Url=${FRONTEND_URL}
-        networks:
-          - backend-network
         healthcheck:
-          test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+          test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
           interval: 30s
           timeout: 10s
           retries: 3
@@ -35,6 +33,8 @@ services:
     postgres:
         container_name: task-manager-db
         image: postgres:17
+        ports:
+          - "127.0.0.1:5432:5432"
         environment:
           POSTGRES_DB: tasks
           POSTGRES_USER: postgres
@@ -52,13 +52,15 @@ services:
           context: ../src/frontend/voice-task
           dockerfile: Dockerfile
           network: host
+        extra_hosts:
+          - "host.docker.internal:host-gateway"
         ports:
           - '3005:80'
         depends_on:
           - task-manager
         networks:
           - backend-network
-        
+
 
 
 networks:

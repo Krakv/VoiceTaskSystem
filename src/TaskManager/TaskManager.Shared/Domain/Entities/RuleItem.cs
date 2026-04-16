@@ -17,9 +17,8 @@ public class RuleItem
     [Required]
     public RuleEvent Event { get; set; }
 
-    [Required]
     [Column(TypeName = "jsonb")]
-    public string Condition { get; set; } = string.Empty;
+    public string? Condition { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "jsonb")]

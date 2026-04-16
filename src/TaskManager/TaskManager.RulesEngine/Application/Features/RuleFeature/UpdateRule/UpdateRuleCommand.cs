@@ -8,7 +8,7 @@ namespace TaskManager.RulesEngine.Application.Features.RuleFeature.UpdateRule;
 public sealed record UpdateRuleCommand(
     string RuleId,
     RuleEvent RuleEvent,
-    ConditionGroup Conditions,
+    ConditionGroup? Conditions,
     IEnumerable<RuleAction> Actions,
     bool IsActive = true
     ) : IRequest;

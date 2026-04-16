@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using TaskManager.Auth.Config;
 using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.DeleteExternalCalendar;
 using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.ExchangeOAuthCode;
 using TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetAuthorizeUrl;
@@ -11,16 +13,17 @@ namespace TaskManager.ApiGateway.Controllers;
 
 [ApiController]
 [Route("api/v1/oauth")]
-public class OAuthController(IMediator mediator) : ControllerBase
+public class OAuthController(IMediator mediator, IOptions<FrontendOptions> options) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
+    private readonly FrontendOptions _options = options.Value;
 
     [HttpGet("yandex/callback")]
     public async Task<IActionResult> Callback([FromQuery] string code, string state)
     {
         await _mediator.Send(new ExchangeOAuthCodeCommand(code, state));
 
-        return Success(new { });
+        return Redirect(_options.Url);
     }
 
     [Authorize]

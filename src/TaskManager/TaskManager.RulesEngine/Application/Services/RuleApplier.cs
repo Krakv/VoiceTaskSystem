@@ -39,7 +39,7 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IM
 
             try
             {
-                conditionGroup = JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
+                conditionGroup = rule.Condition == null ? null : JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
                 actions = JsonSerializer.Deserialize<RuleAction[]>(rule.Action, JsonHelper.Default);
             }
             catch (Exception ex)
@@ -48,9 +48,9 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IM
                 continue;
             }
 
-            if (conditionGroup == null || actions == null)
+            if (actions == null)
             {
-                _logger.LogWarning("Rule {RuleId} has invalid condition or actions", rule.RuleId);
+                _logger.LogWarning("Rule {RuleId} has invalid actions", rule.RuleId);
                 continue;
             }
 
@@ -82,20 +82,56 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IM
         _logger.LogInformation("Finished applying rules for TaskId: {TaskId}", task.TaskId);
     }
 
-    private bool EvaluateCondition(TaskItem task, ConditionGroup group)
+    private bool EvaluateCondition(TaskItem task, ConditionGroup? group)
     {
+        if (group == null) { return true; }
+
         var results = group.Conditions.Select(c =>
         {
             if (c is Condition cond)
             {
-                var value = task.GetType().GetProperty(cond.Field,BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.GetValue(task)?.ToString();
-                _logger.LogDebug("Evaluating condition: {Field} {Operator} {Value} (Task value: {TaskValue})", cond.Field, cond.Operator, cond.Value, value);
-                return cond.Operator.ToString() switch
+                var prop = task.GetType().GetProperty(
+                    cond.Field,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+
+                if (prop == null) return false;
+
+                var taskValue = prop.GetValue(task);
+                if (taskValue == null) return false;
+
+                var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+                object? condValue;
+
+                try
                 {
-                    "eq" => value == cond.Value,
-                    "neq" => value != cond.Value,
-                    "gt" => string.Compare(value, cond.Value) > 0,
-                    "lt" => string.Compare(value, cond.Value) < 0,
+                    if (targetType.IsEnum)
+                    {
+                        condValue = Enum.Parse(targetType, cond.Value, true);
+                    }
+                    else
+                    {
+                        condValue = Convert.ChangeType(cond.Value, targetType);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to convert value {Value} to {Type}", cond.Value, targetType);
+                    return false;
+                }
+
+                _logger.LogDebug(
+                    "Evaluating condition: {Field} {Operator} {Value} (Task value: {TaskValue})",
+                    cond.Field, cond.Operator, cond.Value, taskValue);
+
+                return cond.Operator.ToString().ToLower() switch
+                {
+                    "eq" => Equals(taskValue, condValue),
+                    "neq" => !Equals(taskValue, condValue),
+
+                    "gt" => Compare(taskValue, condValue) > 0,
+                    "lt" => Compare(taskValue, condValue) < 0,
+
                     _ => false
                 };
             }
@@ -109,6 +145,16 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IM
             "OR" => results.Any(r => r),
             _ => false
         };
+    }
+
+    private static int Compare(object a, object b)
+    {
+        if (a is IComparable comparableA)
+        {
+            return comparableA.CompareTo(b);
+        }
+
+        throw new InvalidOperationException($"Type {a.GetType()} is not comparable");
     }
 
     private async Task ExecuteActionAsync(TaskItem task, RuleAction action)
