@@ -21,7 +21,7 @@ services:
           - Smtp__Username=${SMTP_USERNAME}
           - Smtp__Password=${SMTP_PASSWORD}
           - Smtp__From=${SMTP_FROM}
-          - Frontend_Url=${FRONTEND_URL}
+          - Frontend__Url=${FRONTEND_URL}
         healthcheck:
           test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
           interval: 30s
