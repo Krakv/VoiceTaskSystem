@@ -1,12 +1,5 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Reflection;
+﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
-using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
-using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Interfaces;
 using TaskManager.RulesEngine.Domain.Actions;
 using TaskManager.RulesEngine.Domain.Conditions;
@@ -16,23 +9,22 @@ using TaskManager.Shared.Utils;
 
 namespace TaskManager.RulesEngine.Application.Services;
 
-public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IMediator mediator) : IRuleApplier
+public class RuleApplier(
+    IRuleRepository repo,
+    IRuleEvaluator evaluator,
+    IRuleActionExecutor executor,
+    ILogger<RuleApplier> logger) : IRuleApplier
 {
-    private readonly AppDbContext _dbContext = dbContext;
-    private readonly ILogger<RuleApplier> _logger = logger;
-    private readonly IMediator _mediator = mediator;
 
     public async Task ApplyRulesAsync(TaskItem task, RuleEvent ruleEvent, Guid userId, CancellationToken ct = default)
     {
-        var rules = await _dbContext.RuleItem
-            .Where(r => r.OwnerId == userId && r.Event == ruleEvent && r.IsActive)
-            .ToListAsync(ct);
+        var rules = await repo.GetRules(userId, ruleEvent, ct);
 
-        _logger.LogInformation("Found {Count} active rules for event {Event}", rules.Count, ruleEvent);
+        logger.LogInformation("Found {Count} active rules for event {Event}", rules.Count, ruleEvent);
 
         foreach (var rule in rules)
         {
-            _logger.LogDebug("Evaluating rule: {RuleId}", rule.RuleId);
+            logger.LogDebug("Evaluating rule: {RuleId}", rule.RuleId);
 
             ConditionGroup? conditionGroup = null;
             RuleAction[]? actions = null;
@@ -44,223 +36,41 @@ public class RuleApplier(AppDbContext dbContext, ILogger<RuleApplier> logger, IM
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to deserialize rule {RuleId}", rule.RuleId);
+                logger.LogError(ex, "Failed to deserialize rule {RuleId}", rule.RuleId);
                 continue;
             }
 
             if (actions == null)
             {
-                _logger.LogWarning("Rule {RuleId} has invalid actions", rule.RuleId);
+                logger.LogWarning("Rule {RuleId} has invalid actions", rule.RuleId);
                 continue;
             }
 
             // Проверяем условие
-            if (!EvaluateCondition(task, conditionGroup))
+            if (!evaluator.Evaluate(task, conditionGroup))
             {
-                _logger.LogDebug("Rule {RuleId} condition not met", rule.RuleId);
+                logger.LogDebug("Rule {RuleId} condition not met", rule.RuleId);
                 continue;
             }
 
-            _logger.LogInformation("Rule {RuleId} condition met, applying actions", rule.RuleId);
+            logger.LogInformation("Rule {RuleId} condition met, applying actions", rule.RuleId);
 
             // Применяем действия
             foreach (var action in actions)
             {
                 try
                 {
-                    await ExecuteActionAsync(task, action);
-                    _logger.LogDebug("Applied action {ActionType} on TaskId: {TaskId}", action.Type, task.TaskId);
+                    await executor.ExecuteAsync(task, action);
+                    logger.LogDebug("Applied action {ActionType} on TaskId: {TaskId}", action.Type, task.TaskId);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to apply action {ActionType} for rule {RuleId}", action.Type, rule.RuleId);
+                    logger.LogError(ex, "Failed to apply action {ActionType} for rule {RuleId}", action.Type, rule.RuleId);
                 }
             }
         }
 
-        await _dbContext.SaveChangesAsync(ct);
-        _logger.LogInformation("Finished applying rules for TaskId: {TaskId}", task.TaskId);
-    }
-
-    private bool EvaluateCondition(TaskItem task, ConditionGroup? group)
-    {
-        if (group == null) { return true; }
-
-        var results = group.Conditions.Select(c =>
-        {
-            if (c is Condition cond)
-            {
-                var prop = task.GetType().GetProperty(
-                    cond.Field,
-                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-
-                if (prop == null) return false;
-
-                var taskValue = prop.GetValue(task);
-                if (taskValue == null) return false;
-
-                var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-                object? condValue;
-
-                try
-                {
-                    if (targetType.IsEnum)
-                    {
-                        condValue = Enum.Parse(targetType, cond.Value, true);
-                    }
-                    else
-                    {
-                        condValue = Convert.ChangeType(cond.Value, targetType);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to convert value {Value} to {Type}", cond.Value, targetType);
-                    return false;
-                }
-
-                _logger.LogDebug(
-                    "Evaluating condition: {Field} {Operator} {Value} (Task value: {TaskValue})",
-                    cond.Field, cond.Operator, cond.Value, taskValue);
-
-                return cond.Operator.ToString().ToLower() switch
-                {
-                    "eq" => Equals(taskValue, condValue),
-                    "neq" => !Equals(taskValue, condValue),
-
-                    "gt" => Compare(taskValue, condValue) > 0,
-                    "lt" => Compare(taskValue, condValue) < 0,
-
-                    _ => false
-                };
-            }
-
-            return false;
-        });
-
-        return group.Operator.ToString().ToUpper() switch
-        {
-            "AND" => results.All(r => r),
-            "OR" => results.Any(r => r),
-            _ => false
-        };
-    }
-
-    private static int Compare(object a, object b)
-    {
-        if (a is IComparable comparableA)
-        {
-            return comparableA.CompareTo(b);
-        }
-
-        throw new InvalidOperationException($"Type {a.GetType()} is not comparable");
-    }
-
-    private async Task ExecuteActionAsync(TaskItem task, RuleAction action)
-    {
-        switch (action)
-        {
-            case SetFieldAction set:
-                {
-                    var prop = task.GetType().GetProperty(set.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    if (prop == null || !prop.CanWrite) break;
-                    _logger.LogDebug("Setting field {Field} to value {Value} on TaskId: {TaskId}", set.Field, set.Value, task.TaskId);
-
-                    Type targetType = prop.PropertyType;
-
-                    var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-
-                    object? value;
-
-                    if (underlyingType == typeof(Guid))
-                    {
-                        value = Guid.Parse(set.Value);
-                    }
-                    else if (underlyingType == typeof(DateTimeOffset))
-                    {
-                        value = DateTimeOffset.Parse(set.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                    }
-                    else if (underlyingType.IsEnum)
-                    {
-                        value = Enum.Parse(underlyingType, set.Value, true);
-                    }
-                    else
-                    {
-                        value = Convert.ChangeType(set.Value, underlyingType);
-                    }
-
-                    prop.SetValue(task, value);
-                    break;
-                }
-
-            case CreateNotificationAction notif:
-                {
-                    var baseDate = task.DueDate;
-
-                    if (baseDate == null)
-                    {
-                        _logger.LogWarning("Task {TaskId} has no DueDate for notification", task.TaskId);
-                        break;
-                    }
-
-                    var dueDate = (DateTimeOffset)baseDate;
-
-                    var scheduledAt = dueDate.AddMinutes(-notif.OffsetMinutes);
-
-                    await _mediator.Send(new CreateNotificationCommand(
-                        task.OwnerId.ToString(),
-                        notif.ServiceId,
-                        notif.Description,
-                        scheduledAt.ToString("O"),
-                        task.TaskId.ToString()
-                    ));
-
-                    _logger.LogDebug(
-                        "Created notification for TaskId {TaskId} at {ScheduledAt}",
-                        task.TaskId,
-                        scheduledAt
-                    );
-
-                    break;
-                }
-
-            case CreateCalendarEventAction calendar:
-                {
-                    var baseDate = task.DueDate;
-
-                    if (baseDate == null)
-                    {
-                        _logger.LogWarning("Task {TaskId} has no DueDate for calendar event", task.TaskId);
-                        break;
-                    }
-
-                    var startTime = (DateTimeOffset)baseDate;
-
-                    var endTime = startTime.AddMinutes(calendar.DurationMinutes);
-
-                    await _mediator.Send(new CreateCalendarEventCommand(
-                        task.OwnerId.ToString(),
-                        calendar.Title ?? "Новое событие",
-                        startTime.ToString("O"),
-                        endTime.ToString("O"),
-                        calendar.Location,
-                        task.TaskId.ToString(),
-                        calendar.ExternalAccountId
-                    ));
-
-                    _logger.LogDebug(
-                        "Created calendar event for TaskId {TaskId} from {Start} to {End}",
-                        task.TaskId,
-                        startTime,
-                        endTime
-                    );
-
-                    break;
-                }
-                
-        }
-
-        await Task.CompletedTask;
+        await repo.SaveChanges(ct);
+        logger.LogInformation("Finished applying rules for TaskId: {TaskId}", task.TaskId);
     }
 }

@@ -118,6 +118,9 @@ builder.Services.AddScoped<ICurrentUser>(sp => sp.GetRequiredService<ICurrentUse
 
 builder.Services.AddSingleton<IRuleValidator, RuleValidator>();
 builder.Services.AddScoped<IRuleApplier, RuleApplier>();
+builder.Services.AddScoped<IRuleEvaluator, RuleEvaluator>();
+builder.Services.AddScoped<IRuleActionExecutor, RuleActionExecutor>();
+builder.Services.AddScoped<IRuleRepository, RuleRepository>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<VoiceProcessingWorker>();
 builder.Services.AddScoped<VoiceProcessingHandler>();
