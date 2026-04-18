@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Reflection;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
@@ -44,11 +45,13 @@ public class RuleActionExecutor(IMediator mediator, ILogger<RuleActionExecutor> 
 
         if (underlyingType == typeof(Guid))
         {
-            value = Guid.Parse(set.Value);
+            var setValue = set.Value;
+            value = string.IsNullOrEmpty(setValue) ? null : Guid.Parse(setValue);
         }
         else if (underlyingType == typeof(DateTimeOffset))
         {
-            value = DateTimeOffset.Parse(set.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+            var setValue = set.Value;
+            value = string.IsNullOrEmpty(setValue) ? null : DateTimeOffset.Parse(setValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
         }
         else if (underlyingType.IsEnum)
         {

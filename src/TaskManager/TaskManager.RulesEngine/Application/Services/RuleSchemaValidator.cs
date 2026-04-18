@@ -39,9 +39,6 @@ public class RuleSchemaValidator : IRuleSchemaValidator
             case SetFieldAction set:
                 if (string.IsNullOrWhiteSpace(set.Field))
                     throw new ValidationAppException(SchemaInvalidCode, "Field обязателен");
-
-                if (string.IsNullOrWhiteSpace(set.Value))
-                    throw new ValidationAppException(SchemaInvalidCode, "Value обязателен");
                 break;
 
             case CreateNotificationAction notif:
@@ -74,9 +71,6 @@ public class RuleSchemaValidator : IRuleSchemaValidator
 
             if (string.IsNullOrWhiteSpace(c.Field))
                 throw new ValidationAppException(SchemaInvalidCode, "Field обязателен");
-
-            if (string.IsNullOrWhiteSpace(c.Value))
-                throw new ValidationAppException(SchemaInvalidCode, "Value обязателен");
         }
     }
 }

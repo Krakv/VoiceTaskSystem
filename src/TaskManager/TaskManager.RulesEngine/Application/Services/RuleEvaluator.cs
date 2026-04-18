@@ -81,13 +81,13 @@ public class RuleEvaluator() : IRuleEvaluator
                     => Enum.Parse(targetType, raw, ignoreCase: true),
 
                 _ when targetType == typeof(DateTimeOffset)
-                    => DateTimeOffset.Parse(raw, CultureInfo.InvariantCulture),
+                    => string.IsNullOrEmpty(raw) ? null : DateTimeOffset.Parse(raw, CultureInfo.InvariantCulture),
 
                 _ when targetType == typeof(DateTime)
-                    => DateTime.Parse(raw, CultureInfo.InvariantCulture),
+                    => string.IsNullOrEmpty(raw) ? null : DateTime.Parse(raw, CultureInfo.InvariantCulture),
 
                 _ when targetType == typeof(Guid)
-                    => Guid.Parse(raw),
+                    => string.IsNullOrEmpty(raw) ? null : Guid.Parse(raw),
 
                 _ => Convert.ChangeType(raw, targetType)
             };

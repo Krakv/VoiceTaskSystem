@@ -75,11 +75,13 @@ public class RuleDomainValidator : IRuleDomainValidator
         {
             if (targetType == typeof(Guid))
             {
-                Guid.Parse(value);
+                if (!string.IsNullOrEmpty(value))
+                    Guid.Parse(value);
             }
             else if (targetType == typeof(DateTimeOffset))
             {
-                DateTimeOffset.Parse(value, CultureInfo.InvariantCulture);
+                if (!string.IsNullOrEmpty(value))
+                    DateTimeOffset.Parse(value, CultureInfo.InvariantCulture);
             }
             else if (targetType.IsEnum)
             {
