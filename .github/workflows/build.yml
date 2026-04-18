@@ -25,7 +25,7 @@ jobs:
             ${{ runner.os }}-nuget
           
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ./src/TaskManager
       
       - name: Build
         run: dotnet build ./src/TaskManager --no-restore --configuration Release
