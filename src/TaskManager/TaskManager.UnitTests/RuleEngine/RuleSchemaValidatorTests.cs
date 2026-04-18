@@ -70,7 +70,7 @@ public class RuleSchemaValidatorTests
     }
 
     [Fact]
-    public void Should_throw_when_setfield_value_empty()
+    public void Should_not_throw_when_setfield_value_empty()
     {
         var actions = new RuleAction[]
         {
@@ -79,8 +79,7 @@ public class RuleSchemaValidatorTests
 
         var act = () => _validator.ValidateStructure(null, actions);
 
-        act.Should().Throw<ValidationAppException>()
-            .WithMessage("*Value обязателен*");
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -180,7 +179,7 @@ public class RuleSchemaValidatorTests
     }
 
     [Fact]
-    public void Should_throw_when_condition_value_empty()
+    public void Should_not_throw_when_condition_value_empty()
     {
         var condition = new ConditionGroup
         {
@@ -194,8 +193,7 @@ public class RuleSchemaValidatorTests
 
         var act = () => _validator.ValidateStructure(condition, actions);
 
-        act.Should().Throw<ValidationAppException>()
-            .WithMessage("*Value обязателен*");
+        act.Should().NotThrow();
     }
 
     #endregion

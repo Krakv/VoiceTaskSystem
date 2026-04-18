@@ -71,6 +71,7 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 "INVALID_CONDITION" => StatusCodes.Status400BadRequest,
                 "INVALID_ACTION" => StatusCodes.Status400BadRequest,
                 "INVALID_FIELD" => StatusCodes.Status400BadRequest,
+                "INVALID_VALUE" => StatusCodes.Status400BadRequest,
                 "SCHEMA_INVALID" => StatusCodes.Status400BadRequest,
                 "POLICY_VIOLATION" => StatusCodes.Status400BadRequest,
                 _ => StatusCodes.Status500InternalServerError,
