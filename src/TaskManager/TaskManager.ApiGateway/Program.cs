@@ -117,6 +117,9 @@ builder.Services.AddScoped<ITelegramContextAccessor, TelegramContextAccessor>();
 builder.Services.AddScoped<ICurrentUser>(sp => sp.GetRequiredService<ICurrentUserProvider>().GetCurrentUser());
 
 builder.Services.AddSingleton<IRuleValidator, RuleValidator>();
+builder.Services.AddSingleton<IRuleSchemaValidator, RuleSchemaValidator>();
+builder.Services.AddSingleton<IRuleDomainValidator, RuleDomainValidator>();
+builder.Services.AddSingleton<IRulePolicyValidator, RulePolicyValidator>();
 builder.Services.AddScoped<IRuleApplier, RuleApplier>();
 builder.Services.AddScoped<IRuleEvaluator, RuleEvaluator>();
 builder.Services.AddScoped<IRuleActionExecutor, RuleActionExecutor>();
