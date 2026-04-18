@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.Calendar", "Tas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.UnitTests", "TaskManager.UnitTests\TaskManager.UnitTests.csproj", "{496C97E3-30FD-48AE-9E74-CC0C0A228BE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManager.IntegrationTests", "TaskManager.IntegrationTests\TaskManager.IntegrationTests.csproj", "{944FFE42-BE20-437D-9918-D7E1C2B57959}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{496C97E3-30FD-48AE-9E74-CC0C0A228BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{496C97E3-30FD-48AE-9E74-CC0C0A228BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{496C97E3-30FD-48AE-9E74-CC0C0A228BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{944FFE42-BE20-437D-9918-D7E1C2B57959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{944FFE42-BE20-437D-9918-D7E1C2B57959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{944FFE42-BE20-437D-9918-D7E1C2B57959}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{944FFE42-BE20-437D-9918-D7E1C2B57959}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
