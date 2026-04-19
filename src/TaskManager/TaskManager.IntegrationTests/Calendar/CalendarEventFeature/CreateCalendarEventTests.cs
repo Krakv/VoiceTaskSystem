@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 using TaskManager.IntegrationTests.Factories;
 using TaskManager.Repository.Context;
@@ -24,10 +25,10 @@ public class CreateCalendarEventTests : IClassFixture<TestFixture>
         var ownerId = Guid.NewGuid();
 
         var command = new CreateCalendarEventCommand(
-            ownerId.ToString(),
+            ownerId,
             "title",
-            "2024-01-01T10:00:00Z",
-            "2024-01-01T11:00:00Z",
+            DateTimeOffset.Parse("2024-01-01T10:00:00Z", CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2024-01-01T11:00:00Z", CultureInfo.InvariantCulture),
             "loc",
             null,
             null

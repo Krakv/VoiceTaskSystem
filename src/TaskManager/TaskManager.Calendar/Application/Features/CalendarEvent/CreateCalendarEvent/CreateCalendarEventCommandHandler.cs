@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using System.Globalization;
 using TaskManager.Calendar.Application.Events;
 using TaskManager.Repository.Context;
 
@@ -16,16 +15,12 @@ public sealed class CreateCalendarEventCommandHandler(AppDbContext dbContext, IM
         {
             EventId = Guid.NewGuid(),
             Title = request.Title,
-            OwnerId = Guid.Parse(request.OwnerId),
-            StartTime = DateTimeOffset.Parse(request.StartTime, CultureInfo.InvariantCulture),
-            EndTime = DateTimeOffset.Parse(request.EndTime, CultureInfo.InvariantCulture),
+            OwnerId = request.OwnerId,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
             Location = request.Location,
-            TaskId = string.IsNullOrWhiteSpace(request.TaskId)
-                ? null
-                : Guid.Parse(request.TaskId),
-            ExternalAccountId = string.IsNullOrWhiteSpace(request.ExternalAccountId)
-                ? null
-                : Guid.Parse(request.ExternalAccountId)
+            TaskId = request.TaskId,
+            ExternalAccountId = request.ExternalAccountId
         };
 
         _dbContext.CalendarEvent.Add(entity);

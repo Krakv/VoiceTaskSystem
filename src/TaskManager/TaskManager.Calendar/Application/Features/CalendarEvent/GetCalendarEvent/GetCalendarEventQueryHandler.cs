@@ -12,8 +12,8 @@ public sealed class GetCalendarEventQueryHandler(AppDbContext dbContext) : IRequ
     public async Task<CalendarEventDto> Handle(GetCalendarEventQuery request, CancellationToken cancellationToken)
     {
         var calendarEvent =  await _dbContext.CalendarEvent
-            .Where(x => x.OwnerId == Guid.Parse(request.OwnerId) &&
-                        x.EventId == Guid.Parse(request.CalendarEventId)
+            .Where(x => x.OwnerId == request.OwnerId &&
+                        x.EventId ==request.CalendarEventId
                         )
             .Select(x => new CalendarEventDto(
                 x.EventId,
@@ -26,11 +26,6 @@ public sealed class GetCalendarEventQueryHandler(AppDbContext dbContext) : IRequ
             ))
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (calendarEvent == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Событие не найдено");
-        }
-
-        return calendarEvent;
+        return calendarEvent ?? throw new ValidationAppException("NOT_FOUND", "Событие не найдено");
     }
 }

@@ -7,7 +7,7 @@ using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Interfaces;
 
-namespace TaskManager.IntegrationTests.NotificationFeature;
+namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
 public class UpdateNotificationTests : IClassFixture<TestFixture>
 {

@@ -4,10 +4,9 @@ using TaskManager.IntegrationTests.Factories;
 using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 using TaskManager.Notifications.Application.Features.NotificationFeature.GetNotification;
 using TaskManager.Shared.Domain.Entities.Enum;
-using TaskManager.Shared.Exceptions;
 using TaskManager.Shared.Interfaces;
 
-namespace TaskManager.IntegrationTests.NotificationFeature;
+namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
 public class GetNotificationTests : IClassFixture<TestFixture>
 {

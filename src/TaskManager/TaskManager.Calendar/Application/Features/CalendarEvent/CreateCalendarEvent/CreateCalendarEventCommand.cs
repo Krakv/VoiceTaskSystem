@@ -3,11 +3,11 @@
 namespace TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 
 public sealed record CreateCalendarEventCommand(
-    string OwnerId,
+    Guid OwnerId,
     string Title,
-    string StartTime,
-    string EndTime,
+    DateTimeOffset StartTime,
+    DateTimeOffset EndTime,
     string? Location,
-    string? TaskId,
-    string? ExternalAccountId
+    Guid? TaskId,
+    Guid? ExternalAccountId
 ) : IRequest<Guid>;

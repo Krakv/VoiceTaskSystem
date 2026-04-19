@@ -37,8 +37,8 @@ public class DeleteCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         await mediator.Send(new DeleteCalendarEventCommand(
-            ownerId.ToString(),
-            entity.EventId.ToString()
+            ownerId,
+            entity.EventId
         ));
 
         var deleted = await context.CalendarEvent.FindAsync(entity.EventId);

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using TaskManager.Calendar.Application.Features.CalendarEvent.UpdateCalendarEvent;
 using TaskManager.IntegrationTests.Factories;
 using TaskManager.Repository.Context;
@@ -34,11 +35,11 @@ public class UpdateCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         await mediator.Send(new UpdateCalendarEventCommand(
-            ownerId.ToString(),
-            entity.EventId.ToString(),
+            ownerId,
+            entity.EventId,
             "new",
-            "2024-01-01T10:00:00Z",
-            "2024-01-01T11:00:00Z",
+            DateTimeOffset.Parse("2024-01-01T10:00:00Z", CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2024-01-01T11:00:00Z", CultureInfo.InvariantCulture),
             "loc",
             null,
             null
@@ -46,6 +47,7 @@ public class UpdateCalendarEventTests : IClassFixture<TestFixture>
 
         var updated = await context.CalendarEvent.FindAsync(entity.EventId);
 
+        Assert.NotNull(updated);
         Assert.Equal("new", updated.Title);
     }
 }

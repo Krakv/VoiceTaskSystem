@@ -212,7 +212,7 @@ public class RuleActionExecutorTests
 
         await _mediator.Received().Send(
             Arg.Is<CreateCalendarEventCommand>(cmd =>
-                cmd.EndTime == start.AddMinutes(30).ToString("O")
+                cmd.EndTime == start.AddMinutes(30)
             ),
             Arg.Any<CancellationToken>());
     }

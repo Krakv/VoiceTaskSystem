@@ -11,7 +11,7 @@ public sealed class GetCalendarEventsQueryHandler(AppDbContext context) : IReque
     public async Task<List<CalendarEventDto>> Handle(GetCalendarEventsQuery request, CancellationToken cancellationToken)
     {
         return await _context.CalendarEvent
-            .Where(x => x.OwnerId == Guid.Parse(request.OwnerId))
+            .Where(x => x.OwnerId == request.OwnerId)
             .Select(x => new CalendarEventDto(
                 x.EventId,
                 x.Title,

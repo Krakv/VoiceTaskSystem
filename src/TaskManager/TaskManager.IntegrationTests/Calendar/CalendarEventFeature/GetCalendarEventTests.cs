@@ -34,8 +34,8 @@ public class GetCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         var result = await mediator.Send(new GetCalendarEventQuery(
-            ownerId.ToString(),
-            entity.EventId.ToString()
+            ownerId,
+            entity.EventId
         ));
 
         Assert.Equal("test", result.Title);
