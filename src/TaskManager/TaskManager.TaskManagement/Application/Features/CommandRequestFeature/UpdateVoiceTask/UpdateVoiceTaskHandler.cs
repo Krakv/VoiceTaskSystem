@@ -15,6 +15,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<UpdateVoiceTaskHandler> _logger;
+    private const string InternalServerErrorCode = "INTERNAL_SERVER_ERROR";
 
     public UpdateVoiceTaskHandler(AppDbContext dbContext, ILogger<UpdateVoiceTaskHandler> logger)
     {
@@ -47,7 +48,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
         if (command.Status == CommandRequestStatus.Failed || command.Intent == null || command.Payload == null)
         {
-            throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось обработать команду");
+            throw new ValidationAppException(InternalServerErrorCode, "Не удалось обработать команду");
         }
 
         if (command.Payload == null)
@@ -64,7 +65,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             case CommandIntent.TaskCreate:
                 {
                     var payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = UpdateTaskCreatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
@@ -73,7 +74,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             case CommandIntent.TaskUpdate:
                 {
                     var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskUpdatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
@@ -82,7 +83,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             case CommandIntent.TaskDelete:
                 {
                     var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskDeletePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
