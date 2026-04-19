@@ -28,13 +28,13 @@ public class DeleteNotificationTests : IClassFixture<TestFixture>
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: Guid.NewGuid().ToString(),
+            OwnerId: user.UserId,
             ServiceId: NotificationServiceType.Email,
             Description: "To be deleted",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
-        await mediator.Send(new DeleteNotificationCommand(user.UserId.ToString(), notificationId.ToString()));
+        await mediator.Send(new DeleteNotificationCommand(user.UserId, notificationId));
 
         var entity = await context.NotificationItem.FindAsync(notificationId);
 
@@ -46,7 +46,7 @@ public class DeleteNotificationTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var command = new DeleteNotificationCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        var command = new DeleteNotificationCommand(Guid.NewGuid(), Guid.NewGuid());
 
         await Assert.ThrowsAsync<ValidationAppException>(() => mediator.Send(command));
     }
@@ -57,14 +57,14 @@ public class DeleteNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid().ToString();
+        var ownerId = Guid.NewGuid();
 
         var firstId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
             OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "First",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
         var secondId = await mediator.Send(new CreateNotificationCommand(
@@ -72,10 +72,10 @@ public class DeleteNotificationTests : IClassFixture<TestFixture>
             OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Second",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2)
         ));
 
-        await mediator.Send(new DeleteNotificationCommand(ownerId, firstId.ToString()));
+        await mediator.Send(new DeleteNotificationCommand(ownerId, firstId));
 
         var second = await context.NotificationItem.FindAsync(secondId);
         Assert.NotNull(second);

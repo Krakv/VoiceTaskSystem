@@ -128,7 +128,7 @@ public class RuleActionExecutorTests
         await _mediator.Received(1).Send(
             Arg.Is<CreateNotificationCommand>(cmd =>
                 cmd.Description == "Test notification" &&
-                cmd.TaskId == task.TaskId.ToString()
+                cmd.TaskId == task.TaskId
             ),
             Arg.Any<CancellationToken>());
     }
@@ -150,7 +150,7 @@ public class RuleActionExecutorTests
 
         await _mediator.Received().Send(
             Arg.Is<CreateNotificationCommand>(cmd =>
-                cmd.ScheduledAt == dueDate.AddMinutes(-60).ToString("O")
+                cmd.ScheduledAt == dueDate.AddMinutes(-60)
             ),
             Arg.Any<CancellationToken>());
     }

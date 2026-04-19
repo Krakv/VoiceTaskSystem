@@ -80,11 +80,11 @@ public class RuleActionExecutor(IMediator mediator, ILogger<RuleActionExecutor> 
         var scheduledAt = dueDate.AddMinutes(-notif.OffsetMinutes);
 
         await mediator.Send(new CreateNotificationCommand(
-            task.OwnerId.ToString(),
+            task.OwnerId,
             notif.ServiceId,
             notif.Description,
-            scheduledAt.ToString("O"),
-            task.TaskId.ToString()
+            scheduledAt,
+            task.TaskId
         ));
 
         logger.LogDebug(

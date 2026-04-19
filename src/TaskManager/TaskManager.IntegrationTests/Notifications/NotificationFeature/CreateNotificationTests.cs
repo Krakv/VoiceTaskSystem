@@ -27,11 +27,11 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
         var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
 
         var command = new CreateNotificationCommand(
-            TaskId: taskId.ToString(),
-            OwnerId: ownerId.ToString(),
+            TaskId: taskId,
+            OwnerId: ownerId,    
             ServiceId: NotificationServiceType.Email,
             Description: "Test notification",
-            ScheduledAt: scheduledAt.ToString("O")
+            ScheduledAt: scheduledAt
         );
 
         var notificationId = await mediator.Send(command);
@@ -55,10 +55,10 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
 
         var command = new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Notification without task",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         );
 
         var notificationId = await mediator.Send(command);
@@ -77,10 +77,10 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
 
         var command = new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: Guid.NewGuid().ToString(),
+            OwnerId: Guid.NewGuid(),
             ServiceId: NotificationServiceType.Email,
             Description: "Another notification",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2)
         );
 
         var notificationId = await mediator.Send(command);

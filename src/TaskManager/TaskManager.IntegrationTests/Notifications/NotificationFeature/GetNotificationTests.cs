@@ -4,6 +4,7 @@ using TaskManager.IntegrationTests.Factories;
 using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 using TaskManager.Notifications.Application.Features.NotificationFeature.GetNotification;
 using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.Exceptions;
 using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.NotificationFeature;
@@ -27,13 +28,13 @@ public class GetNotificationTests : IClassFixture<TestFixture>
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: serviceId,
             Description: "Get me",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
-        var response = await mediator.Send(new GetNotificationQuery(ownerId.ToString(), notificationId.ToString()));
+        var response = await mediator.Send(new GetNotificationQuery(ownerId, notificationId));
 
         Assert.NotNull(response);
         Assert.Equal(notificationId, response.NotificationId);
@@ -47,8 +48,7 @@ public class GetNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var user = _provider.GetRequiredService<ICurrentUser>();
 
-        var response = await mediator.Send(new GetNotificationQuery(user.UserId.ToString(), Guid.NewGuid().ToString()));
-
-        Assert.Null(response);
+        var exception = await Record.ExceptionAsync(() => mediator.Send(new GetNotificationQuery(user.UserId, Guid.NewGuid())));
+        Assert.NotNull(exception);
     }
 }

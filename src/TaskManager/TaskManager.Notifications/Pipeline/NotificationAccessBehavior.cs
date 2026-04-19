@@ -15,18 +15,11 @@ public class NotificationAccessBehavior<TRequest, TResponse>(AppDbContext contex
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.NotificationId)) return await next(cancellationToken);
-        Guid ownerId = Guid.Parse(request.OwnerId);
 
-        var notif = await _context.NotificationItem
+        var _ = await _context.NotificationItem
             .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.NotificationId == Guid.Parse(request.NotificationId), cancellationToken);
-
-        if (notif == null)
-            throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
-
-        if (notif.OwnerId != ownerId)
-            throw new ValidationAppException("FORBIDDEN", "Нет доступа к уведомлению");
+            .SingleOrDefaultAsync(x => x.NotificationId == request.NotificationId && x.OwnerId == request.OwnerId, cancellationToken) 
+            ?? throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
 
         return await next(cancellationToken);
     }

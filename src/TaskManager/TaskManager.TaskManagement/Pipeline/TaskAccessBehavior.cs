@@ -16,17 +16,10 @@ public class TaskAccessBehavior<TRequest, TResponse>(AppDbContext context, ICurr
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.TaskId)) return await next(cancellationToken);
-
-        var task = await _context.TaskItems
+        var _ = await _context.TaskItems
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.TaskId == Guid.Parse(request.TaskId), cancellationToken);
-
-        if (task == null)
-            throw new ValidationAppException("NOT_FOUND", "Задача не найдена");
-
-        if (task.OwnerId != _user.UserId)
-            throw new ValidationAppException("FORBIDDEN", "Нет доступа к задаче");
+            .FirstOrDefaultAsync(x => x.TaskId == request.TaskId && x.OwnerId == _user.UserId, cancellationToken) 
+            ?? throw new ValidationAppException("NOT_FOUND", "Задача не найдена");
 
         return await next(cancellationToken);
     }

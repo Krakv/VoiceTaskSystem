@@ -2,6 +2,6 @@
 
 public interface INotificationAccessRequest
 {
-    string NotificationId { get; } 
-    string OwnerId { get; }
+    Guid NotificationId { get; } 
+    Guid OwnerId { get; }
 }

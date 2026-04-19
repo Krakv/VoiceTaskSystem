@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities;
-using System.Globalization;
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 
@@ -11,16 +10,13 @@ public sealed class CreateNotificationCommandHandler(AppDbContext context) : IRe
 
     public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
-        Guid? taskId = string.IsNullOrWhiteSpace(request.TaskId) ? null : Guid.Parse(request.TaskId);
-        Guid ownerId = Guid.Parse(request.OwnerId);
-
         var entity = new NotificationItem
         {
-            TaskId = taskId,
-            OwnerId = ownerId,
+            TaskId = request.TaskId,
+            OwnerId = request.OwnerId,
             ServiceId = request.ServiceId,
             Description = request.Description,
-            ScheduledAt = DateTimeOffset.Parse(request.ScheduledAt, CultureInfo.InvariantCulture)
+            ScheduledAt = request.ScheduledAt,
         };
 
         _context.NotificationItem.Add(entity);

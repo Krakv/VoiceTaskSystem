@@ -23,23 +23,23 @@ public class UpdateNotificationTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var ownerId = Guid.NewGuid().ToString();
+        var ownerId = Guid.NewGuid();
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
             OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Original description",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
         var newScheduledAt = DateTimeOffset.UtcNow.AddHours(5);
 
         await mediator.Send(new UpdateNotificationCommand(
             OwnerId: ownerId,
-            NotificationId: notificationId.ToString(),
+            NotificationId: notificationId,
             Description: "Updated description",
-            ScheduledAt: newScheduledAt.ToString("O")
+            ScheduledAt: newScheduledAt
         ));
 
         var entity = await context.NotificationItem.FindAsync(notificationId);
@@ -56,14 +56,14 @@ public class UpdateNotificationTests : IClassFixture<TestFixture>
         var user = _provider.GetRequiredService<ICurrentUser>();
 
         var command = new UpdateNotificationCommand(
-            OwnerId: user.UserId.ToString(),
-            NotificationId: Guid.NewGuid().ToString(),
+            OwnerId: user.UserId,
+            NotificationId: Guid.NewGuid(),
             Description: "Won't be applied",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         );
 
         var exception = await Record.ExceptionAsync(() => mediator.Send(command));
-        Assert.Null(exception);
+        Assert.NotNull(exception);
     }
 
     [Fact]
@@ -71,14 +71,14 @@ public class UpdateNotificationTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var ownerId = Guid.NewGuid().ToString();
+        var ownerId = Guid.NewGuid();
 
         var firstId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
             OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Should stay unchanged",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
         var secondId = await mediator.Send(new CreateNotificationCommand(
@@ -86,14 +86,14 @@ public class UpdateNotificationTests : IClassFixture<TestFixture>
             OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Will be updated",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2)
         ));
 
         await mediator.Send(new UpdateNotificationCommand(
             OwnerId: ownerId,
-            NotificationId: secondId.ToString(),
+            NotificationId: secondId,
             Description: "Updated",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(3).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(3)
         ));
 
         var first = await context.NotificationItem.FindAsync(firstId);

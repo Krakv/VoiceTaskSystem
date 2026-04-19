@@ -5,9 +5,9 @@ using TaskManager.Shared.Interfaces;
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 
 public sealed record CreateNotificationCommand(
-    string OwnerId,
+    Guid OwnerId,
     NotificationServiceType ServiceId,
     string Description,
-    string ScheduledAt,
-    string? TaskId
+    DateTimeOffset ScheduledAt,
+    Guid? TaskId
 ) : IRequest<Guid>, ITaskAccessRequest;

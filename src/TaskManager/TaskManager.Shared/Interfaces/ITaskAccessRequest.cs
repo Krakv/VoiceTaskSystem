@@ -2,5 +2,5 @@
 
 public interface ITaskAccessRequest
 {
-    string? TaskId { get; }
+    Guid? TaskId { get; }
 }
