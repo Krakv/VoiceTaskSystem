@@ -86,7 +86,8 @@ builder.Services.AddValidatorsFromAssemblies(
         typeof(CreateTaskCommandValidator).Assembly,
         typeof(CreateNotificationCommandValidator).Assembly,
         typeof(CreateCalendarEventCommandValidator).Assembly,
-        typeof(CreateVoiceTaskValidator).Assembly
+        typeof(CreateVoiceTaskValidator).Assembly,
+        typeof(CreateRuleCommandValidator).Assembly
     ]
     );
 
