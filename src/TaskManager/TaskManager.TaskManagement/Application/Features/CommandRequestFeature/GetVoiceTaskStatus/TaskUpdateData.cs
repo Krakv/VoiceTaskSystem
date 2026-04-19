@@ -1,4 +1,5 @@
-﻿using TaskManager.Shared.DTOs.Responses;
+﻿using TaskManager.Shared.Domain.Entities.Enum;
+using TaskManager.Shared.DTOs.Responses;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
@@ -6,8 +7,8 @@ public record TaskUpdateData(
     List<TaskShortInfoDto> Tasks,
     string? ProjectName,
     string? Description,
-    string? Status,
-    string? Priority,
+    TaskItemStatus? Status,
+    TaskItemPriority? Priority,
     DateTimeOffset? DueDate,
     Guid? ParentTaskId,
     TaskShortInfoDto? ParentTask,

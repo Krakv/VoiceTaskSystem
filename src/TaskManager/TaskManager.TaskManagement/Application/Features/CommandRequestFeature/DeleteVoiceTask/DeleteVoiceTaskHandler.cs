@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
@@ -8,17 +9,16 @@ namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.
 
 public sealed class DeleteVoiceTaskHandler(AppDbContext dbContext, ILogger<DeleteVoiceTaskHandler> logger) : IRequestHandler<DeleteVoiceTaskCommand, DeleteVoiceTaskResponse>
 {
-    private readonly AppDbContext _dbcontext = dbContext;
+    private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<DeleteVoiceTaskHandler> _logger = logger;
     public async Task<DeleteVoiceTaskResponse> Handle(DeleteVoiceTaskCommand request, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Started to check status: {CommandRequestId} command", request.CommandRequestId);
-        var command = await _dbcontext.CommandRequestItem.FindAsync(Guid.Parse(request.CommandRequestId), cancellationToken);
-
-        if (command == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
-        }
+        var command = await _dbContext.CommandRequestItem
+            .Where(r => r.CommandRequestId == request.CommandRequestId &&
+                        r.OwnerId == request.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
 
         if (command.Status == CommandRequestStatus.Cancelled)
         {
@@ -42,7 +42,7 @@ public sealed class DeleteVoiceTaskHandler(AppDbContext dbContext, ILogger<Delet
 
         command.CancelledAt = DateTime.UtcNow;
         command.Status = CommandRequestStatus.Cancelled;
-        await _dbcontext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
         _logger.LogError("Cancelled: {CommandRequestId}", request.CommandRequestId);
         return new DeleteVoiceTaskResponse(request.CommandRequestId);
     }

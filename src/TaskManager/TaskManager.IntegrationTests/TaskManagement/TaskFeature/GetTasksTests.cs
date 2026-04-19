@@ -32,7 +32,7 @@ public class GetTaskTests : IClassFixture<TestFixture>
         context.TaskItems.Add(task);
         await context.SaveChangesAsync();
 
-        var result = await mediator.Send(new GetTaskQuery(task.TaskId.ToString()));
+        var result = await mediator.Send(new GetTaskQuery(user.UserId, task.TaskId));
 
         Assert.Equal(task.Title, result.Title);
     }

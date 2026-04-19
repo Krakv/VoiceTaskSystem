@@ -33,10 +33,11 @@ public class PatchTaskTests : IClassFixture<TestFixture>
         context.TaskItems.Add(task);
         await context.SaveChangesAsync();
 
-        await mediator.Send(new UpdateTaskPatchCommand(task.TaskId.ToString(), Title: "patched"));
+        await mediator.Send(new UpdateTaskPatchCommand(user.UserId, task.TaskId, Title: "patched"));
 
         var updated = await context.TaskItems.FindAsync(task.TaskId);
 
+        Assert.NotNull(updated);
         Assert.Equal("patched", updated.Title);
         Assert.Equal("desc", updated.Description);
     }

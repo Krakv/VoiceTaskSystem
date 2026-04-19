@@ -1,27 +1,23 @@
 ﻿using MediatR;
-using System.Globalization;
 using TaskManager.Shared.Exceptions;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
-using TaskManager.Shared.Domain.Entities.Enum;
 using Microsoft.Extensions.Logging;
 using TaskManager.Shared.Events;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 
-public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user, ILogger<UpdateTaskHandler> logger, IMediator mediator) : IRequestHandler<UpdateTaskCommand, string>
+public sealed class UpdateTaskHandler(AppDbContext context, ILogger<UpdateTaskHandler> logger, IMediator mediator) : IRequestHandler<UpdateTaskCommand, Guid>
 {
     private readonly AppDbContext _context = context;
-    private readonly ICurrentUser _user = user;
     private readonly ILogger<UpdateTaskHandler> _logger = logger;
     private readonly IMediator _mediator = mediator;
 
-    public async Task<string> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = await _context.TaskItems.FindAsync([Guid.Parse(request.TaskId)], cancellationToken: cancellationToken)
+        var task = await _context.TaskItems.FindAsync([request.TaskId], cancellationToken: cancellationToken)
             ?? throw new ValidationAppException("NOT_FOUND", "Задача не найдена");
 
-        if (_user.UserId != task.OwnerId)
+        if (request.OwnerId != task.OwnerId)
         {
             throw new ValidationAppException("FORBIDDEN", "Нет доступа");
         }
@@ -29,16 +25,16 @@ public sealed class UpdateTaskHandler(AppDbContext context, ICurrentUser user, I
         task.ProjectName = request.ProjectName;
         task.Title = request.Title;
         task.Description = request.Description;
-        task.Status = Enum.Parse<TaskItemStatus>(request.Status, ignoreCase: true);
-        task.Priority = Enum.Parse<TaskItemPriority>(request.Priority, ignoreCase: true);
-        task.DueDate = string.IsNullOrEmpty(request.DueDate) ? null : DateTimeOffset.Parse(request.DueDate, CultureInfo.InvariantCulture);
-        task.ParentTaskId = string.IsNullOrEmpty(request.ParentTaskId) ? null : Guid.Parse(request.ParentTaskId);
+        task.Status = request.Status;
+        task.Priority = request.Priority;
+        task.DueDate = request.DueDate;
+        task.ParentTaskId = request.ParentTaskId;
         task.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _mediator.Publish(new TaskUpdatedEvent(task.TaskId, _user.UserId, $"Task {task.TaskId} fully updated"), cancellationToken);
+        await _mediator.Publish(new TaskUpdatedEvent(task.TaskId, request.OwnerId, $"Task {task.TaskId} fully updated"), cancellationToken);
         _logger.LogInformation("Updated task with id {TaskId}", task.TaskId);
-        return task.TaskId.ToString();
+        return task.TaskId;
     }
 }

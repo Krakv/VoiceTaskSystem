@@ -1,23 +1,21 @@
 ﻿using MediatR;
 using TaskManager.Shared.Exceptions;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
 
-public sealed class DeleteTaskHandler(AppDbContext context, ICurrentUser user, ILogger<DeleteTaskHandler> logger) : IRequestHandler<DeleteTaskCommand, string>
+public sealed class DeleteTaskHandler(AppDbContext context, ILogger<DeleteTaskHandler> logger) : IRequestHandler<DeleteTaskCommand, Guid>
 {
     private readonly AppDbContext _context = context;
-    private readonly ICurrentUser _user = user;
     private readonly ILogger<DeleteTaskHandler> _logger = logger;
 
-    public async Task<string> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = await _context.TaskItems.FindAsync([Guid.Parse(request.TaskId)], cancellationToken: cancellationToken)
+        var task = await _context.TaskItems.FindAsync([request.TaskId], cancellationToken: cancellationToken)
             ?? throw new ValidationAppException("NOT_FOUND", "Задача не найдена");
 
-        if (_user.UserId != task.OwnerId)
+        if (request.OwnerId != task.OwnerId)
         {
             throw new ValidationAppException("FORBIDDEN", "Нет доступа");
         }

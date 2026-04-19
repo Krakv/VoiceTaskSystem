@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TaskManager.Repository.Context;
@@ -9,17 +10,16 @@ namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.
 
 public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<GetVoiceTaskStatusHandler> logger) : IRequestHandler<GetVoiceTaskStatusQuery, GetVoiceTaskStatusResponse>
 {
-    private readonly AppDbContext _dbcontext = dbContext;
+    private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<GetVoiceTaskStatusHandler> _logger = logger;
     public async Task<GetVoiceTaskStatusResponse> Handle(GetVoiceTaskStatusQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Started to check status: {CommandRequestId} command", request.commandRequestId);
-        var command = await _dbcontext.CommandRequestItem.FindAsync(Guid.Parse(request.commandRequestId), cancellationToken);
-
-        if (command == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
-        }
+        _logger.LogDebug("Started to check status: {CommandRequestId} command", request.CommandRequestId);
+        var command = await _dbContext.CommandRequestItem
+            .Where(r => r.CommandRequestId == request.CommandRequestId &&
+                        r.OwnerId == request.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
 
         if (command.Status == CommandRequestStatus.Pending || command.Status == CommandRequestStatus.Processing)
         {

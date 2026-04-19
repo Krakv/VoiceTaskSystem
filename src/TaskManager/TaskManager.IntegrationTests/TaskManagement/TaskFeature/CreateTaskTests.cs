@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TaskManager.IntegrationTests.Factories;
 using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Repository.Context;
+using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 
@@ -24,11 +25,11 @@ public class CreateTaskTests : IClassFixture<TestFixture>
         var context = _provider.GetRequiredService<AppDbContext>();
         var user = (FakeCurrentUser)_provider.GetRequiredService<ICurrentUser>();
 
-        var command = new CreateTaskCommand("proj", "Test task", "desc", "New", "Low", "", "");
+        var command = new CreateTaskCommand(user.UserId, "proj", "Test task", "desc", TaskItemStatus.New, TaskItemPriority.Low, null, null);
 
         var taskId = await mediator.Send(command);
 
-        var task = await context.TaskItems.FindAsync(Guid.Parse(taskId));
+        var task = await context.TaskItems.FindAsync(taskId);
 
         Assert.NotNull(task);
         Assert.Equal(user.UserId, task.OwnerId);

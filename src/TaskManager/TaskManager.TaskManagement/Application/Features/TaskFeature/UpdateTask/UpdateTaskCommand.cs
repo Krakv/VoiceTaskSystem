@@ -1,14 +1,16 @@
 ﻿using MediatR;
+using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 
 public sealed record UpdateTaskCommand(
-    string TaskId,
-    string ProjectName,
+    Guid OwnerId,
+    Guid TaskId,
+    string? ProjectName,
     string Title,
-    string Description,
-    string Status,
-    string Priority,
-    string DueDate,
-    string? ParentTaskId
-    ) : IRequest<string>;
+    string? Description,
+    TaskItemStatus Status,
+    TaskItemPriority Priority,
+    DateTimeOffset? DueDate,
+    Guid? ParentTaskId
+    ) : IRequest<Guid>;

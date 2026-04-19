@@ -1,7 +1,8 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 using System.Text.Json;
+using System.Globalization;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
@@ -23,12 +24,11 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
     public async Task<UpdateVoiceTaskResponse> Handle(UpdateVoiceTaskCommand request, CancellationToken cancellationToken)
     {
-        var command = await _dbContext.CommandRequestItem.FindAsync(Guid.Parse(request.CommandRequestId));
-
-        if (command == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
-        }
+        var command = await _dbContext.CommandRequestItem
+            .Where(r => r.CommandRequestId == request.CommandRequestId &&
+                        r.OwnerId == request.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
 
         if (command.Status == CommandRequestStatus.Cancelled)
         {
@@ -56,7 +56,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         _logger.LogInformation("Updating CommandRequest payload: {CommandRequestId}", request.CommandRequestId);
 
         Dictionary<string, string> updatedFields = request.TaskId != null
-            ? new Dictionary<string, string> { [nameof(request.TaskId)] = request.TaskId! }
+            ? new Dictionary<string, string> { [nameof(request.TaskId)] = request.TaskId!.ToString()! }
             : new Dictionary<string, string>();
 
         switch (command.Intent)
@@ -111,13 +111,13 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             }
         }
 
-        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId.ToString(), request.ParentTaskId);
+        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId?.ToString(), request.ParentTaskId);
         CheckUpdate(nameof(payload.ProjectName), payload.ProjectName, request.ProjectName);
         CheckUpdate(nameof(payload.Title), payload.Title, request.Title);
         CheckUpdate(nameof(payload.Description), payload.Description, request.Description);
         CheckUpdate(nameof(payload.Status), payload.Status, request.Status);
         CheckUpdate(nameof(payload.Priority), payload.Priority, request.Priority);
-        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("o"), request.DueDate);
+        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("O"), request.DueDate);
 
         Guid? parentTaskId;
 
@@ -158,9 +158,9 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         }
 
         var newTasks = payload.Tasks;
-        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        if (request.TaskId.HasValue)
         {
-            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            var taskTemp = await _dbContext.TaskItems.FindAsync(request.TaskId.Value);
             newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
         }
 
@@ -169,12 +169,12 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         if (!newTasks.SequenceEqual(payload.Tasks))
             updatedFields[nameof(payload.Tasks)] = string.Join(",", newTasks.Select(t => t.TaskId).ToList());
 
-        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId.ToString(), request.ParentTaskId);
+        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId?.ToString(), request.ParentTaskId);
         CheckUpdate(nameof(payload.ProjectName), payload.ProjectName, request.ProjectName);
         CheckUpdate(nameof(payload.Description), payload.Description, request.Description);
         CheckUpdate(nameof(payload.Status), payload.Status, request.Status);
         CheckUpdate(nameof(payload.Priority), payload.Priority, request.Priority);
-        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("o"), request.DueDate);
+        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("O"), request.DueDate);
 
         Guid? parentTaskId;
 
@@ -209,9 +209,9 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         TaskDeleteData payload, UpdateVoiceTaskCommand request, Dictionary<string, string> updatedFields)
     {
         var newTasks = payload.Tasks;
-        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        if (request.TaskId.HasValue)
         {
-            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            var taskTemp = await _dbContext.TaskItems.FindAsync(request.TaskId.Value);
             newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
         }
 

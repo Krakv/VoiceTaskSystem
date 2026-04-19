@@ -4,6 +4,7 @@ using TaskManager.IntegrationTests.Factories;
 using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Builders;
+using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 
@@ -32,10 +33,11 @@ public class UpdateTaskTests : IClassFixture<TestFixture>
         context.TaskItems.Add(task);
         await context.SaveChangesAsync();
 
-        await mediator.Send(new UpdateTaskCommand(task.TaskId.ToString(), "", "new", "", "new", "low", "", null));
+        await mediator.Send(new UpdateTaskCommand(user.UserId, task.TaskId, "", "new", "", TaskItemStatus.New, TaskItemPriority.Low, null, null));
 
         var updated = await context.TaskItems.FindAsync(task.TaskId);
 
+        Assert.NotNull(updated);
         Assert.Equal("new", updated.Title);
     }
 }

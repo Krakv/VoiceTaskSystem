@@ -42,37 +42,27 @@ public class TaskItemBuilder
         return this;
     }
 
-    public TaskItemBuilder SetStatus(string? status)
+    public TaskItemBuilder SetStatus(TaskItemStatus? status)
     {
-        if (!string.IsNullOrWhiteSpace(status) &&
-            Enum.TryParse<TaskItemStatus>(status, ignoreCase: true, out var parsed))
-        {
-            _task.Status = parsed;
-        }
+        _task.Status = status ?? TaskItemStatus.New;
         return this;
     }
 
-    public TaskItemBuilder SetPriority(string? priority)
+    public TaskItemBuilder SetPriority(TaskItemPriority? priority)
     {
-        if (!string.IsNullOrWhiteSpace(priority) &&
-            Enum.TryParse<TaskItemPriority>(priority, ignoreCase: true, out var parsed))
-        {
-            _task.Priority = parsed;
-        }
+        _task.Priority = priority ?? TaskItemPriority.Low;
         return this;
     }
 
-    public TaskItemBuilder SetDueDate(string? dueDate)
+    public TaskItemBuilder SetDueDate(DateTimeOffset? dueDate)
     {
-        if (!string.IsNullOrWhiteSpace(dueDate))
-            _task.DueDate = DateTimeOffset.Parse(dueDate, CultureInfo.InvariantCulture);
+        _task.DueDate = dueDate;
         return this;
     }
 
-    public TaskItemBuilder SetParent(string? parentTaskId)
+    public TaskItemBuilder SetParent(Guid? parentTaskId)
     {
-        if (!string.IsNullOrWhiteSpace(parentTaskId))
-            _task.ParentTaskId = Guid.Parse(parentTaskId);
+        _task.ParentTaskId = parentTaskId;
         return this;
     }
 

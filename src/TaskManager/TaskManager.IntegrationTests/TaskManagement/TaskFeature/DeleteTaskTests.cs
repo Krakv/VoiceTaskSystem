@@ -33,7 +33,7 @@ public class DeleteTaskTest : IClassFixture<TestFixture>
         context.TaskItems.Add(task);
         await context.SaveChangesAsync();
 
-        await mediator.Send(new DeleteTaskCommand(task.TaskId.ToString()));
+        await mediator.Send(new DeleteTaskCommand(user.UserId, task.TaskId));
 
         var deleted = await context.TaskItems.FindAsync(task.TaskId);
 

@@ -2,41 +2,36 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
-using TaskManager.Shared.Domain.Entities.Enum;
 using Microsoft.Extensions.Logging;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 
-public sealed class GetTasksHandler(AppDbContext context, ICurrentUser user, ILogger<GetTasksHandler> logger) : IRequestHandler<GetTasksQuery, GetTasksResponse>
+public sealed class GetTasksHandler(AppDbContext context, ILogger<GetTasksHandler> logger) : IRequestHandler<GetTasksQuery, GetTasksResponse>
 {
     private readonly AppDbContext _context = context;
-    private readonly ICurrentUser _user = user;
     private readonly ILogger<GetTasksHandler> _logger = logger;
 
     public async Task<GetTasksResponse> Handle(GetTasksQuery request, CancellationToken cancellationToken)
     {
-        var userId = _user.UserId;
+        var userId = request.OwnerId;
 
         var query = _context.TaskItems
             .Where(x => x.OwnerId == userId)
             .AsQueryable();
         if (!string.IsNullOrEmpty(request.Query))
             query = query.Where(x => x.Title.Contains(request.Query));
-        if (!string.IsNullOrEmpty(request.Status) 
-            && Enum.TryParse<TaskItemStatus>(request.Status, ignoreCase: true, out var statusParsed)) query = query.Where(x => x.Status == statusParsed);
-        if (!string.IsNullOrEmpty(request.Priority) 
-            && Enum.TryParse<TaskItemPriority>(request.Priority, ignoreCase: true, out var priorityParsed)) query = query.Where(x => x.Priority == priorityParsed);
+        if (request.Status.HasValue)
+            query = query.Where(x => x.Status == request.Status.Value);
+        if (request.Priority.HasValue)
+            query = query.Where(x => x.Priority == request.Priority.Value);
 
         var sortColumn = string.IsNullOrEmpty(request.SortBy) ? "DueDate" : request.SortBy;
-        var sortOrder = request.SortOrder == "DESC" ? " descending" : "";
-        query = query.OrderBy(sortColumn + sortOrder);
+        var sortOrder = request.SortOrder == "DESC" ? " descending" : " ascending";
 
-        if(!Int32.TryParse(request.Limit, out int limit)) limit = 20;
-        if (limit <= 0) limit = 20;
+        query = query.OrderBy($"{sortColumn} {sortOrder}");
 
-        if(!Int32.TryParse(request.Page, out int page)) page = 0;
-        if (page < 0) page = 0;
+        var limit = request.Limit ?? 20;
+        var page = request.Page ?? 0;
 
         var total = await query.CountAsync(cancellationToken);
         var pages = (total + limit - 1) / limit;
