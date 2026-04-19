@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\CommandRequest\Validators\" />
+    <Folder Include="DTOs\ExtenalCalendarAccount\" />
   </ItemGroup>
 
 </Project>

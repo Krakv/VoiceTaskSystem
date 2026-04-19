@@ -1,17 +1,17 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Repository.Context;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetExternalCalendars;
 
-public sealed class GetExternalCalendarsQueryHandler(AppDbContext context, ICurrentUser currentUser): IRequestHandler<GetExternalCalendarsQuery, List<ExternalCalendarAccountDto>>
+public sealed class GetExternalCalendarsQueryHandler(AppDbContext context): IRequestHandler<GetExternalCalendarsQuery, List<ExternalCalendarAccountDto>>
 {
+    private readonly AppDbContext _context = context;
     public async Task<List<ExternalCalendarAccountDto>> Handle(GetExternalCalendarsQuery request,CancellationToken cancellationToken)
     {
-        var userId = currentUser.UserId;
+        var userId = request.OwnerId;
 
-        return await context.ExternalCalendarAccount
+        return await _context.ExternalCalendarAccount
             .Where(x => x.OwnerId == userId)
             .Select(x => new ExternalCalendarAccountDto
             (

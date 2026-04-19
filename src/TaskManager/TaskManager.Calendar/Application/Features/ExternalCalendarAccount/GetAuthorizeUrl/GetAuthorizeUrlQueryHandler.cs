@@ -1,18 +1,16 @@
 ﻿using MediatR;
 using TaskManager.Auth.Application.Interfaces;
 using TaskManager.Auth.Infrastructure;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetAuthorizeUrl;
 
-public sealed class GetAuthorizeUrlQueryHandler(ICurrentUser user, IStateService stateService, YandexOAuthClient oAuthClient) : IRequestHandler<GetAuthorizeUrlQuery, string>
+public sealed class GetAuthorizeUrlQueryHandler(IStateService stateService, YandexOAuthClient oAuthClient) : IRequestHandler<GetAuthorizeUrlQuery, string>
 {
-    private readonly ICurrentUser _user = user;
     private readonly IStateService _stateService = stateService;
     private readonly YandexOAuthClient _oAuthClient = oAuthClient;
     public Task<string> Handle(GetAuthorizeUrlQuery request, CancellationToken cancellationToken)
     {
-        var userId = _user.UserId;
+        var userId = request.OwnerId;
 
         var state = _stateService.Generate(userId);
 

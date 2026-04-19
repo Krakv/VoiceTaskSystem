@@ -2,4 +2,4 @@
 
 namespace TaskManager.Calendar.Application.Features.ExternalCalendarAccount.GetAuthorizeUrl;
 
-public sealed record GetAuthorizeUrlQuery() : IRequest<string>;
+public sealed record GetAuthorizeUrlQuery(Guid OwnerId) : IRequest<string>;
