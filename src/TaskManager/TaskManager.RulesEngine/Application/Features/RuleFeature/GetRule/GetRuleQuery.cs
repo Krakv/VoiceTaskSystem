@@ -2,4 +2,4 @@
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.GetRule;
 
-public sealed record GetRuleQuery(string RuleId) : IRequest<GetRuleResponse>;
+public sealed record GetRuleQuery(Guid OwnerId, Guid RuleId) : IRequest<GetRuleResponse>;

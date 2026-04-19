@@ -1,10 +1,12 @@
 ﻿using MediatR;
+using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.GetRules;
 
 public sealed record GetRulesQuery(
-    string? RuleEvent = null,
+    Guid OwnerId,
+    RuleEvent? RuleEvent = null,
     bool? IsActive = null,
-    string? Limit = "20",
-    string? Page = "0"
+    int Limit = 20,
+    int Page = 0
     ) : IRequest<GetRulesResponse>;

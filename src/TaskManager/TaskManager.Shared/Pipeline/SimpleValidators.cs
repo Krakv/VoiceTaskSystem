@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 
 namespace TaskManager.Shared.Pipeline;
 
@@ -25,5 +26,36 @@ public static class SimpleValidators
 
     public static bool BeValidIntNonNegative(string? value)
         => int.TryParse(value, out var v) && v >= 0;
+
+    public static bool BeValidEnum<TEnum>(string value)
+        where TEnum : struct, Enum
+        => Enum.TryParse<TEnum>(value, true, out _);
+
+    public static bool BeValidJsonOrNull(object? obj)
+    {
+        if (obj is null) return true;
+        try
+        {
+            JsonDocument.Parse(obj.ToString()!);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool BeValidJson(object obj)
+    {
+        try
+        {
+            JsonDocument.Parse(obj.ToString()!);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
 }

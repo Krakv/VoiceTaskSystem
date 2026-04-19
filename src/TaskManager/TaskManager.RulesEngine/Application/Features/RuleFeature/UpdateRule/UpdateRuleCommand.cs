@@ -6,7 +6,8 @@ using TaskManager.Shared.Domain.Entities.Enum;
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.UpdateRule;
 
 public sealed record UpdateRuleCommand(
-    string RuleId,
+    Guid OwnerId,
+    Guid RuleId,
     RuleEvent RuleEvent,
     ConditionGroup? Conditions,
     IEnumerable<RuleAction> Actions,
