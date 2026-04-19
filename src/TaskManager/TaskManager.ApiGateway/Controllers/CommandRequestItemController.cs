@@ -12,6 +12,7 @@ using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.Dele
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
 using InputFile = TaskManager.Shared.DTOs.Requests.InputFile;
+using TaskManager.ApiGateway.DTOs.CommandRequest;
 
 namespace TaskManager.ApiGateway.Controllers;
 
