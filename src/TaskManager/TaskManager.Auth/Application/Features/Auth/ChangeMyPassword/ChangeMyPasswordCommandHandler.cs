@@ -10,20 +10,14 @@ namespace TaskManager.Auth.Application.Features.Auth.ChangeMyPassword;
 
 public sealed class ChangeMyPasswordCommandHandler(
     UserManager<User> userManager,
-    ICurrentUser currentUser,
     ILogger<ChangeMyPasswordCommandHandler> logger)
     : IRequestHandler<ChangeMyPasswordCommand, bool>
 {
     public async Task<bool> Handle(ChangeMyPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users
-            .FirstOrDefaultAsync(x => x.Id == currentUser.UserId, cancellationToken);
-
-        if (user is null)
-            throw new ValidationAppException(
-                "NOT_FOUND",
-                "Пользователь не найден"
-            );
+            .FirstOrDefaultAsync(x => x.Id == request.OwnerId, cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Пользователь не найден");
 
         if (user.IsDeleted)
             throw new ValidationAppException(

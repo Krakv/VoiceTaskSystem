@@ -2,4 +2,4 @@
 
 namespace TaskManager.Auth.Application.Features.Auth.DeleteUser;
 
-public sealed record DeleteUserCommand() : IRequest<bool>;
+public sealed record DeleteUserCommand(Guid OwnerId) : IRequest<bool>;

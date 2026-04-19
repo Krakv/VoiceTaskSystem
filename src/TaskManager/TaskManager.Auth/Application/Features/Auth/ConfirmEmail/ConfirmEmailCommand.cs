@@ -2,4 +2,4 @@
 
 namespace TaskManager.Auth.Application.Features.Auth.ConfirmEmail;
 
-public record ConfirmEmailCommand(string Token) : IRequest;
+public record ConfirmEmailCommand(Guid OwnerId, string Token) : IRequest;
