@@ -10,14 +10,12 @@ public class ChangeMyPasswordCommandValidator : AbstractValidator<ChangeMyPasswo
             .NotEmpty();
 
         RuleFor(x => x.CurrentPassword)
-            .NotEmpty()
-            .MinimumLength(6)
-            .WithMessage("Текущий пароль обязателен");
+            .NotEmpty().WithMessage("Текущий пароль обязателен")
+            .MinimumLength(6).WithMessage("Минимум 6 символов");
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty()
-            .MinimumLength(6)
-            .WithMessage("Пароль должен быть не менее 6 символов")
+            .NotEmpty().WithMessage("Новый пароль обязателен")
+            .MinimumLength(6).WithMessage("Пароль должен быть не менее 6 символов")
             .Matches("[A-Z]").WithMessage("Пароль должен содержать хотя бы одну заглавную букву")
             .Matches("[a-z]").WithMessage("Пароль должен содержать хотя бы одну строчную букву")
             .Matches("[0-9]").WithMessage("Пароль должен содержать хотя бы одну цифру");

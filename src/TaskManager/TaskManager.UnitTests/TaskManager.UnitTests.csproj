@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TaskManager.RulesEngine\TaskManager.RulesEngine.csproj" />
     <ProjectReference Include="..\TaskManager.Shared\TaskManager.Shared.csproj" />
+    <ProjectReference Include="..\TaskManager.TaskManagement\TaskManager.TaskManagement.csproj" />
   </ItemGroup>
 
   <ItemGroup>
