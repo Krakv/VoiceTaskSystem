@@ -9,21 +9,16 @@ using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class UpdateNotificationTests : IClassFixture<TestFixture>
+public class UpdateNotificationTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public UpdateNotificationTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Update_Notification()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
@@ -71,7 +66,7 @@ public class UpdateNotificationTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var firstId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,

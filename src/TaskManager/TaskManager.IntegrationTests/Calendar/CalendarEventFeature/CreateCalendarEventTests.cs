@@ -7,14 +7,9 @@ using TaskManager.Repository.Context;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class CreateCalendarEventTests : IClassFixture<TestFixture>
+public class CreateCalendarEventTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public CreateCalendarEventTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Create_Event_And_Publish_Event()
@@ -22,7 +17,7 @@ public class CreateCalendarEventTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var command = new CreateCalendarEventCommand(
             ownerId,

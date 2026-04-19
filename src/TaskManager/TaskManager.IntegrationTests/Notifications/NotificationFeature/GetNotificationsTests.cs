@@ -8,21 +8,16 @@ using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class GetNotificationsTests : IClassFixture<TestFixture>
+public class GetNotificationsTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetNotificationsTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Get_All_Notifications_For_Owner()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
@@ -62,7 +57,7 @@ public class GetNotificationsTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerA = Guid.NewGuid();
+        var ownerA = await fixture.CreateUserAsync();
         var ownerB = Guid.NewGuid();
 
         await mediator.Send(new CreateNotificationCommand(
@@ -84,7 +79,7 @@ public class GetNotificationsTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var _ = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,

@@ -7,14 +7,9 @@ using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class CreateNotificationTests : IClassFixture<TestFixture>
+public class CreateNotificationTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public CreateNotificationTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Create_Notification()
@@ -22,12 +17,11 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
-        var taskId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
         var scheduledAt = DateTimeOffset.UtcNow.AddHours(1);
 
         var command = new CreateNotificationCommand(
-            TaskId: taskId,
+            TaskId: null,
             OwnerId: ownerId,    
             ServiceId: NotificationServiceType.Email,
             Description: "Test notification",
@@ -41,7 +35,7 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
         Assert.NotNull(entity);
         Assert.Equal(notificationId, entity.NotificationId);
         Assert.Equal(ownerId, entity.OwnerId);
-        Assert.Equal(taskId, entity.TaskId);
+        Assert.Null(entity.TaskId);
         Assert.Equal("Test notification", entity.Description);
     }
 
@@ -51,7 +45,7 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var command = new CreateNotificationCommand(
             TaskId: null,
@@ -77,7 +71,7 @@ public class CreateNotificationTests : IClassFixture<TestFixture>
 
         var command = new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: Guid.NewGuid(),
+            OwnerId: await fixture.CreateUserAsync(),
             ServiceId: NotificationServiceType.Email,
             Description: "Another notification",
             ScheduledAt: DateTimeOffset.UtcNow.AddHours(2)

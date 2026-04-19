@@ -8,21 +8,16 @@ using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class GetNotificationTests : IClassFixture<TestFixture>
+public class GetNotificationTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetNotificationTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Get_Notification_By_Id()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
         var serviceId = NotificationServiceType.Email;
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(

@@ -1,43 +1,41 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.IntegrationTests.Factories;
-using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Repository.Context;
+using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.DeleteRule;
+using TaskManager.RulesEngine.Domain.Actions;
+using TaskManager.RulesEngine.Domain.Conditions;
 using TaskManager.Shared.Domain.Entities;
+using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.RuleEngine.RuleFeature;
 
-public class DeleteRuleTests : IClassFixture<TestFixture>
+public class DeleteRuleTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public DeleteRuleTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Delete_Rule()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var user = (FakeCurrentUser)_provider.GetRequiredService<ICurrentUser>();
+        var userId = await fixture.CreateUserAsync();
 
-        var rule = new RuleItem
-        {
-            RuleId = Guid.NewGuid(),
-            OwnerId = user.UserId
-        };
+        var command = new CreateRuleCommand(
+            userId,
+            RuleEvent.TaskCreated,
+            new ConditionGroup(),
+            Array.Empty<RuleAction>(),
+            true
+        );
 
-        context.RuleItem.Add(rule);
-        await context.SaveChangesAsync();
+        var ruleId = (await mediator.Send(command)).RuleId;
 
-        await mediator.Send(new DeleteRuleCommand(rule.RuleId.ToString()));
+        await mediator.Send(new DeleteRuleCommand(userId, ruleId));
 
-        var deleted = await context.RuleItem.FindAsync(rule.RuleId);
+        var deleted = await context.RuleItem.FindAsync(ruleId);
 
         Assert.Null(deleted);
     }
@@ -46,18 +44,19 @@ public class DeleteRuleTests : IClassFixture<TestFixture>
     public async Task Should_Throw_When_Not_Owner()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
-        var context = _provider.GetRequiredService<AppDbContext>();
+        var userId = await fixture.CreateUserAsync();
 
-        var rule = new RuleItem
-        {
-            RuleId = Guid.NewGuid(),
-            OwnerId = Guid.NewGuid()
-        };
+        var command = new CreateRuleCommand(
+            userId,
+            RuleEvent.TaskCreated,
+            new ConditionGroup(),
+            Array.Empty<RuleAction>(),
+            true
+        );
 
-        context.RuleItem.Add(rule);
-        await context.SaveChangesAsync();
+        var ruleId = (await mediator.Send(command)).RuleId;
 
         await Assert.ThrowsAsync<ValidationAppException>(() =>
-            mediator.Send(new DeleteRuleCommand(rule.RuleId.ToString())));
+            mediator.Send(new DeleteRuleCommand(Guid.NewGuid(), ruleId)));
     }
 }

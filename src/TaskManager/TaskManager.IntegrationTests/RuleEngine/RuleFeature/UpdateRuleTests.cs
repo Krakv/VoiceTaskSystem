@@ -1,44 +1,41 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.IntegrationTests.Factories;
-using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Repository.Context;
+using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.ToggleRule;
-using TaskManager.Shared.Domain.Entities;
-using TaskManager.Shared.Interfaces;
+using TaskManager.RulesEngine.Domain.Actions;
+using TaskManager.RulesEngine.Domain.Conditions;
+using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.IntegrationTests.RuleEngine.RuleFeature;
 
-public class ToggleRuleTests : IClassFixture<TestFixture>
+public class ToggleRuleTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public ToggleRuleTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Toggle_Rule()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var user = (FakeCurrentUser)_provider.GetRequiredService<ICurrentUser>();
+        var userId = await fixture.CreateUserAsync();
 
-        var rule = new RuleItem
-        {
-            RuleId = Guid.NewGuid(),
-            OwnerId = user.UserId,
-            IsActive = true
-        };
+        var command = new CreateRuleCommand(
+            userId,
+            RuleEvent.TaskCreated,
+            new ConditionGroup(),
+            Array.Empty<RuleAction>(),
+            true
+        );
 
-        context.RuleItem.Add(rule);
-        await context.SaveChangesAsync();
+        var ruleId = (await mediator.Send(command)).RuleId;
 
-        await mediator.Send(new ToggleRuleCommand(rule.RuleId.ToString()));
+        await mediator.Send(new ToggleRuleCommand(userId, ruleId));
 
-        var updated = await context.RuleItem.FindAsync(rule.RuleId);
+        var updated = await context.RuleItem.FindAsync(ruleId);
 
+        Assert.NotNull(updated);
         Assert.False(updated.IsActive);
     }
 }

@@ -10,31 +10,26 @@ using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class DeleteNotificationTests : IClassFixture<TestFixture>
+public class DeleteNotificationTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public DeleteNotificationTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Delete_Notification()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var user = _provider.GetRequiredService<ICurrentUser>();
+        var userId = await fixture.CreateUserAsync();
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: user.UserId,
+            OwnerId: userId,
             ServiceId: NotificationServiceType.Email,
             Description: "To be deleted",
             ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
-        await mediator.Send(new DeleteNotificationCommand(user.UserId, notificationId));
+        await mediator.Send(new DeleteNotificationCommand(userId, notificationId));
 
         var entity = await context.NotificationItem.FindAsync(notificationId);
 
@@ -57,7 +52,7 @@ public class DeleteNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var firstId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
