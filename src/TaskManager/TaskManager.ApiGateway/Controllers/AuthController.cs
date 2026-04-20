@@ -6,8 +6,6 @@ using TaskManager.Auth.Application.Features.Auth.ConfirmEmail;
 using TaskManager.Auth.Application.Features.Auth.DeleteUser;
 using TaskManager.Auth.Application.Features.Auth.GenerateTelegramLinkToken;
 using TaskManager.Auth.Application.Features.Auth.GetMyProfile;
-using TaskManager.Auth.Application.Features.Auth.Login;
-using TaskManager.Auth.Application.Features.Auth.RegisterUser;
 using TaskManager.Auth.Application.Features.Auth.SendEmailVerification;
 using TaskManager.Auth.Application.Features.Auth.UnlinkTelegramChat;
 using TaskManager.Auth.Application.Features.Auth.UpdateUserProfile;
@@ -17,6 +15,7 @@ using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.ApiGateway.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/auth")]
 public class AuthController(IMediator mediator, ICurrentUser user) : ControllerBase
@@ -24,21 +23,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
     private readonly IMediator _mediator = mediator;
     private readonly ICurrentUser _user = user;
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
-    {
-        var result = await _mediator.Send(command);
-        return CreatedResponse(result.ToString(), $"api/v1/auth/login/{result}");
-    }
-
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginCommand command)
-    {
-        var token = await _mediator.Send(command);
-        return Success(token);
-    }
-
-    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
@@ -47,7 +31,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Success(result);
     }
 
-    [Authorize]
     [HttpPost("email/send-verification")]
     public async Task<IActionResult> SendVerification()
     {
@@ -55,7 +38,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Ok();
     }
 
-    [Authorize]
     [HttpPost("email/confirm")]
     public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto request)
     {
@@ -63,7 +45,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Ok();
     }
 
-    [Authorize]
     [HttpGet("telegram-link-token")]
     public async Task<IActionResult> GetTelegramLinkToken()
     {
@@ -72,7 +53,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Success(result);
     }
 
-    [Authorize]
     [HttpDelete("telegram-link")]
     public async Task<IActionResult> UnlinkTelegram()
     {
@@ -81,7 +61,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Success(new {});
     }
 
-    [Authorize]
     [HttpPatch("profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto request)
     {
@@ -91,7 +70,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Success(new { });
     }
 
-    [Authorize]
     [HttpPatch("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangeMyPasswordDto request)
     {
@@ -101,7 +79,6 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
         return Success(new { isUpdated = result });
     }
 
-    [Authorize]
     [HttpDelete("account")]
     public async Task<IActionResult> DeleteAccount()
     {
@@ -112,8 +89,5 @@ public class AuthController(IMediator mediator, ICurrentUser user) : ControllerB
 
     private OkObjectResult Success<T>(T data) where T : class =>
         Ok(new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
-
-    private CreatedResult CreatedResponse<T>(T data, string route) where T : class =>
-        Created(route, new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
 }
 
