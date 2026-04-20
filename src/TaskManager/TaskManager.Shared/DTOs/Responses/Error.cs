@@ -4,5 +4,5 @@ public class Error
 {
     required public string Code { get; set; }
     required public string Message { get; set; }
-    public Dictionary<string, string>? Fields { get; set; }
+    public IDictionary<string, string>? Fields { get; set; }
 }

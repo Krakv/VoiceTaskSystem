@@ -8,39 +8,34 @@ using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class GetNotificationsTests : IClassFixture<TestFixture>
+public class GetNotificationsTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetNotificationsTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Get_All_Notifications_For_Owner()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "First",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
         await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Second",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(2)
         ));
 
-        var response = await mediator.Send(new GetNotificationsQuery(ownerId.ToString()));
+        var response = await mediator.Send(new GetNotificationsQuery(ownerId));
 
         Assert.NotNull(response);
         Assert.Equal(2, response.Count);
@@ -51,7 +46,7 @@ public class GetNotificationsTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var response = await mediator.Send(new GetNotificationsQuery(Guid.NewGuid().ToString()));
+        var response = await mediator.Send(new GetNotificationsQuery(Guid.NewGuid()));
 
         Assert.NotNull(response);
         Assert.Empty(response);
@@ -62,18 +57,18 @@ public class GetNotificationsTests : IClassFixture<TestFixture>
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerA = Guid.NewGuid();
+        var ownerA = await fixture.CreateUserAsync();
         var ownerB = Guid.NewGuid();
 
         await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerA.ToString(),
+            OwnerId: ownerA,
             ServiceId: NotificationServiceType.Email,
             Description: "Owner A notification",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
-        var response = await mediator.Send(new GetNotificationsQuery(ownerB.ToString()));
+        var response = await mediator.Send(new GetNotificationsQuery(ownerB));
 
         Assert.DoesNotContain(response, n => n.Description == "Owner A notification");
     }
@@ -84,29 +79,29 @@ public class GetNotificationsTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var _ = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Pending",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(3).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(3)
         ));
 
         var sentId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: NotificationServiceType.Email,
             Description: "Sent",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
         var sentEntity = await context.NotificationItem.FindAsync(sentId);
         sentEntity!.Status = NotificationStatus.Sent;
         await context.SaveChangesAsync();
 
-        var response = await mediator.Send(new GetNotificationsQuery(ownerId.ToString()));
+        var response = await mediator.Send(new GetNotificationsQuery(ownerId));
 
         Assert.Equal("Pending", response[0].Description);
     }

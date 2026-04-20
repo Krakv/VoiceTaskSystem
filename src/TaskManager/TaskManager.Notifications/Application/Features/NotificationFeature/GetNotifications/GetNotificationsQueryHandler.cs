@@ -12,12 +12,9 @@ public class GetNotificationsQueryHandler(AppDbContext context) : IRequestHandle
 
     public async Task<List<GetNotificationResponse>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
     {
-
-        Guid ownerId = Guid.Parse(request.OwnerId);
-
         return await _context.NotificationItem
             .AsNoTracking()
-            .Where(x => x.OwnerId == ownerId)
+            .Where(x => x.OwnerId == request.OwnerId)
             .OrderBy(x => x.Status != NotificationStatus.Pending)
             .ThenBy(x => x.ScheduledAt)
             .Select(x => new GetNotificationResponse

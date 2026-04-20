@@ -26,21 +26,11 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
 
         if (errors.Count != 0)
         {
-            bool allInvalidParams = errors.All(f => f.ErrorCode == "INVALID_PARAMS" || string.IsNullOrEmpty(f.ErrorCode));
-
-            if (allInvalidParams)
-            {
-                var errorsDictionary = errors
+            var errorsDictionary = errors
                     .GroupBy(f => f.PropertyName)
                     .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage).First());
 
-                throw new ValidationAppException("INVALID_PARAMS", errorsDictionary);
-            }
-            else
-            {
-                var firstCustom = errors.First(f => f.ErrorCode != "INVALID_PARAMS");
-                throw new ValidationAppException(firstCustom.ErrorCode!, firstCustom.ErrorMessage!);
-            }
+            throw new ValidationAppException("INVALID_PARAMS", errorsDictionary);
         }
 
         return await next(cancellationToken);

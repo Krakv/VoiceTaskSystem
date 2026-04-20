@@ -2,4 +2,4 @@
 
 namespace TaskManager.Auth.Application.Features.Auth.UnlinkTelegramChat;
 
-public sealed record UnlinkTelegramCommand : IRequest;
+public sealed record UnlinkTelegramCommand(Guid OwnerId) : IRequest;

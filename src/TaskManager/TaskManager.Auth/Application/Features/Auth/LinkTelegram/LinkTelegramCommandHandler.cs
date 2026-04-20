@@ -11,11 +11,9 @@ public class LinkTelegramCommandHandler(UserManager<User> userManager) : IReques
     public async Task Handle(LinkTelegramCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users
-            .FirstOrDefaultAsync(x => x.TelegramToken == request.Token, cancellationToken);
-
-        if (user is null)
-            throw new ValidationAppException("INVALID_TOKEN", "Неверный токен");
-
+            .FirstOrDefaultAsync(x => x.TelegramToken == request.Token, cancellationToken)
+            ?? throw new ValidationAppException("INVALID_TOKEN", "Неверный токен");
+        
         if (user.TelegramTokenExpiresAt < DateTimeOffset.UtcNow)
             throw new ValidationAppException("TOKEN_EXPIRED", "Токен истёк");
 

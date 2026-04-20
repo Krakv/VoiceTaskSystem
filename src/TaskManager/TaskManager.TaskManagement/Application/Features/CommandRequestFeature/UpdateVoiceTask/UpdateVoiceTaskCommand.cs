@@ -1,15 +1,17 @@
 ﻿using MediatR;
+using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
 
 public sealed record UpdateVoiceTaskCommand(
-    string CommandRequestId,
-    string? TaskId,
+    Guid OwnerId,
+    Guid CommandRequestId,
+    Guid? TaskId,
     string? ProjectName,
     string? Title,
     string? Description,
-    string? Status,
+    TaskItemStatus? Status,
     string? DueDate,
-    string? Priority,
+    TaskItemPriority? Priority,
     string? ParentTaskId
     ) : IRequest<UpdateVoiceTaskResponse>;

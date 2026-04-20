@@ -1,27 +1,53 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.ApiGateway.DTOs;
+using System.Text.Json;
+using TaskManager.ApiGateway.DTOs.Rule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.DeleteRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.GetRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.GetRules;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.ToggleRule;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.UpdateRule;
+using TaskManager.RulesEngine.Domain.Actions;
+using TaskManager.RulesEngine.Domain.Conditions;
+using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Shared.Interfaces;
+using TaskManager.Shared.Utils;
 
 namespace TaskManager.ApiGateway.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("api/v1/rules")]
-public class RuleItemController(IMediator mediator) : ControllerBase
+public class RuleItemController(IMediator mediator, ICurrentUser user) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
+    private readonly ICurrentUser _user = user;
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateRuleCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateRuleDto dto)
     {
+        var ruleEvent = Enum.Parse<RuleEvent>(dto.RuleEvent, true);
+
+        var conditions = dto.Conditions is null
+            ? null
+            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!, JsonHelper.Default);
+
+        var actions = dto.Actions
+            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!, JsonHelper.Default)!)
+            .ToList();
+
+        var command = new CreateRuleCommand
+        (
+            _user.UserId,
+            ruleEvent,
+            conditions,
+            actions,
+            dto.IsActive
+        );
+
         var result = await _mediator.Send(command);
         return CreatedResponse($"api/v1/rules/{result.RuleId}", result);
     }
@@ -29,44 +55,55 @@ public class RuleItemController(IMediator mediator) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _mediator.Send(new GetRulesQuery());
+        var result = await _mediator.Send(new GetRulesQuery(_user.UserId));
         return Success(result);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var result = await _mediator.Send(new GetRuleQuery(id));
+        var result = await _mediator.Send(new GetRuleQuery(_user.UserId, id));
         return Success(result);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] UpdateRuleDto dto)
+    [HttpPut("{ruleId:guid}")]
+    public async Task<IActionResult> Update(Guid ruleId, [FromBody] UpdateRuleDto dto)
     {
-        var updateRuleCommand = new UpdateRuleCommand
-        (
-            id,
-            dto.RuleEvent,
-            dto.Conditions,
-            dto.Actions,
+        var ruleEvent = Enum.Parse<RuleEvent>(dto.RuleEvent, true);
+
+        var conditions = dto.Conditions is null
+            ? null
+            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!, JsonHelper.Default);
+
+        var actions = dto.Actions
+            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!, JsonHelper.Default)!)
+            .ToList();
+
+        var command = new UpdateRuleCommand(
+            _user.UserId,
+            ruleId,
+            ruleEvent,
+            conditions,
+            actions,
             dto.IsActive
         );
 
-        await _mediator.Send(updateRuleCommand);
-        return Success(new {});
-    }
+        await _mediator.Send(command);
 
-    [HttpPatch("{id}")]
-    public async Task<IActionResult> Toggle(string id)
-    {
-        await _mediator.Send(new ToggleRuleCommand(id));
         return Success(new { });
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpPatch("{id:guid}")]
+    public async Task<IActionResult> Toggle(Guid id)
     {
-        await _mediator.Send(new DeleteRuleCommand(id));
+        await _mediator.Send(new ToggleRuleCommand(_user.UserId, id));
+        return Success(new { });
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _mediator.Send(new DeleteRuleCommand(_user.UserId, id));
         return Success(new { });
     }
 

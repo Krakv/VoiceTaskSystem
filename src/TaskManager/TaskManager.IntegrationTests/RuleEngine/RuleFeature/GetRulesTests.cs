@@ -1,36 +1,30 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.IntegrationTests.Factories;
-using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.GetRules;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Domain.Entities.Enum;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.IntegrationTests.RuleEngine.RuleFeature;
 
-public class GetRulesTests : IClassFixture<TestFixture>
+public class GetRulesTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetRulesTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Filter_By_Event()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
-        var user = (FakeCurrentUser)_provider.GetRequiredService<ICurrentUser>();
+        var ownerId1 = await fixture.CreateUserAsync();
+        var ownerId2 = await fixture.CreateUserAsync("test2");
 
         context.RuleItem.AddRange(
             new RuleItem
             {
                 RuleId = Guid.NewGuid(),
-                OwnerId = user.UserId,
+                OwnerId = ownerId1,
                 Event = RuleEvent.TaskCreated,
                 Condition = "{}",
                 Action = "[]"
@@ -38,7 +32,7 @@ public class GetRulesTests : IClassFixture<TestFixture>
             new RuleItem
             {
                 RuleId = Guid.NewGuid(),
-                OwnerId = user.UserId,
+                OwnerId = ownerId2,
                 Event = RuleEvent.TaskDeleted,
                 Condition = "{}",
                 Action = "[]"
@@ -48,9 +42,10 @@ public class GetRulesTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         var result = await mediator.Send(new GetRulesQuery
-        {
-            RuleEvent = "TaskCreated"
-        });
+        (
+            OwnerId: ownerId1,
+            RuleEvent: RuleEvent.TaskCreated
+        ));
 
         Assert.Single(result.Rules);
     }

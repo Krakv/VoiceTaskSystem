@@ -6,14 +6,9 @@ using TaskManager.Repository.Context;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class GetCalendarEventTests : IClassFixture<TestFixture>
+public class GetCalendarEventTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetCalendarEventTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Return_Event()
@@ -21,7 +16,7 @@ public class GetCalendarEventTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var entity = new Shared.Domain.Entities.CalendarEvent
         {
@@ -34,8 +29,8 @@ public class GetCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         var result = await mediator.Send(new GetCalendarEventQuery(
-            ownerId.ToString(),
-            entity.EventId.ToString()
+            ownerId,
+            entity.EventId
         ));
 
         Assert.Equal("test", result.Title);

@@ -8,36 +8,32 @@ using TaskManager.RulesEngine.Application.Features.RuleFeature.GetRule;
 using TaskManager.RulesEngine.Domain.Actions;
 using TaskManager.RulesEngine.Domain.Conditions;
 using TaskManager.Shared.Domain.Entities;
-using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
-using TaskManager.Shared.Interfaces;
 using TaskManager.Shared.Utils;
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.GetRules;
 
-public sealed class GetRulesQueryHandler(AppDbContext dbContext, ILogger<GetRulesQueryHandler> logger, ICurrentUser user) : IRequestHandler<GetRulesQuery, GetRulesResponse>
+public sealed class GetRulesQueryHandler(AppDbContext dbContext, ILogger<GetRulesQueryHandler> logger) : IRequestHandler<GetRulesQuery, GetRulesResponse>
 {
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<GetRulesQueryHandler> _logger = logger;
-    private readonly ICurrentUser _user = user;
 
     public async Task<GetRulesResponse> Handle(GetRulesQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation(
             "Handling GetRulesQuery for UserId: {UserId}, RuleEvent: {RuleEvent}, IsActive: {IsActive}, Limit: {Limit}, Page: {Page}",
-            _user.UserId, request.RuleEvent, request.IsActive, request.Limit, request.Page);
+            request.OwnerId, request.RuleEvent, request.IsActive, request.Limit, request.Page);
 
-        var limit = int.TryParse(request.Limit, out var l) ? l : 20;
-        var page = int.TryParse(request.Page, out var p) ? p : 0;
+        var limit = request.Limit;
+        var page = request.Page;
 
         var query = _dbContext.Set<RuleItem>()
             .AsNoTracking()
-            .Where(r => r.OwnerId == _user.UserId);
+            .Where(r => r.OwnerId == request.OwnerId);
 
-        if (!string.IsNullOrWhiteSpace(request.RuleEvent) &&
-            Enum.TryParse<RuleEvent>(request.RuleEvent, true, out var ruleEvent))
+        if (request.RuleEvent != null)
         {
-            query = query.Where(r => r.Event == ruleEvent);
+            query = query.Where(r => r.Event == request.RuleEvent);
         }
 
         if (request.IsActive.HasValue)
@@ -61,7 +57,7 @@ public sealed class GetRulesQueryHandler(AppDbContext dbContext, ILogger<GetRule
 
         var rules = rulesRaw.Select(rule =>
         {
-            var conditionGroup = JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
+            var conditionGroup = rule.Condition == null ? null : JsonSerializer.Deserialize<ConditionGroup>(rule.Condition, JsonHelper.Default);
             var actions = JsonSerializer.Deserialize<RuleAction[]>(rule.Action, JsonHelper.Default);
 
             if (conditionGroup == null || actions == null)
@@ -70,7 +66,7 @@ public sealed class GetRulesQueryHandler(AppDbContext dbContext, ILogger<GetRule
             return new GetRuleResponse(rule.RuleId, rule.Event, conditionGroup, actions, rule.IsActive);
         }).ToList();
 
-        _logger.LogInformation("Fetched {Count} rules for UserId: {UserId}", rules.Count, _user.UserId);
+        _logger.LogInformation("Fetched {Count} rules for UserId: {UserId}", rules.Count, request.OwnerId);
 
         return new GetRulesResponse(rules);
     }

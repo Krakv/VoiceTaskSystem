@@ -6,14 +6,9 @@ using TaskManager.Repository.Context;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class GetCalendarEventsTests : IClassFixture<TestFixture>
+public class GetCalendarEventsTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetCalendarEventsTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Return_Only_User_Events()
@@ -21,26 +16,27 @@ public class GetCalendarEventsTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId1 = await fixture.CreateUserAsync();
+        var ownerId2 = await fixture.CreateUserAsync("test2");
 
         context.CalendarEvent.AddRange(
             new Shared.Domain.Entities.CalendarEvent
             {
                 EventId = Guid.NewGuid(),
                 Title = "Event 1",
-                OwnerId = ownerId
+                OwnerId = ownerId1
             },
             new Shared.Domain.Entities.CalendarEvent
             {
                 EventId = Guid.NewGuid(),
                 Title = "Event 2",
-                OwnerId = Guid.NewGuid()
+                OwnerId = ownerId2
             }
         );
 
         await context.SaveChangesAsync();
 
-        var result = await mediator.Send(new GetCalendarEventsQuery(ownerId.ToString()));
+        var result = await mediator.Send(new GetCalendarEventsQuery(ownerId1));
 
         Assert.Single(result);
     }

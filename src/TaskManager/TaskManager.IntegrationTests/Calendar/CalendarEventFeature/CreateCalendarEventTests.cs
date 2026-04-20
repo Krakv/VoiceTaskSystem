@@ -1,19 +1,15 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 using TaskManager.IntegrationTests.Factories;
 using TaskManager.Repository.Context;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class CreateCalendarEventTests : IClassFixture<TestFixture>
+public class CreateCalendarEventTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public CreateCalendarEventTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Create_Event_And_Publish_Event()
@@ -21,13 +17,13 @@ public class CreateCalendarEventTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var command = new CreateCalendarEventCommand(
-            ownerId.ToString(),
+            ownerId,
             "title",
-            "2024-01-01T10:00:00Z",
-            "2024-01-01T11:00:00Z",
+            DateTimeOffset.Parse("2024-01-01T10:00:00Z", CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2024-01-01T11:00:00Z", CultureInfo.InvariantCulture),
             "loc",
             null,
             null

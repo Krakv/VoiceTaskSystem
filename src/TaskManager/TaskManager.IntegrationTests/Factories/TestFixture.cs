@@ -1,37 +1,53 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Application.Interfaces;
+using TaskManager.Auth.Application.Services;
+using TaskManager.Auth.Config;
+using TaskManager.Auth.Infrastructure;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Calendar.Infrastructure.Interfaces;
 using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
+using TaskManager.Notifications.Application.Services.Interfaces;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Interfaces;
+using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
+using TaskManager.TaskManagement.Application.Services;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
+using Testcontainers.PostgreSql;
 
 namespace TaskManager.IntegrationTests.Factories;
 
-public class TestFixture
+public class TestFixture : IAsyncLifetime
 {
-    public IServiceProvider ServiceProvider { get; }
+    private readonly PostgreSqlContainer _db = new PostgreSqlBuilder("postgres:17").Build();
+    public IServiceProvider ServiceProvider { get; private set; } = null!;
 
-    public TestFixture()
+    public async Task InitializeAsync()
     {
+        await _db.StartAsync();
+
         var services = new ServiceCollection();
 
         services.AddDbContext<AppDbContext>(opt =>
-            opt.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+            opt.UseNpgsql(_db.GetConnectionString()));
 
         services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssemblies(
-                    typeof(CreateTaskCommand).Assembly, 
-                    typeof(CreateRuleCommand).Assembly,
-                    typeof(CreateNotificationCommand).Assembly,
-                    typeof(CreateCalendarEventCommand).Assembly
-                    );
-            });
+        {
+            cfg.RegisterServicesFromAssemblies(
+                typeof(CreateTaskCommand).Assembly,
+                typeof(CreateRuleCommand).Assembly,
+                typeof(CreateNotificationCommand).Assembly,
+                typeof(CreateCalendarEventCommand).Assembly,
+                typeof(RegisterUserCommand).Assembly
+                );
+        });
 
         var descriptors = services
             .Where(d => d.ServiceType.IsGenericType &&
@@ -49,6 +65,70 @@ public class TestFixture
 
         services.AddScoped<ICurrentUser>(_ => new FakeCurrentUser());
 
-        ServiceProvider = services.BuildServiceProvider();
+        services.AddIdentity<User, IdentityRole<Guid>>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            options.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+
+        services.AddSingleton<IEmailService, FakeEmailService>();
+        services.Configure<FrontendOptions>(opt =>
+        {
+            opt.Url = "http://localhost:3000";
+        });
+        services.Configure<JwtSettings>(opt =>
+        {
+            opt.Secret = "THIS_IS_TEST_SECRET_KEY_123456789";
+            opt.Issuer = "test-issuer";
+            opt.Audience = "test-audience";
+            opt.ExpiryMinutes = 60;
+        });
+
+        services.AddSingleton<ICalDavClient, FakeCalDavClient>();
+        services.AddSingleton<IStateService, OAuthStateService>();
+
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+        services.AddHttpClient<YandexOAuthClient>().ConfigurePrimaryHttpMessageHandler<FakeYandexOAuthHandler>();
+        services.AddSingleton<FakeYandexOAuthHandler>();
+
+        services.Configure<YandexOAuthConfig>(opt =>
+        {
+            opt.ClientId = "test_client_id";
+            opt.ClientSecret = "test_secret";
+            opt.TokenUrl = "https://oauth.yandex.ru/token";
+            opt.AuthorizeUri = "https://oauth.yandex.ru/authorize";
+            opt.RedirectUri = "http://localhost/callback";
+        });
+
+        var provider = services.BuildServiceProvider();
+
+        using var scope = provider.CreateScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await ctx.Database.MigrateAsync();
+
+        ServiceProvider = provider;
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _db.DisposeAsync();
+    }
+
+    public async Task<Guid> CreateUserAsync(string name = "test")
+    {
+        using var scope = ServiceProvider.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+        var user = new User { Id = Guid.NewGuid(), UserName = $"{name}_{Guid.NewGuid()}@test.com", Email = $"{Guid.NewGuid()}@mail.com" };
+        await userManager.CreateAsync(user, "Password123!");
+
+        return user.Id;
     }
 }

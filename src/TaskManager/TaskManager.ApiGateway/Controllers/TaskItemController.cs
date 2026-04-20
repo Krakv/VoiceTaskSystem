@@ -1,116 +1,146 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using TaskManager.ApiGateway.DTOs.Task;
+using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
+using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
-using TaskManager.TaskManagement.Application.Features.TaskFeature.DTOs;
-using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetProjects;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTask;
+using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.UpdateTaskPatch;
-using TaskManager.TaskManagement.Application.Features.TaskFeature.GetProjects;
 
 namespace TaskManager.ApiGateway.Controllers;
 
 [ApiController]
 [Authorize]
 [Route("api/v1/tasks")]
-public class TaskItemController(IMediator mediator) : ControllerBase
+public class TaskItemController(IMediator mediator, ICurrentUser user) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
+    private readonly ICurrentUser _user = user;
 
     [HttpPost]
-    public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
+    public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
     {
+        var command = new CreateTaskCommand(
+            _user.UserId,
+            dto.ProjectName,
+            dto.Title,
+            dto.Description,
+            dto.Status,
+            dto.Priority,
+            DateTimeOffset.TryParse(dto.DueDate, CultureInfo.InvariantCulture, out var dueDate) ? dueDate : null,
+            string.IsNullOrWhiteSpace(dto.ParentTaskId) ? null : Guid.Parse(dto.ParentTaskId)
+        );
+
         var response = await _mediator.Send(command);
 
-        return CreatedResponse($"api/tasks/{response}", response);
+        return CreatedResponse($"api/v1/tasks/{response}", response.ToString());
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTasks(
-            string? query,
-            string? status,
-            string? priority,
-            string? sortBy,
-            string? sortOrder,
-            string? limit = "20",
-            string? page = "0"
-        )
+    public async Task<IActionResult> GetTasks([FromQuery] GetTasksDto dto)
     {
-        var request = new GetTasksQuery(
-            query,
+        Enum.TryParse(dto.Status, true, out TaskItemStatus status);
+        Enum.TryParse(dto.Priority, true, out TaskItemPriority priority);
+
+        _ = int.TryParse(dto.Limit, out var limit);
+        _ = int.TryParse(dto.Page, out var page);
+
+        var query = new GetTasksQuery(
+            _user.UserId,
+            dto.Query,
             status,
             priority,
-            sortBy,
-            sortOrder,
+            dto.SortBy,
+            dto.SortOrder,
             limit,
             page
         );
 
-        var response = await _mediator.Send(request);
+        var response = await _mediator.Send(query);
 
         return Success(response);
     }
 
-    [HttpGet("{taskId}")]
-    public async Task<IActionResult> GetTask(string taskId)
+    [HttpGet("{taskId:guid}")]
+    public async Task<IActionResult> GetTask(Guid taskId)
     {
-        var response = await _mediator.Send(new GetTaskQuery(taskId));
+        var response = await _mediator.Send(new GetTaskQuery(_user.UserId, taskId));
 
         return Success(response);
     }
 
-    [HttpPut("{taskId}")]
-    public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskDto dto, string taskId)
+    [HttpPut("{taskId:guid}")]
+    public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] UpdateTaskDto dto)
     {
-        var response = await _mediator.Send(new UpdateTaskCommand(
+        var command = new UpdateTaskCommand(
+            _user.UserId,
             taskId,
             dto.ProjectName,
             dto.Title,
             dto.Description,
             dto.Status,
             dto.Priority,
-            dto.DueDate,
-            dto.ParentTaskId
-            ));
+            DateTimeOffset.TryParse(dto.DueDate, CultureInfo.InvariantCulture, out var dueDate) ? dueDate : null,
+            string.IsNullOrWhiteSpace(dto.ParentTaskId) ? null : Guid.Parse(dto.ParentTaskId)
+        );
 
-        return Success(response);
+        var response = await _mediator.Send(command);
+
+        return Success(response.ToString());
     }
 
-    [HttpPatch("{taskId}")]
-    public async Task<IActionResult> UpdateTaskPatch([FromBody] UpdateTaskPatchDto dto, string taskId)
+    [HttpPatch("{taskId:guid}")]
+    public async Task<IActionResult> UpdateTaskPatch(Guid taskId, [FromBody] UpdateTaskPatchDto dto)
     {
         if (dto is null)
-            return BadRequest("Request body cannot be null.");
+            return BadRequest("Body cannot be null");
 
-        var response = await _mediator.Send(new UpdateTaskPatchCommand(
+        var command = new UpdateTaskPatchCommand(
+            _user.UserId,
             taskId,
             dto.ProjectName,
             dto.Title,
             dto.Description,
-            dto.Status,
-            dto.Priority,
+            Enum.TryParse(dto.Status, true, out TaskItemStatus status) ? status : null,
+            Enum.TryParse(dto.Priority, true, out TaskItemPriority priority) ? priority : null,
             dto.DueDate,
             dto.ParentTaskId
-            ));
+        );
 
-        return Success(response);
+        var response = await _mediator.Send(command);
+
+        return Success(response.ToString());
     }
 
-    [HttpDelete("{taskId}")]
-    public async Task<IActionResult> DeleteTask(string taskId)
+    [HttpDelete("{taskId:guid}")]
+    public async Task<IActionResult> DeleteTask(Guid taskId)
     {
-        var response = await _mediator.Send(new DeleteTaskCommand(taskId));
+        var response = await _mediator.Send(new DeleteTaskCommand(_user.UserId, taskId));
 
-        return Success(response);
+        return Success(response.ToString());
     }
 
     [HttpGet("projects")]
-    public async Task<IActionResult> GetProjectNames([FromQuery] string projectName, [FromQuery] int page = 0, [FromQuery] int pageSize = 5)
+    public async Task<IActionResult> GetProjectNames([FromQuery] GetProjectsDto dto)
     {
-        var response = await _mediator.Send(new GetProjectsCommand(projectName, page, pageSize));
+        _ = int.TryParse(dto.Page, out int page);
+        _ = int.TryParse(dto.Limit, out int limit);
+
+        var query = new GetProjectsCommand(
+            _user.UserId,
+            dto.Project,
+            page,
+            limit
+        );
+
+        var response = await _mediator.Send(query);
 
         return Success(response);
     }
@@ -120,5 +150,4 @@ public class TaskItemController(IMediator mediator) : ControllerBase
 
     private CreatedResult CreatedResponse<T>(string location, T data) where T : class =>
         Created(location, new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
-
 }

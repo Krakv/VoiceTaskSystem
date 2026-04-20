@@ -4,15 +4,13 @@ using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Interfaces;
 using TaskManager.Shared.Domain.Entities;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 
-public sealed class CreateRuleCommandHandler(AppDbContext dbContext, ILogger<CreateRuleCommandHandler> logger, ICurrentUser user, IRuleValidator validator) : IRequestHandler<CreateRuleCommand, CreateRuleResponse>
+public sealed class CreateRuleCommandHandler(AppDbContext dbContext, ILogger<CreateRuleCommandHandler> logger, IRuleValidator validator) : IRequestHandler<CreateRuleCommand, CreateRuleResponse>
 {
     private readonly AppDbContext _dbContext = dbContext;
     private readonly ILogger<CreateRuleCommandHandler> _logger = logger;
-    private readonly ICurrentUser _user = user;
     private readonly IRuleValidator _validator = validator;
 
     public async Task<CreateRuleResponse> Handle(CreateRuleCommand request, CancellationToken cancellationToken)
@@ -24,7 +22,7 @@ public sealed class CreateRuleCommandHandler(AppDbContext dbContext, ILogger<Cre
         var newRule = new RuleItem
         {
             RuleId = Guid.NewGuid(),
-            OwnerId = _user.UserId,
+            OwnerId = request.OwnerId,
             Event = request.RuleEvent,
             Condition = JsonSerializer.Serialize(request.Conditions),
             Action = JsonSerializer.Serialize(request.Actions),

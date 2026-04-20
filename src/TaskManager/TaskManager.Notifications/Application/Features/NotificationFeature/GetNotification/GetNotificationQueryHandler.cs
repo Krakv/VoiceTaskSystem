@@ -1,18 +1,19 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Repository.Context;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.GetNotification;
 
-public sealed class GetNotificationHandler(AppDbContext context) : IRequestHandler<GetNotificationQuery, GetNotificationResponse?>
+public sealed class GetNotificationHandler(AppDbContext context) : IRequestHandler<GetNotificationQuery, GetNotificationResponse>
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<GetNotificationResponse?> Handle(GetNotificationQuery request, CancellationToken cancellationToken)
+    public async Task<GetNotificationResponse> Handle(GetNotificationQuery request, CancellationToken cancellationToken)
     {
-        return await _context.NotificationItem
+        var notification = await _context.NotificationItem
             .AsNoTracking()
-            .Where(x => x.NotificationId == Guid.Parse(request.NotificationId))
+            .Where(x => x.NotificationId == request.NotificationId && x.OwnerId == request.OwnerId)
             .Select(x => new GetNotificationResponse
             {
                 NotificationId = x.NotificationId,
@@ -24,5 +25,7 @@ public sealed class GetNotificationHandler(AppDbContext context) : IRequestHandl
                 Status = x.Status
             })
             .FirstOrDefaultAsync(cancellationToken);
+
+        return notification ?? throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
     }
 }

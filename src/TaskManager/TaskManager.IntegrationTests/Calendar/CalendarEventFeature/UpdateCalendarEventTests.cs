@@ -1,19 +1,15 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 using TaskManager.Calendar.Application.Features.CalendarEvent.UpdateCalendarEvent;
 using TaskManager.IntegrationTests.Factories;
 using TaskManager.Repository.Context;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class UpdateCalendarEventTests : IClassFixture<TestFixture>
+public class UpdateCalendarEventTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public UpdateCalendarEventTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Update_Event_And_Publish_Event()
@@ -21,7 +17,7 @@ public class UpdateCalendarEventTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var entity = new Shared.Domain.Entities.CalendarEvent
         {
@@ -34,11 +30,11 @@ public class UpdateCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         await mediator.Send(new UpdateCalendarEventCommand(
-            ownerId.ToString(),
-            entity.EventId.ToString(),
+            ownerId,
+            entity.EventId,
             "new",
-            "2024-01-01T10:00:00Z",
-            "2024-01-01T11:00:00Z",
+            DateTimeOffset.Parse("2024-01-01T10:00:00Z", CultureInfo.InvariantCulture),
+            DateTimeOffset.Parse("2024-01-01T11:00:00Z", CultureInfo.InvariantCulture),
             "loc",
             null,
             null
@@ -46,6 +42,7 @@ public class UpdateCalendarEventTests : IClassFixture<TestFixture>
 
         var updated = await context.CalendarEvent.FindAsync(entity.EventId);
 
+        Assert.NotNull(updated);
         Assert.Equal("new", updated.Title);
     }
 }

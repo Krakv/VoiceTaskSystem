@@ -12,16 +12,13 @@ public class DeleteNotificationCommandHandler(AppDbContext context) : IRequestHa
 
     public async Task Handle(DeleteNotificationCommand request, CancellationToken cancellationToken)
     {
-        var id = Guid.Parse(request.NotificationId);
-
         var entity = await _context.NotificationItem
-            .FirstOrDefaultAsync(x => x.NotificationId == id, cancellationToken);
-
-        if (entity == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
-        }
-
+            .FirstOrDefaultAsync(
+                x => x.NotificationId == request.NotificationId
+                  && x.OwnerId == request.OwnerId,
+                cancellationToken
+            ) 
+            ?? throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
         _context.NotificationItem.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken);
 

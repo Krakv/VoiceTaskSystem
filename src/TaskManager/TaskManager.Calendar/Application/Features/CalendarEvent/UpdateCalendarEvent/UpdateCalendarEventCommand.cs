@@ -3,12 +3,12 @@
 namespace TaskManager.Calendar.Application.Features.CalendarEvent.UpdateCalendarEvent;
 
 public sealed record UpdateCalendarEventCommand(
-    string OwnerId,
-    string CalendarEventId,
+    Guid OwnerId,
+    Guid CalendarEventId,
     string Title,
-    string StartTime,
-    string EndTime,
+    DateTimeOffset StartTime,
+    DateTimeOffset EndTime,
     string? Location,
-    string? TaskId,
-    string? ExternalAccountId
+    Guid? TaskId,
+    Guid? ExternalAccountId
 ) : IRequest;

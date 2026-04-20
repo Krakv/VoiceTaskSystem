@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 using TaskManager.Repository.Context;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.Notifications.Application.Features.NotificationFeature.UpdateNotification;
 
@@ -11,15 +11,13 @@ public class UpdateNotificationCommandHandler(AppDbContext context) : IRequestHa
 
     public async Task Handle(UpdateNotificationCommand request, CancellationToken cancellationToken)
     {
-        var notificationId = Guid.Parse(request.NotificationId);
-
         var entity = await _context.NotificationItem
-            .FirstOrDefaultAsync(x => x.NotificationId == notificationId, cancellationToken);
-
-        if (entity == null) return;
+            .FirstOrDefaultAsync(x => x.NotificationId == request.NotificationId
+            && x.OwnerId == request.OwnerId, cancellationToken) 
+            ?? throw new ValidationAppException("NOT_FOUND", "Уведомление не найдено");
 
         entity.Description = request.Description;
-        entity.ScheduledAt = DateTimeOffset.Parse(request.ScheduledAt, CultureInfo.InvariantCulture);
+        entity.ScheduledAt = request.ScheduledAt;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

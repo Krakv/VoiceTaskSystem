@@ -80,11 +80,11 @@ public class RuleActionExecutor(IMediator mediator, ILogger<RuleActionExecutor> 
         var scheduledAt = dueDate.AddMinutes(-notif.OffsetMinutes);
 
         await mediator.Send(new CreateNotificationCommand(
-            task.OwnerId.ToString(),
+            task.OwnerId,
             notif.ServiceId,
             notif.Description,
-            scheduledAt.ToString("O"),
-            task.TaskId.ToString()
+            scheduledAt,
+            task.TaskId
         ));
 
         logger.LogDebug(
@@ -109,13 +109,15 @@ public class RuleActionExecutor(IMediator mediator, ILogger<RuleActionExecutor> 
         var endTime = startTime.AddMinutes(calendar.DurationMinutes);
 
         await mediator.Send(new CreateCalendarEventCommand(
-            task.OwnerId.ToString(),
+            task.OwnerId,
             calendar.Title ?? "Новое событие",
-            startTime.ToString("O"),
-            endTime.ToString("O"),
+            startTime,
+            endTime,
             calendar.Location,
-            task.TaskId.ToString(),
-            calendar.ExternalAccountId
+            task.TaskId,
+            string.IsNullOrWhiteSpace(calendar.ExternalAccountId) 
+                ? null
+                : Guid.Parse(calendar.ExternalAccountId)
         ));
 
         logger.LogDebug(

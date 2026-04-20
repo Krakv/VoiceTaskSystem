@@ -1,0 +1,29 @@
+services:
+  speech-processing-service:
+    build:
+      context: ../src/SpeechProcessingService
+      dockerfile: SpeechProcessingService.API/Dockerfile
+    ports:
+      - "3001:8080"
+      - "3002:8081"
+    volumes:
+      - ./Models:/app/Models
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - GigaChatCredentials__AuthToken=${GIGACHAT_AUTH_TOKEN}
+      - Duckling__BaseUrl=http://duckling:8000
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 50
+
+  duckling:
+    image: rasa/duckling
+    networks:
+      - backend-network
+
+networks:
+  backend-network:

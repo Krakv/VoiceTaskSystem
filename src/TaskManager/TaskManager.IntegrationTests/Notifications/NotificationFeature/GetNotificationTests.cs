@@ -6,34 +6,29 @@ using TaskManager.Notifications.Application.Features.NotificationFeature.GetNoti
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Interfaces;
 
-namespace TaskManager.IntegrationTests.NotificationFeature;
+namespace TaskManager.IntegrationTests.Notifications.NotificationFeature;
 
-public class GetNotificationTests : IClassFixture<TestFixture>
+public class GetNotificationTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public GetNotificationTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Get_Notification_By_Id()
     {
         var mediator = _provider.GetRequiredService<IMediator>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
         var serviceId = NotificationServiceType.Email;
 
         var notificationId = await mediator.Send(new CreateNotificationCommand(
             TaskId: null,
-            OwnerId: ownerId.ToString(),
+            OwnerId: ownerId,
             ServiceId: serviceId,
             Description: "Get me",
-            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1).ToString("O")
+            ScheduledAt: DateTimeOffset.UtcNow.AddHours(1)
         ));
 
-        var response = await mediator.Send(new GetNotificationQuery(ownerId.ToString(), notificationId.ToString()));
+        var response = await mediator.Send(new GetNotificationQuery(ownerId, notificationId));
 
         Assert.NotNull(response);
         Assert.Equal(notificationId, response.NotificationId);
@@ -47,8 +42,7 @@ public class GetNotificationTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var user = _provider.GetRequiredService<ICurrentUser>();
 
-        var response = await mediator.Send(new GetNotificationQuery(user.UserId.ToString(), Guid.NewGuid().ToString()));
-
-        Assert.Null(response);
+        var exception = await Record.ExceptionAsync(() => mediator.Send(new GetNotificationQuery(user.UserId, Guid.NewGuid())));
+        Assert.NotNull(exception);
     }
 }

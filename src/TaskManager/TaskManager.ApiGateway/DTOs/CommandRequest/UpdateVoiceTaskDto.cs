@@ -1,4 +1,4 @@
-﻿namespace TaskManager.ApiGateway.DTOs;
+﻿namespace TaskManager.ApiGateway.DTOs.CommandRequest;
 
 public sealed record UpdateVoiceTaskDto(
     string? TaskId,

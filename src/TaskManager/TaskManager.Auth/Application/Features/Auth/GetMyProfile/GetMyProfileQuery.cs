@@ -2,4 +2,4 @@
 
 namespace TaskManager.Auth.Application.Features.Auth.GetMyProfile;
 
-public record GetMyProfileQuery() : IRequest<GetMyProfileResponse>;
+public record GetMyProfileQuery(Guid OwnerId) : IRequest<GetMyProfileResponse>;

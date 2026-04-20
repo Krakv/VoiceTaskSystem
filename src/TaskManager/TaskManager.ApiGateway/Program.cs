@@ -4,7 +4,6 @@ using Hangfire.PostgreSql;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -39,6 +38,7 @@ using TaskManager.RulesEngine.Application.Services;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Interfaces;
 using TaskManager.Shared.Pipeline;
+using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.CreateVoiceTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 using TaskManager.TaskManagement.Application.Services;
 using TaskManager.TaskManagement.Application.Services.Interfaces;
@@ -80,7 +80,16 @@ builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssemblies(
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TaskAccessBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(NotificationAccessBehavior<,>));
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddValidatorsFromAssemblies(
+    [
+        typeof(Program).Assembly, 
+        typeof(CreateTaskCommandValidator).Assembly,
+        typeof(CreateNotificationCommandValidator).Assembly,
+        typeof(CreateCalendarEventCommandValidator).Assembly,
+        typeof(CreateVoiceTaskValidator).Assembly,
+        typeof(CreateRuleCommandValidator).Assembly
+    ]
+    );
 
 #endregion MediatR
 
@@ -142,11 +151,14 @@ builder.Services.AddScoped<ICalendarSyncService, YandexCalendarSyncService>();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ContentTypeValidationFilter>();
+    options.Filters.Add<AutoValidationFilter>();
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-});
+}); 
+builder.Services.AddScoped<AutoValidationFilter>();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 {
@@ -155,6 +167,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
@@ -197,11 +210,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 #endregion Auth
-
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    options.SuppressModelStateInvalidFilter = true;
-});
 
 # region Logging
 

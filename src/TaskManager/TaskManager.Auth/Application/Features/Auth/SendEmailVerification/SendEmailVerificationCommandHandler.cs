@@ -1,29 +1,27 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TaskManager.Shared.Domain.Entities;
-using TaskManager.Shared.Interfaces;
-using TaskManager.Notifications.Application.Services.Interfaces;
-using TaskManager.Shared.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TaskManager.Auth.Config;
+using TaskManager.Notifications.Application.Services.Interfaces;
+using TaskManager.Shared.Domain.Entities;
+using TaskManager.Shared.Exceptions;
 
 namespace TaskManager.Auth.Application.Features.Auth.SendEmailVerification;
 
 public sealed class SendEmailVerificationCommandHandler(
     UserManager<User> userManager,
     IEmailService emailService,
-    IOptions<FrontendOptions> options, 
-    ICurrentUser currentUser
+    IOptions<FrontendOptions> options
 ) : IRequestHandler<SendEmailVerificationCommand>
 {
     public async Task Handle(SendEmailVerificationCommand request, CancellationToken cancellationToken)
     {
-        var userId = currentUser.UserId;
+        var userId = request.OwnerId;
 
-        var user = await userManager.FindByIdAsync(userId.ToString());
-
-        if (user is null)
-            throw new ValidationAppException("NOT_FOUND", "Пользователь не найден");
+        var user = await userManager.Users
+            .FirstOrDefaultAsync(x => x.Id == request.OwnerId, cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Пользователь не найден");
 
         if (user.IsDeleted)
             throw new ValidationAppException("CONFLICT", "Пользователь удален");

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.Json;
@@ -6,6 +7,7 @@ using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
@@ -14,6 +16,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<UpdateVoiceTaskHandler> _logger;
+    private const string InternalServerErrorCode = "INTERNAL_SERVER_ERROR";
 
     public UpdateVoiceTaskHandler(AppDbContext dbContext, ILogger<UpdateVoiceTaskHandler> logger)
     {
@@ -23,12 +26,11 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
     public async Task<UpdateVoiceTaskResponse> Handle(UpdateVoiceTaskCommand request, CancellationToken cancellationToken)
     {
-        var command = await _dbContext.CommandRequestItem.FindAsync(Guid.Parse(request.CommandRequestId));
-
-        if (command == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
-        }
+        var command = await _dbContext.CommandRequestItem
+            .Where(r => r.CommandRequestId == request.CommandRequestId &&
+                        r.OwnerId == request.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
 
         if (command.Status == CommandRequestStatus.Cancelled)
         {
@@ -47,7 +49,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
         if (command.Status == CommandRequestStatus.Failed || command.Intent == null || command.Payload == null)
         {
-            throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось обработать команду");
+            throw new ValidationAppException(InternalServerErrorCode, "Не удалось обработать команду");
         }
 
         if (command.Payload == null)
@@ -56,15 +58,15 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         _logger.LogInformation("Updating CommandRequest payload: {CommandRequestId}", request.CommandRequestId);
 
         Dictionary<string, string> updatedFields = request.TaskId != null
-            ? new Dictionary<string, string> { [nameof(request.TaskId)] = request.TaskId! }
+            ? new Dictionary<string, string> { [nameof(request.TaskId)] = request.TaskId!.ToString()! }
             : new Dictionary<string, string>();
 
         switch (command.Intent)
         {
             case CommandIntent.TaskCreate:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                    var payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload, JsonHelper.Default)
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = UpdateTaskCreatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
@@ -72,8 +74,8 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
             case CommandIntent.TaskUpdate:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                    var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload, JsonHelper.Default)
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskUpdatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
@@ -81,8 +83,8 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
             case CommandIntent.TaskDelete:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload)
-                                  ?? throw new ValidationAppException("INTERNAL_SERVER_ERROR", "Не удалось десериализовать payload");
+                    var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload, JsonHelper.Default)
+                                  ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskDeletePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
                     break;
@@ -111,13 +113,13 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
             }
         }
 
-        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId.ToString(), request.ParentTaskId);
+        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId?.ToString(), request.ParentTaskId);
         CheckUpdate(nameof(payload.ProjectName), payload.ProjectName, request.ProjectName);
         CheckUpdate(nameof(payload.Title), payload.Title, request.Title);
         CheckUpdate(nameof(payload.Description), payload.Description, request.Description);
         CheckUpdate(nameof(payload.Status), payload.Status, request.Status);
         CheckUpdate(nameof(payload.Priority), payload.Priority, request.Priority);
-        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("o"), request.DueDate);
+        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("O"), request.DueDate);
 
         Guid? parentTaskId;
 
@@ -158,9 +160,9 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         }
 
         var newTasks = payload.Tasks;
-        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        if (request.TaskId.HasValue)
         {
-            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            var taskTemp = await _dbContext.TaskItems.FindAsync(request.TaskId.Value);
             newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
         }
 
@@ -169,12 +171,12 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         if (!newTasks.SequenceEqual(payload.Tasks))
             updatedFields[nameof(payload.Tasks)] = string.Join(",", newTasks.Select(t => t.TaskId).ToList());
 
-        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId.ToString(), request.ParentTaskId);
+        CheckUpdate(nameof(payload.ParentTaskId), payload.ParentTaskId?.ToString(), request.ParentTaskId);
         CheckUpdate(nameof(payload.ProjectName), payload.ProjectName, request.ProjectName);
         CheckUpdate(nameof(payload.Description), payload.Description, request.Description);
         CheckUpdate(nameof(payload.Status), payload.Status, request.Status);
         CheckUpdate(nameof(payload.Priority), payload.Priority, request.Priority);
-        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("o"), request.DueDate);
+        CheckUpdate(nameof(payload.DueDate), payload.DueDate?.ToString("O"), request.DueDate);
 
         Guid? parentTaskId;
 
@@ -209,9 +211,9 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         TaskDeleteData payload, UpdateVoiceTaskCommand request, Dictionary<string, string> updatedFields)
     {
         var newTasks = payload.Tasks;
-        if (!string.IsNullOrWhiteSpace(request.TaskId))
+        if (request.TaskId.HasValue)
         {
-            var taskTemp = await _dbContext.TaskItems.FindAsync(Guid.Parse(request.TaskId));
+            var taskTemp = await _dbContext.TaskItems.FindAsync(request.TaskId.Value);
             newTasks = taskTemp == null ? null : new List<TaskShortInfoDto> { new TaskShortInfoDto(taskTemp.TaskId, taskTemp.Title, taskTemp.Status, taskTemp.Priority, taskTemp.DueDate) };
         }
 

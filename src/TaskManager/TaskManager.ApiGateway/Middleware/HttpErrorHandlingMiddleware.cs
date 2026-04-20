@@ -85,6 +85,7 @@ public class HttpErrorHandlingMiddleware(RequestDelegate next, ILogger<HttpError
                 {
                     Code = ex.ErrorCode,
                     Message = ex.Message,
+                    Fields = ex.Errors
                 },
                 meta: new Meta { RequestId = context.TraceIdentifier }
             );

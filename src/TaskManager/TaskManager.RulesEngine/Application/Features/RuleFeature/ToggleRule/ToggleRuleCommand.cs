@@ -2,4 +2,4 @@
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.ToggleRule;
 
-public sealed record ToggleRuleCommand(string RuleId) : IRequest;
+public sealed record ToggleRuleCommand(Guid OwnerId, Guid RuleId) : IRequest;

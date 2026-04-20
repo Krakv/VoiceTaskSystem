@@ -1,9 +1,11 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
@@ -29,13 +31,13 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
 
     public async Task<ConfirmVoiceTaskResponse> Handle(ConfirmVoiceTaskCommand request, CancellationToken cancellationToken)
     {
-        var command = await _dbContext.CommandRequestItem.FindAsync(Guid.Parse(request.CommandRequestId));
         _logger.LogError("Started to confirm: {CommandRequestId}", request.CommandRequestId);
 
-        if (command == null)
-        {
-            throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
-        }
+        var command = await _dbContext.CommandRequestItem
+            .Where(r => r.CommandRequestId == request.CommandRequestId &&
+                        r.OwnerId == request.OwnerId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new ValidationAppException("NOT_FOUND", "Запрос с указанным ID не найден");
 
         if (command.Status == CommandRequestStatus.Cancelled)
         {
@@ -61,9 +63,9 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
         {
             IVoiceTaskPayload? payload = command.Intent switch
             {
-                CommandIntent.TaskCreate => JsonSerializer.Deserialize<TaskCreateData>(command.Payload ?? ""),
-                CommandIntent.TaskUpdate => JsonSerializer.Deserialize<TaskUpdateData>(command.Payload ?? ""),
-                CommandIntent.TaskDelete => JsonSerializer.Deserialize<TaskDeleteData>(command.Payload ?? ""),
+                CommandIntent.TaskCreate => JsonSerializer.Deserialize<TaskCreateData>(command.Payload ?? "", JsonHelper.Default),
+                CommandIntent.TaskUpdate => JsonSerializer.Deserialize<TaskUpdateData>(command.Payload ?? "", JsonHelper.Default),
+                CommandIntent.TaskDelete => JsonSerializer.Deserialize<TaskDeleteData>(command.Payload ?? "", JsonHelper.Default),
                 _ => null
             };
 
@@ -78,23 +80,27 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                     {
                         var createData = (payload as TaskCreateData)!;
                         var resp = await _mediator.Send(new CreateTaskCommand(
-                            createData.ProjectName ?? "",
+                            command.OwnerId,
+                            createData.ProjectName,
                             createData.Title,
-                            createData.Description ?? "",
+                            createData.Description,
                             createData.Status,
                             createData.Priority,
-                            createData.DueDate?.ToString() ?? "",
-                            createData.ParentTaskId?.ToString() ?? ""
+                            createData.DueDate,
+                            createData.ParentTaskId
                         ), cancellationToken);
-                        changedTaskId = resp;
+                        changedTaskId = resp.ToString();
                         break;
                     }
 
                 case CommandIntent.TaskUpdate:
                     {
                         var updateData = (payload as TaskUpdateData)!;
+                        Guid taskId = (Guid)updateData.Tasks.FirstOrDefault()?.TaskId!;
+
                         var resp = await _mediator.Send(new UpdateTaskPatchCommand(
-                                updateData.Tasks.FirstOrDefault()?.TaskId.ToString(),
+                                command.OwnerId,
+                                taskId,
                                 updateData.ProjectName,
                                 null,
                                 updateData.Description,
@@ -103,7 +109,7 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                                 updateData.DueDate?.ToString(),
                                 updateData.ParentTaskId?.ToString()
                             ), cancellationToken);
-                        changedTaskId = resp;
+                        changedTaskId = resp.ToString();
                         break;
                     }
                     
@@ -111,8 +117,8 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
                 case CommandIntent.TaskDelete:
                     {
                         var deleteData = (payload as TaskDeleteData)!;
-                        var resp = await _mediator.Send(new DeleteTaskCommand(deleteData.Tasks.FirstOrDefault()?.TaskId.ToString()), cancellationToken);
-                        changedTaskId = resp;
+                        var resp = await _mediator.Send(new DeleteTaskCommand(command.OwnerId, (Guid)deleteData.Tasks.FirstOrDefault()?.TaskId!), cancellationToken);
+                        changedTaskId = resp.ToString();
                         break;
                     }
             }

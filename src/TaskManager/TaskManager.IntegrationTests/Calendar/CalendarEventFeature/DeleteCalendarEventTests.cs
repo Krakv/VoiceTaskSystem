@@ -7,14 +7,9 @@ using TaskManager.Shared.Domain.Entities;
 
 namespace TaskManager.IntegrationTests.Calendar.CalendarEventFeature;
 
-public class DeleteCalendarEventTests : IClassFixture<TestFixture>
+public class DeleteCalendarEventTests(TestFixture fixture) : IClassFixture<TestFixture>
 {
-    private readonly IServiceProvider _provider;
-
-    public DeleteCalendarEventTests(TestFixture fixture)
-    {
-        _provider = fixture.ServiceProvider;
-    }
+    private readonly IServiceProvider _provider = fixture.ServiceProvider;
 
     [Fact]
     public async Task Should_Delete_Event_And_Publish_Event()
@@ -22,7 +17,7 @@ public class DeleteCalendarEventTests : IClassFixture<TestFixture>
         var mediator = _provider.GetRequiredService<IMediator>();
         var context = _provider.GetRequiredService<AppDbContext>();
 
-        var ownerId = Guid.NewGuid();
+        var ownerId = await fixture.CreateUserAsync();
 
         var entity = new CalendarEvent
         {
@@ -37,8 +32,8 @@ public class DeleteCalendarEventTests : IClassFixture<TestFixture>
         await context.SaveChangesAsync();
 
         await mediator.Send(new DeleteCalendarEventCommand(
-            ownerId.ToString(),
-            entity.EventId.ToString()
+            ownerId,
+            entity.EventId
         ));
 
         var deleted = await context.CalendarEvent.FindAsync(entity.EventId);

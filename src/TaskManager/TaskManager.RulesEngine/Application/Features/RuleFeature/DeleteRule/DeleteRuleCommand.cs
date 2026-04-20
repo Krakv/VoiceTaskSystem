@@ -2,4 +2,4 @@
 
 namespace TaskManager.RulesEngine.Application.Features.RuleFeature.DeleteRule;
 
-public sealed record DeleteRuleCommand(string RuleId) : IRequest;
+public sealed record DeleteRuleCommand(Guid OwnerId, Guid RuleId) : IRequest;
