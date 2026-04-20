@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Application.Interfaces;
+using TaskManager.Auth.Application.Services;
 using TaskManager.Auth.Config;
+using TaskManager.Auth.Infrastructure;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
+using TaskManager.Calendar.Infrastructure.Interfaces;
 using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
 using TaskManager.Notifications.Application.Services.Interfaces;
@@ -82,6 +86,21 @@ public class TestFixture : IAsyncLifetime
             opt.Issuer = "test-issuer";
             opt.Audience = "test-audience";
             opt.ExpiryMinutes = 60;
+        });
+
+        services.AddSingleton<ICalDavClient, FakeCalDavClient>();
+        services.AddSingleton<IStateService, OAuthStateService>();
+
+        services.AddHttpClient<YandexOAuthClient>().ConfigurePrimaryHttpMessageHandler<FakeYandexOAuthHandler>();
+        services.AddSingleton<FakeYandexOAuthHandler>();
+
+        services.Configure<YandexOAuthConfig>(opt =>
+        {
+            opt.ClientId = "test_client_id";
+            opt.ClientSecret = "test_secret";
+            opt.TokenUrl = "https://oauth.yandex.ru/token";
+            opt.AuthorizeUri = "https://oauth.yandex.ru/authorize";
+            opt.RedirectUri = "http://localhost/callback";
         });
 
         var provider = services.BuildServiceProvider();
