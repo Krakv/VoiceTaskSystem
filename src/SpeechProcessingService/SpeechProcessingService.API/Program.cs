@@ -38,6 +38,7 @@ builder.Services.AddSingleton<IEntityExtractionService, EntityExtractionService>
 builder.Services.AddSingleton<IEntityNormalizer, EntityNormalizer>();
 builder.Services.AddSingleton<ISpeechProcessingService, SpeechProcessingService.Application.Services.SpeechProcessingService>();
 builder.Services.AddSingleton<IGenAIService, GigaChatService>();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -69,5 +70,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();
