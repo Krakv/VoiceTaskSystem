@@ -7,6 +7,7 @@ using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
 
@@ -63,7 +64,7 @@ public class UpdateVoiceTaskHandlerTests(TestFixture fixture)
             null));
 
         var updated = await db.CommandRequestItem.FindAsync(command.CommandRequestId);
-        var updatedPayload = JsonSerializer.Deserialize<TaskCreateData>(updated!.Payload!);
+        var updatedPayload = JsonSerializer.Deserialize<TaskCreateData>(updated!.Payload!, JsonHelper.Default);
 
         Assert.Equal("new title", updatedPayload!.Title);
         Assert.Equal("new description", updatedPayload.Description);
@@ -122,7 +123,7 @@ public class UpdateVoiceTaskHandlerTests(TestFixture fixture)
             null, null, null, null, null, null, null));
 
         var updated = await db.CommandRequestItem.FindAsync(command.CommandRequestId);
-        var updatedPayload = JsonSerializer.Deserialize<TaskUpdateData>(updated!.Payload!);
+        var updatedPayload = JsonSerializer.Deserialize<TaskUpdateData>(updated!.Payload!, JsonHelper.Default);
 
         Assert.Single(updatedPayload!.Tasks);
         Assert.Equal(task.TaskId, updatedPayload.Tasks[0].TaskId);

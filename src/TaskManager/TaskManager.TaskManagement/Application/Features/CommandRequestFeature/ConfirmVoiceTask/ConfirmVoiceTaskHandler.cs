@@ -5,6 +5,7 @@ using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.DeleteTask;
@@ -62,9 +63,9 @@ public sealed class ConfirmVoiceTaskHandler : IRequestHandler<ConfirmVoiceTaskCo
         {
             IVoiceTaskPayload? payload = command.Intent switch
             {
-                CommandIntent.TaskCreate => JsonSerializer.Deserialize<TaskCreateData>(command.Payload ?? ""),
-                CommandIntent.TaskUpdate => JsonSerializer.Deserialize<TaskUpdateData>(command.Payload ?? ""),
-                CommandIntent.TaskDelete => JsonSerializer.Deserialize<TaskDeleteData>(command.Payload ?? ""),
+                CommandIntent.TaskCreate => JsonSerializer.Deserialize<TaskCreateData>(command.Payload ?? "", JsonHelper.Default),
+                CommandIntent.TaskUpdate => JsonSerializer.Deserialize<TaskUpdateData>(command.Payload ?? "", JsonHelper.Default),
+                CommandIntent.TaskDelete => JsonSerializer.Deserialize<TaskDeleteData>(command.Payload ?? "", JsonHelper.Default),
                 _ => null
             };
 

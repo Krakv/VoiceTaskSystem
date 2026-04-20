@@ -5,6 +5,7 @@ using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
@@ -37,32 +38,32 @@ public sealed class GetVoiceTaskStatusHandler(AppDbContext dbContext, ILogger<Ge
         {
             case CommandIntent.TaskCreate:
                 {
-                    payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload, JsonHelper.Default);
                     break;
                 }
             case CommandIntent.TaskQuery:
                 {
-                    payload = JsonSerializer.Deserialize<TaskQueryData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<TaskQueryData>(command.Payload, JsonHelper.Default);
                     break;
                 }
             case CommandIntent.TaskUpdate:
                 {
-                    payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload, JsonHelper.Default);
                     break;
                 }
             case CommandIntent.TaskDelete:
                 {
-                    payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload, JsonHelper.Default);
                     break;
                 }
             case CommandIntent.Ambiguous:
                 {
-                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload, JsonHelper.Default);
                     break; 
                 }
             case CommandIntent.Unknown:
                 {
-                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload);
+                    payload = JsonSerializer.Deserialize<MessageData>(command.Payload, JsonHelper.Default);
                     break;
                 }
             default:

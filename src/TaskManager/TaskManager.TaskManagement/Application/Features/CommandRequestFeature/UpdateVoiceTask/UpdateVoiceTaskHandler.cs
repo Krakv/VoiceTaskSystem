@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using System.Globalization;
+using System.Text.Json;
 using TaskManager.Repository.Context;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Exceptions;
+using TaskManager.Shared.Utils;
 using TaskManager.TaskManagement.Application.Features.CommandRequestFeature.GetVoiceTaskStatus;
 
 namespace TaskManager.TaskManagement.Application.Features.CommandRequestFeature.UpdateVoiceTask;
@@ -64,7 +65,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
         {
             case CommandIntent.TaskCreate:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload)
+                    var payload = JsonSerializer.Deserialize<TaskCreateData>(command.Payload, JsonHelper.Default)
                                   ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = UpdateTaskCreatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
@@ -73,7 +74,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
             case CommandIntent.TaskUpdate:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload)
+                    var payload = JsonSerializer.Deserialize<TaskUpdateData>(command.Payload, JsonHelper.Default)
                                   ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskUpdatePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);
@@ -82,7 +83,7 @@ public sealed class UpdateVoiceTaskHandler : IRequestHandler<UpdateVoiceTaskComm
 
             case CommandIntent.TaskDelete:
                 {
-                    var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload)
+                    var payload = JsonSerializer.Deserialize<TaskDeleteData>(command.Payload, JsonHelper.Default)
                                   ?? throw new ValidationAppException(InternalServerErrorCode, "Не удалось десериализовать payload");
                     (payload, updatedFields) = await UpdateTaskDeletePayload(payload, request, updatedFields);
                     command.Payload = JsonSerializer.Serialize(payload);

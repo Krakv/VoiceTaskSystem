@@ -14,6 +14,7 @@ using TaskManager.RulesEngine.Domain.Conditions;
 using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.Shared.DTOs.Responses;
 using TaskManager.Shared.Interfaces;
+using TaskManager.Shared.Utils;
 
 namespace TaskManager.ApiGateway.Controllers;
 
@@ -32,10 +33,10 @@ public class RuleItemController(IMediator mediator, ICurrentUser user) : Control
 
         var conditions = dto.Conditions is null
             ? null
-            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!);
+            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!, JsonHelper.Default);
 
         var actions = dto.Actions
-            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!)!)
+            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!, JsonHelper.Default)!)
             .ToList();
 
         var command = new CreateRuleCommand
@@ -72,10 +73,10 @@ public class RuleItemController(IMediator mediator, ICurrentUser user) : Control
 
         var conditions = dto.Conditions is null
             ? null
-            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!);
+            : JsonSerializer.Deserialize<ConditionGroup>(dto.Conditions.ToString()!, JsonHelper.Default);
 
         var actions = dto.Actions
-            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!)!)
+            .Select(a => JsonSerializer.Deserialize<RuleAction>(a.ToString()!, JsonHelper.Default)!)
             .ToList();
 
         var command = new UpdateRuleCommand(
