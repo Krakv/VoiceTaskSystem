@@ -18,6 +18,8 @@ using TaskManager.RulesEngine.Application.Interfaces;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Interfaces;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.CreateTask;
+using TaskManager.TaskManagement.Application.Services;
+using TaskManager.TaskManagement.Application.Services.Interfaces;
 using Testcontainers.PostgreSql;
 
 namespace TaskManager.IntegrationTests.Factories;
@@ -90,6 +92,8 @@ public class TestFixture : IAsyncLifetime
 
         services.AddSingleton<ICalDavClient, FakeCalDavClient>();
         services.AddSingleton<IStateService, OAuthStateService>();
+
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
         services.AddHttpClient<YandexOAuthClient>().ConfigurePrimaryHttpMessageHandler<FakeYandexOAuthHandler>();
         services.AddSingleton<FakeYandexOAuthHandler>();
