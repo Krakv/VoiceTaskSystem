@@ -103,7 +103,7 @@ public class TestFixture : IAsyncLifetime
         using var scope = ServiceProvider.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-        var user = new User { Id = Guid.NewGuid(), UserName = $"{name}_{Guid.NewGuid()}@test.com" };
+        var user = new User { Id = Guid.NewGuid(), UserName = $"{name}_{Guid.NewGuid()}@test.com", Email = $"{Guid.NewGuid()}@mail.com" };
         await userManager.CreateAsync(user, "Password123!");
 
         return user.Id;

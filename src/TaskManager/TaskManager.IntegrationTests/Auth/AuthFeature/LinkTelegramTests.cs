@@ -17,10 +17,9 @@ public class LinkTelegramTests(TestFixture fixture) : IClassFixture<TestFixture>
 
     private async Task<(User user, string token)> CreateUserWithToken()
     {
-        var mediator = _provider.GetRequiredService<IMediator>();
-
         using var scope = _provider.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
         var user = new User
         {
