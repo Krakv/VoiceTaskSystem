@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Shared.Domain.Entities;
 using TaskManager.Shared.Exceptions;
-using TaskManager.Shared.Interfaces;
 
 namespace TaskManager.Auth.Application.Features.Auth.ConfirmEmail;
 

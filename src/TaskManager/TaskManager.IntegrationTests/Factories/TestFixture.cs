@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TaskManager.Auth.Application.Features.Auth.RegisterUser;
+using TaskManager.Auth.Config;
 using TaskManager.Calendar.Application.Features.CalendarEvent.CreateCalendarEvent;
 using TaskManager.IntegrationTests.FakeServices;
 using TaskManager.Notifications.Application.Features.NotificationFeature.CreateNotification;
+using TaskManager.Notifications.Application.Services.Interfaces;
 using TaskManager.Repository.Context;
 using TaskManager.RulesEngine.Application.Features.RuleFeature.CreateRule;
 using TaskManager.RulesEngine.Application.Interfaces;
@@ -35,7 +38,8 @@ public class TestFixture : IAsyncLifetime
                 typeof(CreateTaskCommand).Assembly,
                 typeof(CreateRuleCommand).Assembly,
                 typeof(CreateNotificationCommand).Assembly,
-                typeof(CreateCalendarEventCommand).Assembly
+                typeof(CreateCalendarEventCommand).Assembly,
+                typeof(RegisterUserCommand).Assembly
                 );
         });
 
@@ -62,9 +66,23 @@ public class TestFixture : IAsyncLifetime
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 6;
+            options.User.RequireUniqueEmail = true;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
+
+        services.AddSingleton<IEmailService, FakeEmailService>();
+        services.Configure<FrontendOptions>(opt =>
+        {
+            opt.Url = "http://localhost:3000";
+        });
+        services.Configure<JwtSettings>(opt =>
+        {
+            opt.Secret = "THIS_IS_TEST_SECRET_KEY_123456789";
+            opt.Issuer = "test-issuer";
+            opt.Audience = "test-audience";
+            opt.ExpiryMinutes = 60;
+        });
 
         var provider = services.BuildServiceProvider();
 
