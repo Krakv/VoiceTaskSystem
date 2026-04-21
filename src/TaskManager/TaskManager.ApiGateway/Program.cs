@@ -293,7 +293,6 @@ app.Use(async (context, next) =>
 app.UseMiddleware<HttpErrorHandlingMiddleware>();
 
 
-app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseHttpMetrics();

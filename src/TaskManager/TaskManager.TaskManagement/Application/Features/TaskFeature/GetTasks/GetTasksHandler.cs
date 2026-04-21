@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 using TaskManager.Repository.Context;
-using Microsoft.Extensions.Logging;
+using TaskManager.Shared.Domain.Entities.Enum;
 
 namespace TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 
@@ -18,12 +19,19 @@ public sealed class GetTasksHandler(AppDbContext context, ILogger<GetTasksHandle
         var query = _context.TaskItems
             .Where(x => x.OwnerId == userId)
             .AsQueryable();
+
         if (!string.IsNullOrEmpty(request.Query))
             query = query.Where(x => x.Title.Contains(request.Query));
-        if (request.Status.HasValue)
-            query = query.Where(x => x.Status == request.Status.Value);
-        if (request.Priority.HasValue)
-            query = query.Where(x => x.Priority == request.Priority.Value);
+        if (request.Status != null)
+        {
+            Enum.TryParse(request.Status, true, out TaskItemStatus status);
+            query = query.Where(x => x.Status == status);
+        }
+        if (request.Priority != null)
+        {
+            Enum.TryParse(request.Priority, true, out TaskItemPriority priority);
+            query = query.Where(x => x.Priority == priority);
+        }
 
         var sortColumn = string.IsNullOrEmpty(request.SortBy) ? "DueDate" : request.SortBy;
         var sortOrder = request.SortOrder == "DESC" ? " descending" : " ascending";

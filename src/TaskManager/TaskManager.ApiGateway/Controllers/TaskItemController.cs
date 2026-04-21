@@ -46,17 +46,14 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
     [HttpGet]
     public async Task<IActionResult> GetTasks([FromQuery] GetTasksDto dto)
     {
-        Enum.TryParse(dto.Status, true, out TaskItemStatus status);
-        Enum.TryParse(dto.Priority, true, out TaskItemPriority priority);
-
         _ = int.TryParse(dto.Limit, out var limit);
         _ = int.TryParse(dto.Page, out var page);
 
         var query = new GetTasksQuery(
             _user.UserId,
             dto.Query,
-            status,
-            priority,
+            dto.Status,
+            dto.Priority,
             dto.SortBy,
             dto.SortOrder,
             limit,
