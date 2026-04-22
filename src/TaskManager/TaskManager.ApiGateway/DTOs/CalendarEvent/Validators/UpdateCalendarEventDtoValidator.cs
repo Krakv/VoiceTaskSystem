@@ -7,10 +7,6 @@ public class UpdateCalendarEventDtoValidator : AbstractValidator<UpdateCalendarE
 {
     public UpdateCalendarEventDtoValidator()
     {
-        RuleFor(x => x.CalendarEventId)
-           .Must(SimpleValidators.BeValidGuid)
-           .WithMessage("CalendarEventId должен быть корректным GUID");
-
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Название обязательно");
 
