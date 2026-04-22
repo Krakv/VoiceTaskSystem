@@ -1,5 +1,4 @@
 ﻿using FluentValidation.TestHelper;
-using TaskManager.Shared.Domain.Entities.Enum;
 using TaskManager.TaskManagement.Application.Features.TaskFeature.GetTasks;
 
 namespace TaskManager.UnitTests.TaskManagement;
@@ -11,8 +10,8 @@ public class GetTasksQueryValidatorTests
     private static GetTasksQuery ValidModel() => new(
         Guid.NewGuid(),
         "query",
-        TaskItemStatus.InProgress,
-        TaskItemPriority.High,
+        "inProgress",
+        "high",
         "CreatedAt",
         "ASC",
         10,
