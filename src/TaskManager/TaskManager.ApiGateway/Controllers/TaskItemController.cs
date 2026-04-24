@@ -19,12 +19,26 @@ namespace TaskManager.ApiGateway.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/tasks")]
+[Produces("application/json")]
 public class TaskItemController(IMediator mediator, ICurrentUser user) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
     private readonly ICurrentUser _user = user;
 
+    /// <summary>
+    /// Создать задачу
+    /// </summary>
+    /// <remarks>
+    /// Создаёт новую задачу в системе. Поддерживает:
+    /// - проект
+    /// - приоритет
+    /// - статус
+    /// - дедлайн
+    /// - родительскую задачу
+    /// </remarks>
     [HttpPost]
+    [ProducesResponseType(typeof(SuccessResponse<string>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
     {
         var command = new CreateTaskCommand(
@@ -43,7 +57,14 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return CreatedResponse($"api/v1/tasks/{response}", response.ToString());
     }
 
+    /// <summary>
+    /// Получить список задач
+    /// </summary>
+    /// <remarks>
+    /// Поддерживает фильтрацию, поиск, сортировку и пагинацию
+    /// </remarks>
     [HttpGet]
+    [ProducesResponseType(typeof(SuccessResponse<GetTasksResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTasks([FromQuery] GetTasksDto dto)
     {
         _ = int.TryParse(dto.Limit, out var limit);
@@ -65,7 +86,12 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response);
     }
 
+    /// <summary>
+    /// Получить задачу по ID
+    /// </summary>
     [HttpGet("{taskId:guid}")]
+    [ProducesResponseType(typeof(SuccessResponse<GetTaskResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTask(Guid taskId)
     {
         var response = await _mediator.Send(new GetTaskQuery(_user.UserId, taskId));
@@ -73,7 +99,12 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response);
     }
 
+    /// <summary>
+    /// Полное обновление задачи (PUT)
+    /// </summary>
     [HttpPut("{taskId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] UpdateTaskDto dto)
     {
         var command = new UpdateTaskCommand(
@@ -93,7 +124,12 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response.ToString());
     }
 
+    /// <summary>
+    /// Частичное обновление задачи (PATCH)
+    /// </summary>
     [HttpPatch("{taskId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateTaskPatch(Guid taskId, [FromBody] UpdateTaskPatchDto dto)
     {
         if (dto is null)
@@ -116,7 +152,12 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response.ToString());
     }
 
+    /// <summary>
+    /// Удалить задачу
+    /// </summary>
     [HttpDelete("{taskId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTask(Guid taskId)
     {
         var response = await _mediator.Send(new DeleteTaskCommand(_user.UserId, taskId));
@@ -124,7 +165,11 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response.ToString());
     }
 
+    /// <summary>
+    /// Получить список проектов пользователя
+    /// </summary>
     [HttpGet("projects")]
+    [ProducesResponseType(typeof(SuccessResponse<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetProjectNames([FromQuery] GetProjectsDto dto)
     {
         _ = int.TryParse(dto.Page, out int page);
@@ -142,9 +187,21 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
         return Success(response);
     }
 
+    /// <summary>
+    /// 200 OK ответ API
+    /// </summary>
     private OkObjectResult Success<T>(T data) where T : class =>
-        Ok(new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
+        Ok(new SuccessResponse<T>(data, new Meta
+        {
+            RequestId = HttpContext.TraceIdentifier
+        }));
 
+    /// <summary>
+    /// 201 Created ответ API
+    /// </summary>
     private CreatedResult CreatedResponse<T>(string location, T data) where T : class =>
-        Created(location, new SuccessResponse<T>(data, new Meta { RequestId = HttpContext.TraceIdentifier }));
+        Created(location, new SuccessResponse<T>(data, new Meta
+        {
+            RequestId = HttpContext.TraceIdentifier
+        }));
 }
