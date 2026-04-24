@@ -27,7 +27,7 @@ public class SpeechProcessingService(
 
         Dictionary<string, string> entities = new();
 
-        if (intent != CommandIntent.Ambiguous || intent != CommandIntent.Unknown)
+        if (intent != CommandIntent.Ambiguous && intent != CommandIntent.Unknown)
         {
             _logger.LogDebug("Started to extract entities | {CommandRequestId}", commandRequestId);
             entities = await _entityExtractor.ExtractEntitiesAsync(command);
