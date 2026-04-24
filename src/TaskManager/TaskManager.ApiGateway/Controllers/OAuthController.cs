@@ -15,24 +15,10 @@ namespace TaskManager.ApiGateway.Controllers;
 [ApiController]
 [Route("api/v1/oauth")]
 [Produces("application/json")]
-public class OAuthController(IMediator mediator, IOptions<FrontendOptions> options, ICurrentUser user) : ControllerBase
+public class OAuthController(IMediator mediator, ICurrentUser user) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
     private readonly ICurrentUser _user = user;
-    private readonly FrontendOptions _options = options.Value;
-
-    /// <summary>
-    /// OAuth callback от Yandex. Обменивает authorization code на токены и привязывает аккаунт.
-    /// После успешной авторизации выполняется редирект на фронтенд.
-    /// </summary>
-    [HttpGet("yandex/callback")]
-    [ProducesResponseType(StatusCodes.Status302Found)]
-    public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
-    {
-        await _mediator.Send(new ExchangeOAuthCodeCommand(code, state));
-
-        return Redirect(_options.Url);
-    }
 
     /// <summary>
     /// Получить ссылку для подключения Yandex Calendar (OAuth authorize URL)
