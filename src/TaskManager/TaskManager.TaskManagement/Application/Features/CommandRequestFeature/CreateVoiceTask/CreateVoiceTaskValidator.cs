@@ -11,14 +11,7 @@ public sealed class CreateVoiceTaskValidator : AbstractValidator<CreateVoiceTask
         RuleFor(x => x.InputFile)
             .NotEmpty()
             .NotNull()
-            .WithErrorCode("INVALID_AUDIO_FILE")
-            .DependentRules(() =>
-            {
-                RuleFor(x => x.InputFile.ContentType)
-                    .NotEmpty()
-                    .Must(x => allowedTypes.Contains(x))
-                    .WithErrorCode("UNSUPPORTED_MEDIA_TYPE");
-            });
+            .WithErrorCode("INVALID_AUDIO_FILE");
 
     }
 }
