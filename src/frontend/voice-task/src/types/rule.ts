@@ -2,6 +2,7 @@ export type RuleEvent = "taskCreated" | "taskUpdated" | "taskDeleted" | "taskCom
 export type ActionType = "SET_FIELD" | "CREATE_NOTIFICATION" | "CREATE_CALENDAR_EVENT";
 export type LogicalOperator = "and" | "or";
 export type ComparisonOperator = "eq" | "neq" | "gt" | "lt";
+export type ServiceId = "email" | "telegram";
 
 export interface Condition {
     field: string;
@@ -28,6 +29,7 @@ export interface CreateNotificationAction extends RuleAction {
     type: "CREATE_NOTIFICATION";
     description: string;
     offsetMinutes: number;
+    serviceId: ServiceId;
 }
 
 export interface CreateCalendarEventAction extends RuleAction {

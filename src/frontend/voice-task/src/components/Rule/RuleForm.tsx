@@ -14,7 +14,7 @@ import type {
     LogicalOperator,
     RuleAction,
     RuleEvent,
-    RuleItem,
+    RuleItem, ServiceId,
     SetFieldAction,
 } from "@/types/rule";
 import type { TaskPriority, TaskStatus } from "@/types/task";
@@ -95,6 +95,7 @@ const makeNotification = (): LocalAction => ({
     type: "CREATE_NOTIFICATION",
     description: "",
     offsetMinutes: 0,
+    serviceId: "telegram",
 });
 const makeCalendar = (): LocalAction => ({
     _id: ++_actionIdCounter,
@@ -250,6 +251,19 @@ function ActionEditor({
             {action.type === "CREATE_NOTIFICATION" && (
                 <>
                     <div className="space-y-1.5">
+                        <Label className="text-xs">Канал уведомления</Label>
+                        <Tabs
+                            value={action.serviceId}
+                            onValueChange={(v) => onChange({ ...action, serviceId: v as ServiceId } as LocalAction)}
+                        >
+                            <TabsList className="grid grid-cols-2 w-full h-8">
+                                <TabsTrigger value="telegram" className="text-xs">Telegram</TabsTrigger>
+                                <TabsTrigger value="email" className="text-xs">Email</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+
+                    <div className="space-y-1.5">
                         <Label className="text-xs">Текст уведомления</Label>
                         <Textarea
                             placeholder="Например: Задача просрочена, обратите внимание..."
@@ -257,6 +271,7 @@ function ActionEditor({
                             onChange={(e) => onChange({ ...action, description: e.target.value } as LocalAction)}
                         />
                     </div>
+
                     <div className="space-y-1.5">
                         <Label className="text-xs">Смещение (минуты)</Label>
                         <Input
