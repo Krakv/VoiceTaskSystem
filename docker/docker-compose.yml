@@ -50,12 +50,14 @@ services:
           timeout: 10s
           retries: 3
         profiles:
+          - dev
           - sps
     duckling:
         image: rasa/duckling
         networks:
           - backend-network
         profiles:
+          - dev
           - sps
     postgres:
         image: postgres:17
@@ -83,6 +85,7 @@ services:
         networks:
           - backend-network
         profiles:
+          - dev
           - front
         
     prometheus:
