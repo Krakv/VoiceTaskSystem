@@ -3,14 +3,17 @@ import { accountApi } from "@/api/account.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 import type { Account } from "@/types/account";
-import {toast} from "sonner";
-import type {ExternalCalendarAccount} from "@/types/externalCalendarAccount.ts";
-import {externalCalendarAccountApi} from "@/api/externalCalendarAccount.api.ts";
+import { toast } from "sonner";
+import type { ExternalCalendarAccount } from "@/types/externalCalendarAccount.ts";
+import { externalCalendarAccountApi } from "@/api/externalCalendarAccount.api.ts";
 
 export const AccountForm = () => {
     const [account, setAccount] = useState<Account | null>(null);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [loading, setLoading] = useState(false);
 
     const [name, setName] = useState("");
@@ -21,32 +24,38 @@ export const AccountForm = () => {
     const [newPassword, setNewPassword] = useState("");
 
     useEffect(() => {
-        load();
-        loadCalendars();
+        Promise.all([load(), loadCalendars()]).finally(() => {
+            setInitialLoading(false);
+        });
     }, []);
 
     const loadCalendars = async () => {
-        const res = await externalCalendarAccountApi.getExternalCalendarAccounts();
-        setCalendars(res.data.data);
+        try {
+            const res = await externalCalendarAccountApi.getExternalCalendarAccounts();
+            setCalendars(res.data.data);
+        } catch (err) {
+            console.error("Ошибка загрузки календарей", err);
+        }
     };
 
     const load = async () => {
-        const res = await accountApi.getAccount();
-        const data = res.data.data;
+        try {
+            const res = await accountApi.getAccount();
+            const data = res.data.data;
 
-        setAccount(data);
-        setName(data.name);
-        setEmail(data.email || "");
+            setAccount(data);
+            setName(data.name);
+            setEmail(data.email || "");
+        } catch {
+            toast.error("Ошибка загрузки профиля");
+        }
     };
 
     const connectTelegram = async () => {
         try {
             const res = await accountApi.getTelegramLinkToken();
-
             const token = res.data.data;
-
             const url = `https://t.me/SpeakTaskBot?start=${token}`;
-
             window.open(url, "_blank");
         } catch {
             toast.error("Ошибка получения токена Telegram");
@@ -68,11 +77,7 @@ export const AccountForm = () => {
 
     const changePassword = async () => {
         try {
-            await accountApi.changePassword({
-                currentPassword,
-                newPassword,
-            });
-
+            await accountApi.changePassword({ currentPassword, newPassword });
             setCurrentPassword("");
             setNewPassword("");
             toast.info("Пароль обновлён");
@@ -113,21 +118,33 @@ export const AccountForm = () => {
         }
     };
 
+    if (initialLoading) {
+        return (
+            <div className="max-w-md mx-auto p-4 space-y-6">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-64 w-full rounded-xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-md mx-auto p-3 space-y-8 pb-16">
-
             <h2 className="text-xl font-bold">Личный кабинет</h2>
 
             {/* INFO BLOCK */}
             {account && (
-                <div className="space-y-3 border p-3 rounded-xl">
+                <div className="space-y-3 border p-3 rounded-xl bg-card">
                     <div>
-                        <Label>Имя</Label>
-                        <div>{account.name}</div>
+                        <Label className="text-muted-foreground">Имя</Label>
+                        <div className="font-medium">{account.name}</div>
                     </div>
 
                     <div>
-                        <Label>Email</Label>
+                        <Label className="text-muted-foreground">Email</Label>
                         <div>{account.email || "не указан"}</div>
 
                         {account.email && (
@@ -142,6 +159,7 @@ export const AccountForm = () => {
                             <Button
                                 size="sm"
                                 variant="outline"
+                                className="mt-2"
                                 onClick={sendEmailVerification}
                             >
                                 Подтвердить email
@@ -149,70 +167,53 @@ export const AccountForm = () => {
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Telegram</Label>
-
+                    <div className="space-y-2 border-t pt-2">
+                        <Label className="text-muted-foreground">Telegram</Label>
                         <div className="text-sm">
                             {account?.telegramChatId
                                 ? "✅ привязан"
                                 : "❌ не привязан"}
                         </div>
-
                         <div className="flex gap-2">
-                            {!account?.telegramChatId && (
-                                <Button
-                                    size="sm"
-                                    onClick={connectTelegram}
-                                >
+                            {!account?.telegramChatId ? (
+                                <Button size="sm" onClick={connectTelegram}>
                                     Подключить Telegram
                                 </Button>
-                            )}
-
-                            {account?.telegramChatId && (
-                                <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={unlinkTelegram}
-                                >
+                            ) : (
+                                <Button size="sm" variant="destructive" onClick={unlinkTelegram}>
                                     Отвязать
                                 </Button>
                             )}
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Календари</Label>
-
+                    <div className="space-y-2 border-t pt-2">
+                        <Label className="text-muted-foreground">Календари</Label>
                         {calendars.length === 0 ? (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-sm text-muted-foreground italic">
                                 Нет подключённых календарей
                             </div>
                         ) : (
                             calendars.map((c) => (
                                 <div
                                     key={c.externalCalendarAccountId}
-                                    className="flex items-center justify-between border rounded-lg p-2"
+                                    className="flex items-center justify-between border rounded-lg p-2 bg-background"
                                 >
-                                    <div>
-                                        <div className="text-sm font-medium truncate max-w-[200px]">
-                                            {c.baseUrl}
-                                        </div>
+                                    <div className="text-sm font-medium truncate max-w-[180px]">
+                                        {c.baseUrl}
                                     </div>
-
                                     <Button
-                                        size="sm"
-                                        variant="destructive"
-                                        onClick={() =>
-                                            unlinkCalendar(c.externalCalendarAccountId)
-                                        }
+                                        size="xs"
+                                        variant="ghost"
+                                        className="text-destructive"
+                                        onClick={() => unlinkCalendar(c.externalCalendarAccountId)}
                                     >
                                         Отвязать
                                     </Button>
                                 </div>
                             ))
                         )}
-
-                        <Button variant="outline" onClick={connectYandexCalendar}>
+                        <Button variant="outline" className="w-full text-xs" onClick={connectYandexCalendar}>
                             + Подключить Яндекс календарь
                         </Button>
                     </div>
@@ -220,35 +221,42 @@ export const AccountForm = () => {
             )}
 
             {/* UPDATE PROFILE */}
-            <div className="space-y-2">
-                <Label>Имя</Label>
-                <Input value={name} onChange={e => setName(e.target.value)} />
-
-                <Label>Email</Label>
-                <Input value={email} onChange={e => setEmail(e.target.value)} />
-
-                <Button onClick={updateProfile} disabled={loading}>
+            <div className="space-y-4 border-t pt-4">
+                <h3 className="font-semibold text-sm">Настройки профиля</h3>
+                <div className="space-y-2">
+                    <Label>Имя</Label>
+                    <Input value={name} onChange={e => setName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+                <Button onClick={updateProfile} disabled={loading} className="w-full">
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Обновить профиль
                 </Button>
             </div>
 
             {/* PASSWORD */}
-            <div className="space-y-2 pt-4">
-                <Label>Текущий пароль</Label>
-                <Input
-                    type="password"
-                    value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
-                />
-
-                <Label>Новый пароль</Label>
-                <Input
-                    type="password"
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                />
-
-                <Button onClick={changePassword}>
+            <div className="space-y-4 border-t pt-4">
+                <h3 className="font-semibold text-sm">Безопасность</h3>
+                <div className="space-y-2">
+                    <Label>Текущий пароль</Label>
+                    <Input
+                        type="password"
+                        value={currentPassword}
+                        onChange={e => setCurrentPassword(e.target.value)}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label>Новый пароль</Label>
+                    <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                    />
+                </div>
+                <Button onClick={changePassword} variant="secondary" className="w-full">
                     Сменить пароль
                 </Button>
             </div>
