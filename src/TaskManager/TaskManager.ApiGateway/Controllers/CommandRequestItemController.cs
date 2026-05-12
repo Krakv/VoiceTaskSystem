@@ -101,9 +101,9 @@ public class CommandRequestItemController(IMediator mediator, ICurrentUser user)
             dto.ProjectName,
             dto.Title,
             dto.Description,
-            dto.Status == null ? null : Enum.Parse<TaskItemStatus>(dto.Status),
+            dto.Status == null ? null : Enum.Parse<TaskItemStatus>(dto.Status, true),
             dto.DueDate,
-            dto.Priority == null ? null : Enum.Parse<TaskItemPriority>(dto.Priority),
+            dto.Priority == null ? null : Enum.Parse<TaskItemPriority>(dto.Priority, true),
             dto.ParentTaskId
         ));
 
