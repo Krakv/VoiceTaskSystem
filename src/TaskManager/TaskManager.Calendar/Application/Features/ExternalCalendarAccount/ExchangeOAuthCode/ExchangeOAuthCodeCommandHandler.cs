@@ -53,29 +53,6 @@ public sealed class ExchangeOAuthCodeCommandHandler(YandexOAuthClient oAuthClien
             existing.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(token.expires_in);
         }
 
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException)
-        {
-            // fallback: кто-то уже создал
-            var ex = await _context.ExternalCalendarAccount
-                .FirstAsync(x =>
-                    x.OwnerId == userId &&
-                    x.BaseUrl == baseUrl,
-                    cancellationToken);
-
-            ex.AccessToken = token.access_token;
-
-            if (!string.IsNullOrWhiteSpace(token.refresh_token))
-            {
-                ex.RefreshToken = token.refresh_token;
-            }
-
-            ex.ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(token.expires_in);
-
-            await _context.SaveChangesAsync(cancellationToken);
-        }
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
