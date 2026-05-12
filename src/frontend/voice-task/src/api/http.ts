@@ -25,7 +25,11 @@ api.interceptors.response.use(
         // 1. Обработка 401 (Unauthorized)
         if (error.response?.status === 401) {
             useAuthStore.getState().logout();
-            toast.error(errorData?.message || "Сессия истекла");
+            let message = errorData?.message || "Произошла ошибка";
+            if (errorData?.message === "Токен доступа истёк или невалиден") {
+                message = "Сессия истекла";
+            }
+            toast.error(message);
             return Promise.reject(error);
         }
 
