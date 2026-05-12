@@ -1,4 +1,4 @@
-import type {TaskUpdatePayload} from "@/types/commandRequest.ts";
+import type {TaskCreatePayload} from "@/types/commandRequest.ts";
 import {api} from "@/api/http.ts";
 
 
@@ -11,7 +11,7 @@ export const commandRequestApi = {
         });
     },
     getVoiceTaskStatus: (requestId: string) => api.get(`/tasks/voice/requests/${requestId}/status`),
-    patchVoiceTask: (requestId: string, data: TaskUpdatePayload) => api.patch(`/tasks/voice/requests/${requestId}`, data),
+    patchVoiceTask: (requestId: string, data: TaskCreatePayload) => api.patch(`/tasks/voice/requests/${requestId}`, data),
     confirmVoiceTask: (requestId: string) => api.post(`/tasks/voice/requests/${requestId}/confirm`),
     deleteVoiceTask: (requestId: string) => api.delete(`/tasks/voice/requests/${requestId}`),
 }

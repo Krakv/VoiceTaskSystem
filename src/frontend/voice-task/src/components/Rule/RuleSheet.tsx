@@ -39,21 +39,52 @@ const eventLabels: Record<string, string> = {
     taskOverdue: "Просрочка задачи",
 };
 
+const fieldLabels: Record<string, string> = {
+    priority: "Приоритет",
+    status: "Статус",
+    dueDate: "Дедлайн",
+    title: "Заголовок",
+    description: "Описание",
+    projectName: "Проект",
+};
+
+const valueLabels: Record<string, string> = {
+    low: "низкий",
+    medium: "средний",
+    high: "высокий",
+    new: "новая",
+    inProgress: "в работе",
+    done: "готово",
+    canceled: "отменена",
+};
+
+const operatorLabels: Record<string, string> = {
+    eq: "=",
+    neq: "≠",
+    gt: ">",
+    lt: "<",
+    and: "все условия (И)",
+    or: "любое условие (ИЛИ)",
+};
+
 function renderAction(action: RuleAction) {
     switch (action.type) {
         case "SET_FIELD": {
             const a = action as SetFieldAction;
-            return `Изменить ${a.field} → ${a.value}`;
+            const field = fieldLabels[a.field] || a.field;
+            const value = valueLabels[a.value] || a.value;
+            return `Изменить ${field} → ${value}`;
         }
 
         case "CREATE_NOTIFICATION": {
             const a = action as CreateNotificationAction;
-            return `Уведомление: ${a.description}`;
+            const service = a.serviceId === "telegram" ? "ТГ" : "Email";
+            return `Уведомление (${service}): ${a.description}`;
         }
 
         case "CREATE_CALENDAR_EVENT": {
             const a = action as CreateCalendarEventAction;
-            return `Событие (${a.durationMinutes} мин)`;
+            return `Событие в календаре (${a.durationMinutes} мин)`;
         }
 
         default:
@@ -85,7 +116,7 @@ export const RuleSheet: FC<Props> = ({
                     <div className="px-4 pt-4 pb-6 flex flex-col h-full">
                         {/* HEADER */}
                         <SheetHeader className="text-left space-y-2 mb-4">
-                            <SheetTitle className="text-base leading-snug">
+                            <SheetTitle className="text-lg font-bold">
                                 {eventLabels[rule.ruleEvent]}
                             </SheetTitle>
                         </SheetHeader>
@@ -94,67 +125,70 @@ export const RuleSheet: FC<Props> = ({
                         <div className="flex-1 overflow-y-auto space-y-5">
                             {/* УСЛОВИЯ */}
                             <div>
-                                <div className="font-medium text-sm mb-2">
-                                    Условия
+                                <div className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">
+                                    Условия выполнения
                                 </div>
 
                                 {rule.condition.conditions.length ? (
                                     <div className="space-y-2">
+                                        <div className="text-xs font-medium text-blue-600 mb-2">
+                                            Должны быть выполнены {operatorLabels[rule.condition.operator]}:
+                                        </div>
                                         {rule.condition.conditions.map((c, i) => (
                                             <div
                                                 key={i}
-                                                className="text-sm border rounded-lg px-3 py-2 bg-muted/40"
+                                                className="text-sm border rounded-xl px-3 py-2.5 bg-muted/30 flex justify-between"
                                             >
-                                                {c.field} {c.operator} {c.value}
+                                                <span className="font-medium">{fieldLabels[c.field] || c.field}</span>
+                                                <span className="text-muted-foreground">{operatorLabels[c.operator] || c.operator}</span>
+                                                <span className="font-medium">{valueLabels[c.value] || c.value}</span>
                                             </div>
                                         ))}
-                                        <div className="text-xs text-muted-foreground">
-                                            Оператор: {rule.condition.operator}
-                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="text-xs text-muted-foreground">
-                                        Без условий (всегда выполняется)
+                                    <div className="text-sm text-muted-foreground p-3 border border-dashed rounded-xl text-center">
+                                        Всегда активно (без дополнительных условий)
                                     </div>
                                 )}
                             </div>
 
                             {/* ACTIONS */}
                             <div>
-                                <div className="font-medium text-sm mb-2">
-                                    Действия
+                                <div className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">
+                                    Автоматические действия
                                 </div>
 
                                 <div className="space-y-2">
                                     {rule.action.map((a, i) => (
                                         <div
                                             key={i}
-                                            className="text-sm border rounded-lg px-3 py-2 bg-white"
+                                            className="text-sm border rounded-xl px-4 py-3 bg-white shadow-sm flex items-center gap-3"
                                         >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                                             {renderAction(a)}
                                         </div>
                                     ))}
                                 </div>
                             </div>
+                        </div>
 
-                            {/* FOOTER */}
-                            <div className="pt-4 mt-4 border-t flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    className="flex-1"
-                                    onClick={() => onEdit?.(rule.ruleId)}
-                                >
-                                    Редактировать
-                                </Button>
+                        {/* FOOTER */}
+                        <div className="pt-4 border-t flex gap-3">
+                            <Button
+                                variant="outline"
+                                className="flex-1 rounded-xl"
+                                onClick={() => onEdit?.(rule.ruleId)}
+                            >
+                                Редактировать
+                            </Button>
 
-                                <Button
-                                    variant="destructive"
-                                    className="flex-1"
-                                    onClick={() => setConfirmOpen(true)}
-                                >
-                                    Удалить
-                                </Button>
-                            </div>
+                            <Button
+                                variant="destructive"
+                                className="flex-1 rounded-xl"
+                                onClick={() => setConfirmOpen(true)}
+                            >
+                                Удалить
+                            </Button>
                         </div>
                     </div>
                 </SheetContent>
@@ -162,23 +196,23 @@ export const RuleSheet: FC<Props> = ({
 
             {/* CONFIRM DELETE */}
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent className="rounded-2xl max-w-[90vw]">
                     <AlertDialogHeader>
                         <AlertDialogTitle>
                             Удалить правило?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            Это действие нельзя отменить.
+                            Это действие нельзя будет отменить. Правило автоматизации перестанет работать.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
 
-                    <div className="flex gap-2 mt-4">
-                        <AlertDialogCancel className="flex-1">
+                    <div className="flex gap-3 mt-4">
+                        <AlertDialogCancel className="flex-1 rounded-xl border-none bg-muted hover:bg-muted/80">
                             Отмена
                         </AlertDialogCancel>
 
                         <AlertDialogAction
-                            className="flex-1"
+                            className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             onClick={() => onDelete?.(rule.ruleId)}
                         >
                             Удалить

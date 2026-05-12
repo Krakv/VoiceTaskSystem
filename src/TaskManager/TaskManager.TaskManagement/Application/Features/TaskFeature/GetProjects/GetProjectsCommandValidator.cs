@@ -6,8 +6,8 @@ public class GetProjectsCommandValidator : AbstractValidator<GetProjectsCommand>
 {
     public GetProjectsCommandValidator()
     {
-        RuleFor(x => x.Search)
-            .NotNull().WithMessage("Search обязателен");
+        RuleFor(x => x.ProjectName)
+            .NotNull().WithMessage("Название проекта обязательно");
 
         RuleFor(x => x.Page)
             .GreaterThanOrEqualTo(0)

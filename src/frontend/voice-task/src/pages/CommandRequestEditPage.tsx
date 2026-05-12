@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CommandRequestForm } from "@/components/CommandRequestForm";
 import { commandRequestApi } from "@/api/commandRequest.api";
-import type { TaskCreatePayload, VoiceStatusData } from "@/types/commandRequest";
+import type {TaskCreatePayload, TaskUpdatePayload, VoiceStatusData} from "@/types/commandRequest";
 import type {TaskPriority, TaskStatus} from "@/types/task.ts";
 
 export const CommandRequestEditPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [data, setData] = useState<TaskCreatePayload | null>(null);
+    const [data, setData] = useState<TaskUpdatePayload | TaskCreatePayload | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -26,15 +26,29 @@ export const CommandRequestEditPage = () => {
                     return;
                 }
 
-                const payload = status.payload as TaskCreatePayload;
+                if (status.intent === "taskCreate") {
+                    const payload = status.payload as TaskCreatePayload;
 
-                const normalizedData: TaskCreatePayload = {
-                    ...payload,
-                    status: payload.status?.toLowerCase() as TaskStatus,
-                    priority: payload.priority?.toLowerCase() as TaskPriority,
-                };
+                    const normalizedData: TaskCreatePayload = {
+                        ...payload,
+                        status: payload.status?.toLowerCase() as TaskStatus,
+                        priority: payload.priority?.toLowerCase() as TaskPriority,
+                    };
 
-                setData(normalizedData);
+                    setData(normalizedData);
+                }
+
+                if (status.intent === "taskUpdate") {
+                    const payload = status.payload as TaskUpdatePayload;
+
+                    const normalizedData: TaskUpdatePayload = {
+                        ...payload,
+                        status: payload.status?.toLowerCase() as TaskStatus,
+                        priority: payload.priority?.toLowerCase() as TaskPriority,
+                    };
+
+                    setData(normalizedData);
+                }
             } catch {
                 setError("Ошибка загрузки команды");
             } finally {

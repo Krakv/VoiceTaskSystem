@@ -24,8 +24,16 @@ export interface TaskCreatePayload {
     confirmationRequired?: boolean;
 }
 
-// TASK_UPDATE treated like TASK_CREATE per latest backend
-export type TaskUpdatePayload = TaskCreatePayload;
+export interface TaskUpdatePayload {
+    tasks: Task[];
+    title: string | null;
+    description: string | null;
+    status: string | null;
+    priority: string | null;
+    dueDate: string | null;
+    projectName: string | null;
+    confirmationRequired: boolean;
+}
 
 export interface TaskDeletePayload {
     confirmationRequired?: boolean;

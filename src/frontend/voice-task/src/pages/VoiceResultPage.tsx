@@ -3,8 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 import { commandRequestApi } from "@/api/commandRequest.api.ts";
-import type {TaskCreatePayload, TaskQueryPayload, UnknownPayload, VoiceStatusData} from "@/types/commandRequest.ts";
-import {CreateUpdateCard, DeleteCard, FallbackCard, QueryCard} from "@/components/CommanRequestCards.tsx";
+import type {
+    TaskCreatePayload,
+    TaskQueryPayload,
+    TaskUpdatePayload,
+    UnknownPayload,
+    VoiceStatusData
+} from "@/types/commandRequest.ts";
+import {CreateUpdateCard, DeleteCard, FallbackCard, QueryCard, UpdateCard} from "@/components/CommanRequestCards.tsx";
 
 export const VoiceResultPage = () => {
     const { id } = useParams();
@@ -78,7 +84,7 @@ export const VoiceResultPage = () => {
     return (
         <div className="p-4 space-y-4">
 
-            {(statusData.intent === "taskCreate" || statusData.intent === "taskUpdate") && (
+            {(statusData.intent === "taskCreate") && (
                 <CreateUpdateCard
                     intent={statusData.intent}
                     data={statusData.payload as TaskCreatePayload}
@@ -89,8 +95,19 @@ export const VoiceResultPage = () => {
                 />
             )}
 
+            {(statusData.intent === "taskUpdate") && (
+                <UpdateCard
+                    data={statusData.payload as TaskUpdatePayload}
+                    onConfirm={handleConfirm}
+                    onEdit={handleEdit}
+                    onDiscard={handleDiscard}
+                    loading={actionLoading}
+                />
+            )}
+
             {statusData.intent === "taskDelete" && (
                 <DeleteCard
+                    data={statusData.payload as TaskQueryPayload}
                     onConfirm={handleConfirm}
                     onDiscard={handleDiscard}
                     loading={actionLoading}

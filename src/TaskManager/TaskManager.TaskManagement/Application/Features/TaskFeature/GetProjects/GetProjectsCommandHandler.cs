@@ -16,7 +16,7 @@ public class GetProjectsCommandHandler(AppDbContext context, ILogger<GetProjects
         var projects = await _context.TaskItems
             .Where(t => t.OwnerId == request.OwnerId 
                 && !string.IsNullOrEmpty(t.ProjectName)
-                && t.ProjectName.Contains(request.Search)
+                && t.ProjectName.Contains(request.ProjectName)
                 )
             .Select(x => x.ProjectName)
             .Distinct()
