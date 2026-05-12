@@ -65,6 +65,11 @@ const OPERATOR_LABELS: Record<ComparisonOperator, string> = {
     lt: "<",
 };
 
+const LOGICAL_LABELS: Record<LogicalOperator, string> = {
+    and: "Все условия (И)",
+    or: "Любое из условий (ИЛИ)",
+};
+
 const CONDITION_FIELD_OPTIONS = ["priority", "status", "projectName", "dueDate", "title"];
 const CONDITION_FIELD_LABELS: Record<string, string> = {
     priority: "Приоритет",
@@ -74,9 +79,6 @@ const CONDITION_FIELD_LABELS: Record<string, string> = {
     title: "Заголовок",
 };
 
-// ──────────────────────────────────────────────
-// Internal action shape with local id for keys
-// ──────────────────────────────────────────────
 type LocalAction =
     | ({ _id: number } & SetFieldAction)
     | ({ _id: number } & CreateNotificationAction)
@@ -107,9 +109,6 @@ const makeCalendar = (): LocalAction => ({
     externalAccountId: "",
 });
 
-// ──────────────────────────────────────────────
-// Smart value input — enum fields get selects, dueDate gets datetime, rest free text
-// ──────────────────────────────────────────────
 function FieldValueInput({
                              field,
                              value,
@@ -163,9 +162,6 @@ function FieldValueInput({
     );
 }
 
-// ──────────────────────────────────────────────
-// Single action editor block
-// ──────────────────────────────────────────────
 const ACTION_TYPE_LABELS: Record<ActionType, string> = {
     SET_FIELD: "Изменить поле",
     CREATE_NOTIFICATION: "Уведомление",
@@ -360,9 +356,6 @@ function ActionEditor({
     );
 }
 
-// ──────────────────────────────────────────────
-// Main form
-// ──────────────────────────────────────────────
 export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
     const navigate = useNavigate();
 
@@ -440,8 +433,7 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
         setError("");
         setLoading(true);
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const actionPayload: RuleAction[] = actions.map(({ _id, ...rest }) => rest);
+        const actionPayload: RuleAction[] = actions.map(({ _id, ...rest }) => rest as RuleAction);
 
         const data: RuleCreateDto = {
             ruleEvent,
@@ -466,11 +458,11 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
 
     return (
         <div className="max-w-md mx-auto p-2 rounded-2xl space-y-6 pb-16">
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-bold text-center sm:text-left">
                 {rule ? "Редактирование правила" : "Создание правила автоматизации"}
             </h2>
 
-            {error && <div className="text-sm text-red-500">{error}</div>}
+            {error && <div className="text-sm text-red-500 bg-red-50 p-2 rounded border border-red-200">{error}</div>}
 
             {/* Event */}
             <div className="space-y-2">
@@ -486,87 +478,104 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                 </select>
             </div>
 
-            {/* Conditions */}
+            {/* Conditions Section */}
             <div className="space-y-2">
-                <Label>Условия</Label>
-                <div className="border rounded-xl p-3 space-y-3 bg-muted/30">
-                    <div className="flex gap-2">
+                <Label>Условия выполнения</Label>
+                <div className="border rounded-xl p-3 space-y-4 bg-muted/30">
+                    <div className="flex bg-background p-1 rounded-lg border gap-1 shadow-sm">
                         {(["and", "or"] as LogicalOperator[]).map((op) => (
                             <button
                                 key={op}
                                 type="button"
                                 onClick={() => setLogicalOp(op)}
-                                className={`px-3 py-1 text-xs rounded-md border transition-colors ${
+                                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
                                     logicalOp === op
-                                        ? "bg-primary text-primary-foreground border-primary"
-                                        : "bg-background border-border text-muted-foreground hover:bg-muted"
+                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                        : "text-muted-foreground hover:bg-muted"
                                 }`}
                             >
-                                {op}
+                                {LOGICAL_LABELS[op]}
                             </button>
                         ))}
                     </div>
 
                     {conditions.length === 0 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">
+                        <p className="text-xs text-muted-foreground text-center py-2 italic">
                             Нет условий — правило применяется ко всем событиям
                         </p>
                     )}
 
-                    {conditions.map((cond, i) => (
-                        <div key={i} className="grid grid-cols-[1fr_80px_1fr_28px] gap-2 items-center">
-                            <select
-                                className="border rounded-md px-2 py-1.5 text-sm bg-background"
-                                value={cond.field}
-                                onChange={(e) => {
-                                    const newField = e.target.value;
-                                    const defaultValue =
-                                        newField === "priority" ? "low"
-                                            : newField === "status" ? "new"
-                                                : "";
-                                    updateCondition(i, "field", newField);
-                                    updateCondition(i, "value", defaultValue);
-                                }}
-                            >
-                                {CONDITION_FIELD_OPTIONS.map((f) => (
-                                    <option key={f} value={f}>{CONDITION_FIELD_LABELS[f]}</option>
-                                ))}
-                            </select>
-                            <select
-                                className="border rounded-md px-2 py-1.5 text-sm bg-background"
-                                value={cond.operator}
-                                onChange={(e) => updateCondition(i, "operator", e.target.value as ComparisonOperator)}
-                            >
-                                {(Object.keys(OPERATOR_LABELS) as ComparisonOperator[]).map((op) => (
-                                    <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
-                                ))}
-                            </select>
-                            <FieldValueInput
-                                field={cond.field}
-                                value={cond.value}
-                                onChange={(v) => updateCondition(i, "value", v)}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => removeCondition(i)}
-                                className="w-7 h-7 flex items-center justify-center border rounded-md text-muted-foreground hover:text-red-500 hover:border-red-300 hover:bg-red-50 transition-colors text-base leading-none"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
+                    <div className="space-y-3">
+                        {conditions.map((cond, i) => (
+                            <div key={i} className="space-y-2">
+                                {i > 0 && (
+                                    <div className="flex items-center justify-center">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 py-0.5 rounded-full border border-border">
+                                            {logicalOp === "and" ? "и" : "или"}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap gap-2 items-start bg-background p-2 rounded-lg border border-border shadow-sm">
+                                    <select
+                                        className="flex-1 min-w-[120px] border rounded-md px-2 py-1.5 text-sm bg-background"
+                                        value={cond.field}
+                                        onChange={(e) => {
+                                            const newField = e.target.value;
+                                            const defaultValue =
+                                                newField === "priority" ? "low"
+                                                    : newField === "status" ? "new"
+                                                        : "";
+                                            updateCondition(i, "field", newField);
+                                            updateCondition(i, "value", defaultValue);
+                                        }}
+                                    >
+                                        {CONDITION_FIELD_OPTIONS.map((f) => (
+                                            <option key={f} value={f}>{CONDITION_FIELD_LABELS[f]}</option>
+                                        ))}
+                                    </select>
+
+                                    <select
+                                        className="w-[60px] border rounded-md px-2 py-1.5 text-sm bg-background font-mono font-bold"
+                                        value={cond.operator}
+                                        onChange={(e) => updateCondition(i, "operator", e.target.value as ComparisonOperator)}
+                                    >
+                                        {(Object.keys(OPERATOR_LABELS) as ComparisonOperator[]).map((op) => (
+                                            <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
+                                        ))}
+                                    </select>
+
+                                    <div className="flex-1 min-w-[140px]">
+                                        <FieldValueInput
+                                            field={cond.field}
+                                            value={cond.value}
+                                            onChange={(v) => updateCondition(i, "value", v)}
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => removeCondition(i)}
+                                        className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
                     <button
                         type="button"
                         onClick={addCondition}
-                        className="w-full text-sm text-muted-foreground border border-dashed rounded-md py-1.5 hover:bg-muted transition-colors"
+                        className="w-full text-sm text-primary font-medium border border-primary/20 border-dashed rounded-md py-2 hover:bg-primary/5 transition-colors"
                     >
                         + Добавить условие
                     </button>
                 </div>
             </div>
 
-            {/* Actions */}
+            {/* Actions Section */}
             <div className="space-y-2">
                 <Label>Действия</Label>
                 <div className="space-y-3">
@@ -582,7 +591,7 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                     <button
                         type="button"
                         onClick={addAction}
-                        className="w-full text-sm text-muted-foreground border border-dashed rounded-md py-1.5 hover:bg-muted transition-colors"
+                        className="w-full text-sm text-muted-foreground border border-dashed rounded-md py-2 hover:bg-muted transition-colors"
                     >
                         + Добавить действие
                     </button>
@@ -600,8 +609,8 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                 </Tabs>
             </div>
 
-            <Button onClick={handleSubmit} disabled={loading} className="w-full mt-2">
-                {loading ? "Сохраняем..." : rule ? "Сохранить" : "Создать правило"}
+            <Button onClick={handleSubmit} disabled={loading} className="w-full mt-2 shadow-md">
+                {loading ? "Сохраняем..." : rule ? "Сохранить изменения" : "Создать правило"}
             </Button>
         </div>
     );
