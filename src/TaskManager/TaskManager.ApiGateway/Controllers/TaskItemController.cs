@@ -170,16 +170,16 @@ public class TaskItemController(IMediator mediator, ICurrentUser user) : Control
     /// </summary>
     [HttpGet("projects")]
     [ProducesResponseType(typeof(SuccessResponse<object>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetProjectNames([FromQuery] GetProjectsDto dto)
+    public async Task<IActionResult> GetProjectNames([FromQuery] string projectName, [FromQuery] string page, [FromQuery] string limit)
     {
-        _ = int.TryParse(dto.Page, out int page);
-        _ = int.TryParse(dto.Limit, out int limit);
+        _ = int.TryParse(page, out int pageInt);
+        _ = int.TryParse(limit, out int limitInt);
 
         var query = new GetProjectsCommand(
             _user.UserId,
-            dto.Project,
-            page,
-            limit
+            projectName,
+            pageInt,
+            limitInt
         );
 
         var response = await _mediator.Send(query);
