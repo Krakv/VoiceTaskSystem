@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ruleApi, type RuleCreateDto } from "@/api/rule.api";
+import { externalCalendarAccountApi } from "@/api/externalCalendarAccount.api";
+import type { ExternalCalendarAccount } from "@/types/externalCalendarAccount";
 import type {
     ActionType,
     ComparisonOperator,
@@ -14,11 +17,11 @@ import type {
     LogicalOperator,
     RuleAction,
     RuleEvent,
-    RuleItem, ServiceId,
+    RuleItem,
+    ServiceId,
     SetFieldAction,
 } from "@/types/rule";
 import type { TaskPriority, TaskStatus } from "@/types/task";
-import { useNavigate } from "react-router-dom";
 
 interface RuleFormProps {
     rule?: RuleItem;
@@ -34,7 +37,6 @@ const RULE_EVENT_LABELS: Record<RuleEvent, string> = {
 };
 
 const SET_FIELD_ALLOWED_EVENTS: RuleEvent[] = ["taskCreated", "taskUpdated"];
-
 const FIELD_OPTIONS = ["priority", "status", "dueDate", "title", "description", "projectName"];
 const FIELD_LABELS: Record<string, string> = {
     priority: "Приоритет",
@@ -171,11 +173,13 @@ const ACTION_TYPE_LABELS: Record<ActionType, string> = {
 function ActionEditor({
                           action,
                           canSetField,
+                          externalAccounts,
                           onChange,
                           onRemove,
                       }: {
     action: LocalAction;
     canSetField: boolean;
+    externalAccounts: ExternalCalendarAccount[];
     onChange: (updated: LocalAction) => void;
     onRemove: () => void;
 }) {
@@ -221,10 +225,7 @@ function ActionEditor({
                             value={action.field}
                             onChange={(e) => {
                                 const newField = e.target.value;
-                                const defaultValue =
-                                    newField === "priority" ? "low"
-                                        : newField === "status" ? "new"
-                                            : "";
+                                const defaultValue = newField === "priority" ? "low" : newField === "status" ? "new" : "";
                                 onChange({ ...action, field: newField, value: defaultValue } as LocalAction);
                             }}
                         >
@@ -258,22 +259,19 @@ function ActionEditor({
                             </TabsList>
                         </Tabs>
                     </div>
-
                     <div className="space-y-1.5">
                         <Label className="text-xs">Текст уведомления</Label>
                         <Textarea
-                            placeholder="Например: Задача просрочена, обратите внимание..."
+                            placeholder="Введите сообщение..."
                             value={action.description}
                             onChange={(e) => onChange({ ...action, description: e.target.value } as LocalAction)}
                         />
                     </div>
-
                     <div className="space-y-1.5">
                         <Label className="text-xs">Смещение (минуты)</Label>
                         <Input
                             type="number"
                             min={0}
-                            placeholder="0"
                             value={action.offsetMinutes}
                             onChange={(e) => onChange({ ...action, offsetMinutes: Number(e.target.value) } as LocalAction)}
                         />
@@ -286,14 +284,11 @@ function ActionEditor({
                     <div className="space-y-1.5">
                         <Label className="text-xs">Название события</Label>
                         <Input
-                            placeholder="Например: Встреча"
+                            placeholder="Название"
                             value={action.title}
-                            onChange={(e) =>
-                                onChange({ ...action, title: e.target.value } as LocalAction)
-                            }
+                            onChange={(e) => onChange({ ...action, title: e.target.value } as LocalAction)}
                         />
                     </div>
-
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                             <Label className="text-xs">Длительность (мин)</Label>
@@ -301,54 +296,41 @@ function ActionEditor({
                                 type="number"
                                 min={1}
                                 value={action.durationMinutes}
-                                onChange={(e) =>
-                                    onChange({
-                                        ...action,
-                                        durationMinutes: Number(e.target.value),
-                                    } as LocalAction)
-                                }
+                                onChange={(e) => onChange({ ...action, durationMinutes: Number(e.target.value) } as LocalAction)}
                             />
                         </div>
-
                         <div className="space-y-1.5">
                             <Label className="text-xs">Смещение (мин)</Label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={action.offsetMinutes ?? 0}
-                                onChange={(e) =>
-                                    onChange({
-                                        ...action,
-                                        offsetMinutes: Number(e.target.value),
-                                    } as LocalAction)
-                                }
+                                onChange={(e) => onChange({ ...action, offsetMinutes: Number(e.target.value) } as LocalAction)}
                             />
                         </div>
                     </div>
-
                     <div className="space-y-1.5">
                         <Label className="text-xs">Место</Label>
                         <Input
-                            placeholder="Офис / Zoom"
+                            placeholder="Локация"
                             value={action.location}
-                            onChange={(e) =>
-                                onChange({ ...action, location: e.target.value } as LocalAction)
-                            }
+                            onChange={(e) => onChange({ ...action, location: e.target.value } as LocalAction)}
                         />
                     </div>
-
                     <div className="space-y-1.5">
-                        <Label className="text-xs">ID календаря (опционально)</Label>
-                        <Input
-                            placeholder="externalAccountId"
+                        <Label className="text-xs">Внешний календарь</Label>
+                        <select
+                            className="w-full border rounded-md px-2 py-1.5 text-sm bg-background"
                             value={action.externalAccountId ?? ""}
-                            onChange={(e) =>
-                                onChange({
-                                    ...action,
-                                    externalAccountId: e.target.value,
-                                } as LocalAction)
-                            }
-                        />
+                            onChange={(e) => onChange({ ...action, externalAccountId: e.target.value || undefined } as LocalAction)}
+                        >
+                            <option value="">Основной календарь</option>
+                            {externalAccounts.map((acc) => (
+                                <option key={acc.externalCalendarAccountId} value={acc.externalCalendarAccountId}>
+                                    {acc.baseUrl}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             )}
@@ -358,99 +340,81 @@ function ActionEditor({
 
 export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
     const navigate = useNavigate();
-
     const [ruleEvent, setRuleEvent] = useState<RuleEvent>(rule?.ruleEvent ?? "taskCreated");
     const [logicalOp, setLogicalOp] = useState<LogicalOperator>(rule?.condition?.operator ?? "and");
-    const [conditions, setConditions] = useState<Condition[]>(
-        rule?.condition?.conditions ?? []
-    );
+    const [conditions, setConditions] = useState<Condition[]>(rule?.condition?.conditions ?? []);
     const [actions, setActions] = useState<LocalAction[]>(() => {
         if (rule?.action?.length) {
-            return rule.action.map((a) => ({
-                ...a,
-                _id: ++_actionIdCounter,
-            })) as LocalAction[];
+            return rule.action.map((a) => ({ ...a, _id: ++_actionIdCounter })) as LocalAction[];
         }
         return [makeSetField()];
     });
     const [isActive, setIsActive] = useState(rule?.isActive ?? true);
+    const [externalAccounts, setExternalAccounts] = useState<ExternalCalendarAccount[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     const canSetField = SET_FIELD_ALLOWED_EVENTS.includes(ruleEvent);
 
+    useEffect(() => {
+        externalCalendarAccountApi.getExternalCalendarAccounts()
+            .then(res => {
+                const accounts = (res.data.data || []).map((acc: ExternalCalendarAccount) => {
+                    const emailMatch = acc.baseUrl.match(/calendars\/([^/]+)/);
+                    const formattedName = emailMatch
+                        ? decodeURIComponent(emailMatch[1])
+                        : acc.baseUrl;
+
+                    return {
+                        ...acc,
+                        baseUrl: `Yandex (${formattedName})`
+                    };
+                });
+                setExternalAccounts(accounts);
+            })
+            .catch(() => setExternalAccounts([]));
+    }, []);
+
     const handleEventChange = (event: RuleEvent) => {
         setRuleEvent(event);
         if (!SET_FIELD_ALLOWED_EVENTS.includes(event)) {
-            setActions((prev) =>
-                prev.map((a) =>
-                    a.type === "SET_FIELD" ? { ...makeNotification(), _id: a._id } : a
-                )
-            );
+            setActions((prev) => prev.map((a) => a.type === "SET_FIELD" ? { ...makeNotification(), _id: a._id } : a));
         }
     };
 
-    const addCondition = () =>
-        setConditions((prev) => [...prev, { field: "priority", operator: "eq", value: "low" }]);
-
-    const removeCondition = (index: number) =>
-        setConditions((prev) => prev.filter((_, i) => i !== index));
-
+    const addCondition = () => setConditions((prev) => [...prev, { field: "priority", operator: "eq", value: "low" }]);
+    const removeCondition = (index: number) => setConditions((prev) => prev.filter((_, i) => i !== index));
     const updateCondition = (index: number, key: keyof Condition, value: string) =>
-        setConditions((prev) =>
-            prev.map((c, i) => (i === index ? { ...c, [key]: value } : c))
-        );
+        setConditions((prev) => prev.map((c, i) => (i === index ? { ...c, [key]: value } : c)));
 
     const addAction = () => setActions((prev) => [...prev, makeNotification()]);
-    const updateAction = (id: number, updated: LocalAction) =>
-        setActions((prev) => prev.map((a) => (a._id === id ? updated : a)));
-    const removeAction = (id: number) =>
-        setActions((prev) => prev.filter((a) => a._id !== id));
+    const updateAction = (id: number, updated: LocalAction) => setActions((prev) => prev.map((a) => (a._id === id ? updated : a)));
+    const removeAction = (id: number) => setActions((prev) => prev.filter((a) => a._id !== id));
 
     const validate = (): string | null => {
-        if (conditions.some((c) => !c.value.trim()))
-            return "Заполните значение для всех условий";
-        if (actions.length === 0)
-            return "Добавьте хотя бы одно действие";
-        for (const a of actions) {
-            if (a.type === "SET_FIELD" && !a.value.trim())
-                return "Заполните значение для действия «Изменить поле»";
-            if (a.type === "CREATE_NOTIFICATION" && !a.description.trim())
-                return "Заполните текст уведомления";
-            if (a.type === "CREATE_CALENDAR_EVENT" && !a.durationMinutes)
-                return "Укажите длительность события в календаре";
-        }
+        if (conditions.some((c) => !c.value.trim())) return "Заполните все значения условий";
+        if (actions.length === 0) return "Добавьте действие";
         return null;
     };
 
     const handleSubmit = async () => {
         const validationError = validate();
-        if (validationError) {
-            setError(validationError);
-            return;
-        }
-
+        if (validationError) { setError(validationError); return; }
         setError("");
         setLoading(true);
-
         const actionPayload: RuleAction[] = actions.map(({ _id, ...rest }) => rest as RuleAction);
-
         const data: RuleCreateDto = {
             ruleEvent,
             conditions: { operator: logicalOp, conditions },
             actions: actionPayload,
         };
-
         try {
-            if (rule) {
-                await ruleApi.updateRule(rule.ruleId, data);
-            } else {
-                await ruleApi.createRule(data);
-            }
+            if (rule) { await ruleApi.updateRule(rule.ruleId, data); }
+            else { await ruleApi.createRule(data); }
             onSuccess?.();
             navigate(-1);
         } catch {
-            setError("Ошибка сохранения правила");
+            setError("Ошибка сохранения");
         } finally {
             setLoading(false);
         }
@@ -459,12 +423,11 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
     return (
         <div className="max-w-md mx-auto p-2 rounded-2xl space-y-6 pb-16">
             <h2 className="text-lg font-bold text-center sm:text-left">
-                {rule ? "Редактирование правила" : "Создание правила автоматизации"}
+                {rule ? "Редактирование правила" : "Создание правила"}
             </h2>
 
             {error && <div className="text-sm text-red-500 bg-red-50 p-2 rounded border border-red-200">{error}</div>}
 
-            {/* Event */}
             <div className="space-y-2">
                 <Label>Событие-триггер</Label>
                 <select
@@ -478,7 +441,6 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                 </select>
             </div>
 
-            {/* Conditions Section */}
             <div className="space-y-2">
                 <Label>Условия выполнения</Label>
                 <div className="border rounded-xl p-3 space-y-4 bg-muted/30">
@@ -488,55 +450,39 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                                 key={op}
                                 type="button"
                                 onClick={() => setLogicalOp(op)}
-                                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                                    logicalOp === op
-                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                        : "text-muted-foreground hover:bg-muted"
-                                }`}
+                                className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${logicalOp === op ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"}`}
                             >
                                 {LOGICAL_LABELS[op]}
                             </button>
                         ))}
                     </div>
 
-                    {conditions.length === 0 && (
-                        <p className="text-xs text-muted-foreground text-center py-2 italic">
-                            Нет условий — правило применяется ко всем событиям
-                        </p>
-                    )}
-
                     <div className="space-y-3">
                         {conditions.map((cond, i) => (
                             <div key={i} className="space-y-2">
                                 {i > 0 && (
                                     <div className="flex items-center justify-center">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 py-0.5 rounded-full border border-border">
+                                        <span className="text-[10px] font-bold uppercase text-muted-foreground bg-background px-2 py-0.5 rounded-full border">
                                             {logicalOp === "and" ? "и" : "или"}
                                         </span>
                                     </div>
                                 )}
-
-                                <div className="flex flex-wrap gap-2 items-start bg-background p-2 rounded-lg border border-border shadow-sm">
+                                <div className="flex flex-wrap gap-2 items-start bg-background p-2 rounded-lg border shadow-sm">
                                     <select
-                                        className="flex-1 min-w-[120px] border rounded-md px-2 py-1.5 text-sm bg-background"
+                                        className="flex-1 min-w-[120px] border rounded-md px-2 py-1.5 text-sm"
                                         value={cond.field}
                                         onChange={(e) => {
                                             const newField = e.target.value;
-                                            const defaultValue =
-                                                newField === "priority" ? "low"
-                                                    : newField === "status" ? "new"
-                                                        : "";
                                             updateCondition(i, "field", newField);
-                                            updateCondition(i, "value", defaultValue);
+                                            updateCondition(i, "value", "");
                                         }}
                                     >
                                         {CONDITION_FIELD_OPTIONS.map((f) => (
                                             <option key={f} value={f}>{CONDITION_FIELD_LABELS[f]}</option>
                                         ))}
                                     </select>
-
                                     <select
-                                        className="w-[60px] border rounded-md px-2 py-1.5 text-sm bg-background font-mono font-bold"
+                                        className="w-[60px] border rounded-md px-2 py-1.5 text-sm font-bold"
                                         value={cond.operator}
                                         onChange={(e) => updateCondition(i, "operator", e.target.value as ComparisonOperator)}
                                     >
@@ -544,7 +490,6 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                                             <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
                                         ))}
                                     </select>
-
                                     <div className="flex-1 min-w-[140px]">
                                         <FieldValueInput
                                             field={cond.field}
@@ -552,30 +497,15 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                                             onChange={(v) => updateCondition(i, "value", v)}
                                         />
                                     </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => removeCondition(i)}
-                                        className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                                    >
-                                        ×
-                                    </button>
+                                    <button type="button" onClick={() => removeCondition(i)} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-red-600">×</button>
                                 </div>
                             </div>
                         ))}
                     </div>
-
-                    <button
-                        type="button"
-                        onClick={addCondition}
-                        className="w-full text-sm text-primary font-medium border border-primary/20 border-dashed rounded-md py-2 hover:bg-primary/5 transition-colors"
-                    >
-                        + Добавить условие
-                    </button>
+                    <button type="button" onClick={addCondition} className="w-full text-sm text-primary font-medium border border-dashed rounded-md py-2 hover:bg-primary/5">+ Добавить условие</button>
                 </div>
             </div>
 
-            {/* Actions Section */}
             <div className="space-y-2">
                 <Label>Действия</Label>
                 <div className="space-y-3">
@@ -584,21 +514,15 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
                             key={action._id}
                             action={action}
                             canSetField={canSetField}
+                            externalAccounts={externalAccounts}
                             onChange={(updated) => updateAction(action._id, updated)}
                             onRemove={() => removeAction(action._id)}
                         />
                     ))}
-                    <button
-                        type="button"
-                        onClick={addAction}
-                        className="w-full text-sm text-muted-foreground border border-dashed rounded-md py-2 hover:bg-muted transition-colors"
-                    >
-                        + Добавить действие
-                    </button>
+                    <button type="button" onClick={addAction} className="w-full text-sm text-muted-foreground border border-dashed rounded-md py-2 hover:bg-muted">+ Добавить действие</button>
                 </div>
             </div>
 
-            {/* Status */}
             <div className="space-y-2">
                 <Label>Статус правила</Label>
                 <Tabs value={isActive ? "active" : "inactive"} onValueChange={(v) => setIsActive(v === "active")}>
@@ -610,7 +534,7 @@ export const RuleForm = ({ rule, onSuccess }: RuleFormProps) => {
             </div>
 
             <Button onClick={handleSubmit} disabled={loading} className="w-full mt-2 shadow-md">
-                {loading ? "Сохраняем..." : rule ? "Сохранить изменения" : "Создать правило"}
+                {loading ? "Сохранение..." : "Сохранить правило"}
             </Button>
         </div>
     );
