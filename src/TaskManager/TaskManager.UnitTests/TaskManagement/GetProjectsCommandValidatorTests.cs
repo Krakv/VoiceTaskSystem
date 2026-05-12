@@ -17,11 +17,11 @@ public class GetProjectsCommandValidatorTests
     [Fact]
     public void Should_Have_Error_When_Search_Is_Null()
     {
-        var model = ValidModel() with { Search = null! };
+        var model = ValidModel() with { ProjectName = null! };
 
         var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor(x => x.Search);
+        result.ShouldHaveValidationErrorFor(x => x.ProjectName);
     }
 
     [Fact]
