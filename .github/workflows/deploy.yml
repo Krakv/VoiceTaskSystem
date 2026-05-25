@@ -12,7 +12,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
