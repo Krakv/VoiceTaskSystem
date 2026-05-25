@@ -175,6 +175,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 .AddDefaultTokenProviders();
 
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddHangfire(config =>
 {
@@ -309,6 +310,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapMetrics();
+
+app.MapHealthChecks("/health");
 
 app.UseHangfireDashboard();
 
