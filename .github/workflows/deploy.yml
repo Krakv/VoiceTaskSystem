@@ -21,7 +21,7 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest -t krakv/task-manager:${{ github.sha }} .
+          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest -t krakv/task-manager:${{ github.sha }} ./src/TaskManager
           docker push krakv/task-manager:latest
           docker push krakv/task-manager:${{ github.sha }}
 
