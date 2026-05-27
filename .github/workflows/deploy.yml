@@ -21,9 +21,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest -t krakv/task-manager:${{ github.sha }} ./src/TaskManager
+          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest ./src/TaskManager
           docker push krakv/task-manager:latest
-          docker push krakv/task-manager:${{ github.sha }}
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
