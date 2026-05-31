@@ -18,11 +18,38 @@ jobs:
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        
+      - name: Check if src/TaskManager changed
+        id: changes-backend
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            task-manager:
+              - 'src/TaskManager/**'
+              
+      - name: Check if src/frontend changed
+        id: changes-frontend
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            task-manager-front:
+              - 'src/frontend/**'
 
-      - name: Build and push image
+      - name: Build and push task-manager image
+        if: steps.changes-backend.outputs.task-manager == 'true'
         run: |
-          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest ./src/TaskManager
+          TAG=$(git rev-parse --short HEAD)
+          docker build -f ./src/TaskManager/TaskManager.ApiGateway/Dockerfile -t krakv/task-manager:latest -t krakv/task-manager:$TAG ./src/TaskManager
           docker push krakv/task-manager:latest
+          docker push krakv/task-manager:$TAG
+
+      - name: Build and push frontend image
+        if: steps.changes-frontend.outputs.task-manager-front == 'true'
+        run: |
+          TAG=$(git rev-parse --short HEAD)
+          docker build -f ./src/frontend/voice-task/Dockerfile -t krakv/task-manager-front:latest -t krakv/task-manager-front:$TAG ./src/frontend/voice-task
+          docker push krakv/task-manager-front:latest
+          docker push krakv/task-manager-front:$TAG
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
