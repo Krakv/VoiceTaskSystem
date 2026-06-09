@@ -24,9 +24,20 @@ with open("ner_task_dataset.json", "r", encoding="utf-8") as f:
 df = pd.DataFrame(raw)
 
 # Уникальные метки
-unique_labels = sorted(set(l for sublist in df["labels"] for l in sublist))
+ENTITY_TYPES = ["DESCRIPTION", "DUE_DATE", "PARENT_TASK", "PRIORITY", "PROJECT", "STATUS", "TITLE"]
+
+unique_labels = ["O"]
+for ent in ENTITY_TYPES:
+    unique_labels.append(f"B-{ent}")
+    unique_labels.append(f"I-{ent}")
+
+# Сортируем для стабильности индексов
+unique_labels = sorted(list(set(unique_labels)))
 label2id = {l: i for i, l in enumerate(unique_labels)}
 id2label = {i: l for l, i in label2id.items()}
+
+print(f"Total labels: {len(unique_labels)}")
+print("Mapping:", label2id)
 
 # ===== 2. Train / Val =====
 train_df, val_df = train_test_split(df, test_size=0.1, random_state=42)
@@ -87,7 +98,7 @@ model.to(device)
 # ===== 5. Обучение =====
 training_args = TrainingArguments(
     output_dir="./results",
-    num_train_epochs=3,
+    num_train_epochs=1,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
     learning_rate=2e-5,
